@@ -1,55 +1,73 @@
-# Project Plan - JSON/YAML Linter & Diff Tool
+# Project Plan & Development Roadmap - JSON/YAML Linter & Diff Tool
 
-This project aims to build a modern, static web-based linter and comparison tool for JSON and YAML content.
+This project provides a modern, fast, static web-based linter, schema validator, and side-by-side comparison tool for JSON and YAML files.
 
-## Features
-- [x] **Real-time Linting**: Syntax validation for JSON and YAML.
-- [x] **Schema Validation**: Support for JSON Schema via the `$schema` property.
-- [x] **Comparison Tool**: Side-by-side text diff for comparing two files.
-- [x] **Formatting**: Auto-format/beautify JSON and YAML.
-- [x] **Persistence**: Save user input in `localStorage`.
-- [x] **Modern UI**: Dark/Light mode toggle.
-- [x] **System Theme**: Support "follow system" as the default theme.
-- [x] **Static Deployment**: Hosted on GitHub Pages.
-- [x] **Automated Testing**: Unit and E2E tests for core features.
+---
 
-## Tech Stack
-- **Framework**: Lit (Lightweight Web Components)
-- **Language**: TypeScript
-- **Bundler**: Vite
-- **Editor**: CodeMirror 6
-- **Testing**: Vitest & Playwright
-- **Styling**: Vanilla CSS (Custom Properties)
-- **Deployment**: GitHub Actions
+## 🚀 Features Status
 
-## Implementation Phases
+- [x] **Real-Time Linting**: In-editor syntax validation for JSON and YAML.
+- [x] **Schema Validation**: Dynamic JSON Schema fetching and AJV validation via `$schema`.
+- [x] **Comparison Tool**: Side-by-side diff with synchronized scrolling and diff highlighting.
+- [x] **Auto-Formatting**: One-click beautification for JSON and YAML documents.
+- [x] **Persistence**: LocalStorage support for content, selected language mode, and theme.
+- [x] **Modern UI & Theming**: Segmented 3-state theme control (System Default, Light, Dark).
+- [x] **Accessibility**: ARIA labels, semantic tab/radio controls, and focus styles.
+- [x] **Static Deployment**: Automated GitHub Pages workflow via GitHub Actions.
+- [x] **Comprehensive Testing**: Vitest unit tests and Playwright E2E tests.
+- [x] **Enhanced Documentation**: Mermaid diagrams, canonical repository metadata, and AI agent guidelines.
 
-### Phase 1: Initialization
+---
+
+## 🛠️ Tech Stack Overview
+
+- **Framework**: Lit 3 (Lightweight Web Components)
+- **Language**: TypeScript 6
+- **Bundler**: Vite 8
+- **Editor**: CodeMirror 6 (`@codemirror/view`, `@codemirror/lint`, `@codemirror/merge`)
+- **Parsers & Validators**: AJV 8 & js-yaml 4
+- **Testing**: Vitest 4 & Playwright 1
+- **Styling**: Vanilla CSS with CSS Custom Properties
+- **Deployment**: GitHub Actions (`.github/workflows/deploy.yml`)
+
+---
+
+## 📌 Implementation Phases
+
+### Phase 1: Project Setup & Architecture
 - [x] Create `PLAN.md` and `AGENTS.md`.
-- [x] Bootstrap Vite + Lit + TypeScript project.
-- [x] Configure GitHub Actions for deployment.
+- [x] Bootstrap Vite + Lit + TypeScript codebase.
+- [x] Configure GitHub Actions deployment workflow (`deploy.yml`).
 
-### Phase 2: Core Logic
-- [x] Integrate CodeMirror 6.
-- [x] Implement JSON/YAML parsers and linting logic.
-- [x] Implement JSON Schema fetching and validation using `ajv`.
+### Phase 2: Core Logic & Parsers
+- [x] Integrate CodeMirror 6 editor engine.
+- [x] Implement JSON (`JSON.parse`) and YAML (`js-yaml`) validation logic.
+- [x] Implement schema detection, fetching, and AJV compilation (`src/utils/validation.ts`).
 
-### Phase 3: UI Development
-- [x] Build the Shell (Header, Tabs, Footer).
-- [x] Implement the Linting View.
-- [x] Implement the Formatting functionality.
-- [x] Add `localStorage` hooks for persistence.
+### Phase 3: UI Shell & Editor Views
+- [x] Build application shell (`<linter-app>` in `src/main.ts`).
+- [x] Build `<editor-component>` with CodeMirror 6 linting extensions.
+- [x] Implement formatting and LocalStorage persistence.
 
-### Phase 4: Comparison Feature
-- [x] Implement the Diffing View using CodeMirror merge addon.
-- [x] Handle side-by-side synchronization.
+### Phase 4: Side-by-Side Diffing View
+- [x] Implement `<diff-component>` using CodeMirror 6 `MergeView`.
+- [x] Ensure bidirectional editing and synchronized state handling.
 
-### Phase 5: Testing
-- [x] Setup testing infrastructure (Vitest, Playwright).
-- [x] Write unit tests for validation logic.
-- [x] Write E2E tests for UI interactions.
+### Phase 5: Test Suite & Accessibility
+- [x] Configure Vitest unit testing infrastructure.
+- [x] Configure Playwright E2E testing framework.
+- [x] Refine accessibility (ARIA roles, keyboard focus, high contrast styling).
 
-### Phase 6: Polishing
-- [x] Add sample data.
-- [x] Finalize `README.md`.
-- [x] Verify build and deployment.
+### Phase 6: Documentation & Single Source of Truth
+- [x] Update `README.md` with complete usage instructions, feature lists, and technical stack details.
+- [x] Embed single source of truth for GitHub Description and Repository Topic Tags in `README.md`.
+- [x] Add Mermaid diagrams for system architecture and client-side data flow.
+- [x] Synchronize `AGENTS.md` and `PLAN.md` to ensure developer and AI alignment.
+
+---
+
+## 🔮 Future Enhancements Roadmap
+
+- [ ] Export diff output as patch/unified diff format.
+- [ ] Support custom user-uploaded JSON/YAML schema files.
+- [ ] Add CSV and TOML conversion/linting support.
