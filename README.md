@@ -1,6 +1,6 @@
 # Linter.ai - JSON/YAML Linter & Diff Tool
 
-[![Deploy Static Content to Pages](https://github.com/agent-oriented-testing/linter/actions/workflows/deploy.yml/badge.svg)](https://github.com/agent-oriented-testing/linter/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/ChristopherZhong/linter/actions/workflows/deploy.yml/badge.svg)](https://github.com/ChristopherZhong/linter/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 > A modern, lightning-fast, and static Web-based JSON and YAML linter, formatter, schema validator, and side-by-side text comparison tool built with Lit, CodeMirror 6, and TypeScript.
@@ -133,7 +133,7 @@ sequenceDiagram
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/agent-oriented-testing/linter.git
+   git clone https://github.com/ChristopherZhong/linter.git
    cd linter
    ```
 
