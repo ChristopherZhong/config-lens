@@ -5,34 +5,56 @@ const ajv = new Ajv({ allErrors: true, verbose: true });
 const schemaCache = new Map<string, any>();
 const validatorCache = new Map<string, ValidateFunction>();
 
-export async function fetchSchema(url: string) {
+// Optimization: Cache active in-flight promises to deduplicate parallel network fetches
+// and AJV compilations triggered during fast user typing in the linter editor.
+const schemaPromiseCache = new Map<string, Promise<any>>();
+const validatorPromiseCache = new Map<string, Promise<ValidateFunction | null>>();
+
+export async function fetchSchema(url: string): Promise<any> {
   if (schemaCache.has(url)) return schemaCache.get(url);
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Schema fetch failed');
-    const schema = await response.json();
-    schemaCache.set(url, schema);
-    return schema;
-  } catch (e) {
-    console.error('Failed to fetch schema', e);
-    return null;
-  }
+  if (schemaPromiseCache.has(url)) return schemaPromiseCache.get(url);
+
+  const fetchPromise = (async () => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Schema fetch failed');
+      const schema = await response.json();
+      schemaCache.set(url, schema);
+      return schema;
+    } catch (e) {
+      console.error('Failed to fetch schema', e);
+      return null;
+    } finally {
+      schemaPromiseCache.delete(url);
+    }
+  })();
+
+  schemaPromiseCache.set(url, fetchPromise);
+  return fetchPromise;
 }
 
 export async function getValidator(url: string): Promise<ValidateFunction | null> {
   if (validatorCache.has(url)) return validatorCache.get(url)!;
+  if (validatorPromiseCache.has(url)) return validatorPromiseCache.get(url)!;
 
-  const schema = await fetchSchema(url);
-  if (!schema) return null;
+  const compilePromise = (async () => {
+    const schema = await fetchSchema(url);
+    if (!schema) return null;
 
-  try {
-    const validate = ajv.compile(schema);
-    validatorCache.set(url, validate);
-    return validate;
-  } catch (e) {
-    console.error('AJV compile error', e);
-    return null;
-  }
+    try {
+      const validate = ajv.compile(schema);
+      validatorCache.set(url, validate);
+      return validate;
+    } catch (e) {
+      console.error('AJV compile error', e);
+      return null;
+    } finally {
+      validatorPromiseCache.delete(url);
+    }
+  })();
+
+  validatorPromiseCache.set(url, compilePromise);
+  return compilePromise;
 }
 
 export interface ValidationDiagnostic {
@@ -79,7 +101,7 @@ export async function validateContent(text: string, mode: 'json' | 'yaml'): Prom
     return diagnostics;
   }
 
-  if (data && typeof data === 'object' && data.$schema) {
+  if (data && typeof data === 'object' && typeof data.$schema === 'string') {
     const validate = await getValidator(data.$schema);
     if (validate) {
       const valid = validate(data);
@@ -104,4 +126,6 @@ export async function validateContent(text: string, mode: 'json' | 'yaml'): Prom
 export function clearCaches() {
     schemaCache.clear();
     validatorCache.clear();
+    schemaPromiseCache.clear();
+    validatorPromiseCache.clear();
 }
