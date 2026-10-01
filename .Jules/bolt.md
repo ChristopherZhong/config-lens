@@ -1,0 +1,3 @@
+## 2026-06-18 - In-flight Promise Deduplication for CodeMirror Linter Schema Validation
+**Learning:** CodeMirror 6's `@codemirror/lint` plugin triggers validation functions (`validateContent`) on document change. When validating documents with remote `$schema` references, caching only resolved results in a `Map` still allows multiple concurrent `fetch` requests and `ajv.compile` executions during fast typing before the first promise resolves.
+**Action:** Always cache active in-flight promises (`schemaPromiseCache` and `validatorPromiseCache`) alongside value caches when dealing with asynchronous validation or remote resource fetching triggered by editor input events.
