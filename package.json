@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "prepare": "husky"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",
@@ -30,11 +31,15 @@
     "lit": "^3.3.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@playwright/test": "^1.60.0",
     "@testing-library/dom": "^10.4.2",
     "@types/js-yaml": "^4.0.9",
     "@vitest/browser": "^5.0.2",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.6.0",
     "playwright": "^1.63.0",
     "typescript": "^6.0.3",
     "vite": "^8.3.1",
