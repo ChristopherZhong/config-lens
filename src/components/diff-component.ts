@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { EditorView, basicSetup } from 'codemirror';
 import { json } from '@codemirror/lang-json';
+import { foldAll, unfoldAll } from '@codemirror/language';
 import { yaml } from '@codemirror/lang-yaml';
 import { Extension } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -215,6 +216,20 @@ export class DiffComponent extends LitElement {
     });
 
     this.setupScrollSync();
+  }
+
+  foldAll() {
+    if (this.mergeView) {
+      foldAll(this.mergeView.a);
+      foldAll(this.mergeView.b);
+    }
+  }
+
+  unfoldAll() {
+    if (this.mergeView) {
+      unfoldAll(this.mergeView.a);
+      unfoldAll(this.mergeView.b);
+    }
   }
 
   private setupScrollSync() {
