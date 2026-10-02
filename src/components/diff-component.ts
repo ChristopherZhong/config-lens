@@ -6,6 +6,7 @@ import { yaml } from '@codemirror/lang-yaml';
 import { Extension } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { MergeView } from '@codemirror/merge';
+import { propertyAnnotationsPlugin, annotationTheme } from '../utils/annotations';
 
 @customElement('diff-component')
 export class DiffComponent extends LitElement {
@@ -166,6 +167,8 @@ export class DiffComponent extends LitElement {
       basicSetup,
       EditorView.lineWrapping,
       this.mode === 'json' ? json() : yaml(),
+      propertyAnnotationsPlugin,
+      annotationTheme,
     ];
 
     if (this.theme === 'dark') {

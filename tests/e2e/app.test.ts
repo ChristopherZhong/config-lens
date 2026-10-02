@@ -221,3 +221,16 @@ test('editing text in left view of compare window updates state and persists', a
 
   expect(editorText).toBe(editedText);
 });
+
+test('property annotations visible in compare view', async ({ page }) => {
+  const compareTab = page.locator('.tab', { hasText: 'Compare' });
+  await compareTab.click();
+
+  const annotationCount = await page.evaluate(() => {
+    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const annotations = diffComp?.shadowRoot?.querySelectorAll('.cm-property-annotation');
+    return annotations ? annotations.length : 0;
+  });
+
+  expect(annotationCount).toBeGreaterThan(0);
+});
