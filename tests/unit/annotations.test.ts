@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { EditorState } from '@codemirror/state';
 import { json } from '@codemirror/lang-json';
 import { yaml } from '@codemirror/lang-yaml';
-import { computeAnnotations, PropertyInfoWidget } from '../../src/utils/annotations';
+import { computeAnnotations, PropertyInfoWidget, propertyAnnotationsPlugin, annotationTheme } from '../../src/utils/annotations';
+import { MergeView } from '@codemirror/merge';
 
 describe('propertyAnnotations', () => {
   it('creates PropertyInfoWidget DOM element correctly', () => {
@@ -89,5 +90,43 @@ user:
     }
 
     expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('works within MergeView for both original and modified states', () => {
+    const originalContent = '{\n  "items": [1, 2]\n}';
+    const modifiedContent = '{\n  "items": [1, 2, 3, 4]\n}';
+
+    const container = document.createElement('div');
+    const mergeView = new MergeView({
+      a: {
+        doc: originalContent,
+        extensions: [json(), propertyAnnotationsPlugin, annotationTheme]
+      },
+      b: {
+        doc: modifiedContent,
+        extensions: [json(), propertyAnnotationsPlugin, annotationTheme]
+      },
+      parent: container
+    });
+
+    const decsA = computeAnnotations(mergeView.a.state);
+    const decsB = computeAnnotations(mergeView.b.state);
+
+    const resultA: string[] = [];
+    const iterA = decsA.iter();
+    while (iterA.value) {
+      resultA.push((iterA.value.spec.widget as any).text);
+      iterA.next();
+    }
+
+    const resultB: string[] = [];
+    const iterB = decsB.iter();
+    while (iterB.value) {
+      resultB.push((iterB.value.spec.widget as any).text);
+      iterB.next();
+    }
+
+    expect(resultA).toContain('// 2 items');
+    expect(resultB).toContain('// 4 items');
   });
 });

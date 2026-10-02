@@ -2,6 +2,18 @@ import { EditorView, Decoration, DecorationSet, WidgetType, ViewPlugin, ViewUpda
 import { syntaxTree } from '@codemirror/language';
 import { EditorState } from '@codemirror/state';
 
+export const annotationTheme = EditorView.theme({
+  '.cm-property-annotation': {
+    color: 'var(--text-muted, #888)',
+    fontStyle: 'italic',
+    fontSize: '0.85em',
+    paddingLeft: '0.75em',
+    opacity: '0.75',
+    userSelect: 'none',
+    pointerEvents: 'none'
+  }
+});
+
 export class PropertyInfoWidget extends WidgetType {
   constructor(readonly text: string) {
     super();
