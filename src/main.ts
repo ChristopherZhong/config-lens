@@ -2,6 +2,8 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import './components/editor-component';
 import './components/diff-component';
+import type { EditorComponent } from './components/editor-component';
+import type { DiffComponent } from './components/diff-component';
 import * as jsYaml from 'js-yaml';
 
 const DEFAULT_JSON = JSON.stringify({
@@ -129,6 +131,28 @@ export class LinterApp extends LitElement {
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      background: var(--bg-main);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card);
+      border-color: var(--accent);
     }
 
     .controls {
@@ -311,6 +335,26 @@ export class LinterApp extends LitElement {
     }
   }
 
+  private handleFoldAll() {
+    if (this.activeTab === 'lint') {
+      const editor = this.shadowRoot?.querySelector<EditorComponent>('editor-component');
+      editor?.foldAll();
+    } else {
+      const diff = this.shadowRoot?.querySelector<DiffComponent>('diff-component');
+      diff?.foldAll();
+    }
+  }
+
+  private handleUnfoldAll() {
+    if (this.activeTab === 'lint') {
+      const editor = this.shadowRoot?.querySelector<EditorComponent>('editor-component');
+      editor?.unfoldAll();
+    } else {
+      const diff = this.shadowRoot?.querySelector<DiffComponent>('diff-component');
+      diff?.unfoldAll();
+    }
+  }
+
   render() {
     const resolvedTheme = this.getResolvedTheme();
 
@@ -392,6 +436,10 @@ export class LinterApp extends LitElement {
           >
             <div class="editor-toolbar">
               <div class="editor-title">Editor</div>
+              <div class="toolbar-actions">
+                <button class="btn-secondary" @click="${this.handleFoldAll}" aria-label="Fold All">Fold All</button>
+                <button class="btn-secondary" @click="${this.handleUnfoldAll}" aria-label="Expand All">Expand All</button>
+              </div>
             </div>
             <editor-component
                 .mode="${this.mode}"
@@ -409,6 +457,10 @@ export class LinterApp extends LitElement {
           >
             <div class="editor-toolbar">
               <div class="editor-title">Compare (Original vs Modified)</div>
+              <div class="toolbar-actions">
+                <button class="btn-secondary" @click="${this.handleFoldAll}" aria-label="Fold All">Fold All</button>
+                <button class="btn-secondary" @click="${this.handleUnfoldAll}" aria-label="Expand All">Expand All</button>
+              </div>
             </div>
             <diff-component
                 .mode="${this.mode}"

@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { EditorView, basicSetup } from 'codemirror';
 import { json } from '@codemirror/lang-json';
+import { foldAll, unfoldAll } from '@codemirror/language';
 import { yaml } from '@codemirror/lang-yaml';
 import { linter, lintGutter } from '@codemirror/lint';
 import { EditorState, Extension, StateEffect } from '@codemirror/state';
@@ -112,6 +113,18 @@ export class EditorComponent extends LitElement {
       parent: this.editorContainer,
       root: this.renderRoot as ShadowRoot
     });
+  }
+
+  foldAll() {
+    if (this.view) {
+      foldAll(this.view);
+    }
+  }
+
+  unfoldAll() {
+    if (this.view) {
+      unfoldAll(this.view);
+    }
   }
 
   render() {

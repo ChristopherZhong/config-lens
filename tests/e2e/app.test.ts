@@ -221,3 +221,67 @@ test('editing text in left view of compare window updates state and persists', a
 
   expect(editorText).toBe(editedText);
 });
+
+test('fold all and expand all in lint editor', async ({ page }) => {
+  const foldBtn = page.getByRole('button', { name: 'Fold All' });
+  const expandBtn = page.getByRole('button', { name: 'Expand All' });
+
+  await expect(foldBtn).toBeVisible();
+  await expect(expandBtn).toBeVisible();
+
+  // Click Fold All
+  await foldBtn.click();
+  await page.waitForTimeout(100);
+
+  // Check if folded placeholders exist
+  const foldPlaceholdersCount = await page.evaluate(() => {
+    const editorComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('editor-component');
+    return editorComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
+  });
+
+  expect(foldPlaceholdersCount).toBeGreaterThan(0);
+
+  // Click Expand All
+  await expandBtn.click();
+  await page.waitForTimeout(100);
+
+  const foldPlaceholdersCountAfterExpand = await page.evaluate(() => {
+    const editorComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('editor-component');
+    return editorComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
+  });
+
+  expect(foldPlaceholdersCountAfterExpand).toBe(0);
+});
+
+test('fold all and expand all in compare view', async ({ page }) => {
+  const compareTab = page.locator('.tab', { hasText: 'Compare' });
+  await compareTab.click();
+
+  const foldBtn = page.getByRole('button', { name: 'Fold All' });
+  const expandBtn = page.getByRole('button', { name: 'Expand All' });
+
+  await expect(foldBtn).toBeVisible();
+  await expect(expandBtn).toBeVisible();
+
+  // Click Fold All
+  await foldBtn.click();
+  await page.waitForTimeout(100);
+
+  const foldPlaceholdersCount = await page.evaluate(() => {
+    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    return diffComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
+  });
+
+  expect(foldPlaceholdersCount).toBeGreaterThan(0);
+
+  // Click Expand All
+  await expandBtn.click();
+  await page.waitForTimeout(100);
+
+  const foldPlaceholdersCountAfterExpand = await page.evaluate(() => {
+    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    return diffComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
+  });
+
+  expect(foldPlaceholdersCountAfterExpand).toBe(0);
+});
