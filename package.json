@@ -37,6 +37,7 @@
     "@semantic-release/exec": "^7.1.0",
     "@testing-library/dom": "^10.4.2",
     "@types/js-yaml": "^4.0.9",
+    "@types/semantic-release": "^20.0.6",
     "@vitest/browser": "^5.0.2",
     "conventional-changelog-conventionalcommits": "^10.4.0",
     "husky": "^9.1.7",

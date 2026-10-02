@@ -1,6 +1,8 @@
+import type { Options } from 'semantic-release';
+
 const isDraft = process.env.IS_DRAFT === 'true';
 
-export default {
+const config: Options = {
   branches: ['main'],
   plugins: [
     [
@@ -29,3 +31,5 @@ export default {
     ],
   ],
 };
+
+export default config;
