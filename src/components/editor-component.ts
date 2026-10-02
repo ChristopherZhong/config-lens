@@ -7,6 +7,19 @@ import { linter, lintGutter } from '@codemirror/lint';
 import { EditorState, Extension, StateEffect } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { validateContent } from '../utils/validation';
+import { propertyAnnotationsPlugin } from '../utils/annotations';
+
+const annotationTheme = EditorView.theme({
+  '.cm-property-annotation': {
+    color: 'var(--text-muted, #888)',
+    fontStyle: 'italic',
+    fontSize: '0.85em',
+    paddingLeft: '0.75em',
+    opacity: '0.75',
+    userSelect: 'none',
+    pointerEvents: 'none'
+  }
+});
 
 @customElement('editor-component')
 export class EditorComponent extends LitElement {
@@ -66,6 +79,8 @@ export class EditorComponent extends LitElement {
       basicSetup,
       EditorView.lineWrapping,
       this.mode === 'json' ? json() : yaml(),
+      propertyAnnotationsPlugin,
+      annotationTheme,
       lintGutter(),
       linter(async (view) => await validateContent(view.state.doc.toString(), this.mode)),
       EditorView.updateListener.of((update) => {
