@@ -6,12 +6,13 @@ import type { EditorComponent } from './components/editor-component';
 import type { DiffComponent } from './components/diff-component';
 import * as jsYaml from 'js-yaml';
 import { checkLatestRelease } from './utils/version-check';
+import { safeStorageGetItem, safeStorageSetItem, safeStorageRemoveItem } from './utils/storage';
 
 const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
 const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
 const DEFAULT_JSON = JSON.stringify({
-  "$schema": "https://json.schemastore.org/package.json",
+  "$schema": "https://www.schemastore.org/package.json",
   "name": "config-lens",
   "version": "1.0.0",
   "description": "Modern JSON/YAML Config Tools",
@@ -355,39 +356,39 @@ export class ConfigLensApp extends LitElement {
     super.connectedCallback();
 
     // Migrate legacy localStorage keys if present
-    const legacyContent = localStorage.getItem('linter-content');
+    const legacyContent = safeStorageGetItem('linter-content');
     if (legacyContent !== null) {
-      if (localStorage.getItem('config-lens-content') === null) {
-        localStorage.setItem('config-lens-content', legacyContent);
+      if (safeStorageGetItem('config-lens-content') === null) {
+        safeStorageSetItem('config-lens-content', legacyContent);
       }
-      localStorage.removeItem('linter-content');
+      safeStorageRemoveItem('linter-content');
     }
 
-    const legacyMode = localStorage.getItem('linter-mode');
+    const legacyMode = safeStorageGetItem('linter-mode');
     if (legacyMode !== null) {
-      if (localStorage.getItem('config-lens-mode') === null) {
-        localStorage.setItem('config-lens-mode', legacyMode);
+      if (safeStorageGetItem('config-lens-mode') === null) {
+        safeStorageSetItem('config-lens-mode', legacyMode);
       }
-      localStorage.removeItem('linter-mode');
+      safeStorageRemoveItem('linter-mode');
     }
 
-    const legacyTheme = localStorage.getItem('linter-theme');
+    const legacyTheme = safeStorageGetItem('linter-theme');
     if (legacyTheme !== null) {
-      if (localStorage.getItem('config-lens-theme') === null) {
-        localStorage.setItem('config-lens-theme', legacyTheme);
+      if (safeStorageGetItem('config-lens-theme') === null) {
+        safeStorageSetItem('config-lens-theme', legacyTheme);
       }
-      localStorage.removeItem('linter-theme');
+      safeStorageRemoveItem('linter-theme');
     }
 
-    const savedContent = localStorage.getItem('config-lens-content');
+    const savedContent = safeStorageGetItem('config-lens-content');
     if (savedContent) {
         this.content = savedContent;
         this.modifiedContent = savedContent;
     }
-    const savedMode = localStorage.getItem('config-lens-mode');
+    const savedMode = safeStorageGetItem('config-lens-mode');
     if (savedMode) this.mode = savedMode as 'json' | 'yaml';
 
-    const savedTheme = localStorage.getItem('config-lens-theme');
+    const savedTheme = safeStorageGetItem('config-lens-theme');
     if (savedTheme) {
         this.theme = savedTheme as 'light' | 'dark' | 'system';
     }
@@ -447,18 +448,18 @@ export class ConfigLensApp extends LitElement {
 
   private setTheme(theme: 'light' | 'dark' | 'system') {
     this.theme = theme;
-    localStorage.setItem('config-lens-theme', this.theme);
+    safeStorageSetItem('config-lens-theme', this.theme);
     this.applyTheme();
   }
 
   private handleContentChange(e: CustomEvent) {
     this.content = e.detail.content;
-    localStorage.setItem('config-lens-content', this.content);
+    safeStorageSetItem('config-lens-content', this.content);
   }
 
   private handleOriginalChange(e: CustomEvent) {
       this.content = e.detail.content;
-      localStorage.setItem('config-lens-content', this.content);
+      safeStorageSetItem('config-lens-content', this.content);
   }
 
   private handleModifiedChange(e: CustomEvent) {
@@ -467,7 +468,7 @@ export class ConfigLensApp extends LitElement {
 
   private handleModeChange(e: Event) {
     this.mode = (e.target as HTMLSelectElement).value as 'json' | 'yaml';
-    localStorage.setItem('config-lens-mode', this.mode);
+    safeStorageSetItem('config-lens-mode', this.mode);
   }
 
   private formatContent() {
@@ -479,7 +480,7 @@ export class ConfigLensApp extends LitElement {
             const parsed = jsYaml.load(this.content);
             this.content = jsYaml.dump(parsed);
         }
-        localStorage.setItem('config-lens-content', this.content);
+        safeStorageSetItem('config-lens-content', this.content);
     } catch (e) {
         console.error('Cannot format invalid content');
     }
