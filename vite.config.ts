@@ -1,15 +1,15 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
-import pkg from './package.json' with { type: 'json' };
+import { version } from './package.json' with { type: 'json' };
 
 export default defineConfig({
   base: '/linter/',
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_VERSION__: JSON.stringify(version),
   },
   resolve: {
-    alias: [
-      { find: /^~(.*)$/, replacement: fileURLToPath(new URL('./$1', import.meta.url)) },
-    ],
+    alias: {
+      '~src': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
 });
