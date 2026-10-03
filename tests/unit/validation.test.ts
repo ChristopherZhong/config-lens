@@ -115,4 +115,24 @@ describe('validation logic', () => {
     expect(res2.length).toBeGreaterThan(0);
     expect(res3.length).toBeGreaterThan(0);
   });
+
+  it('rejects non-HTTP/HTTPS schema URLs and invalid URL strings safely', async () => {
+    const fetchSpy = vi.fn();
+    global.fetch = fetchSpy;
+
+    const invalidUrls = [
+      'javascript:alert(1)',
+      'file:///etc/passwd',
+      'ftp://example.com/schema.json',
+      'not a url',
+      '',
+    ];
+
+    for (const url of invalidUrls) {
+      const result = await fetchSchema(url);
+      expect(result).toBeNull();
+    }
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });

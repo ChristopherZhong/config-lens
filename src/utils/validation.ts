@@ -10,6 +10,19 @@ const validatorCache = new Map<string, ValidateFunction>();
 const schemaPromiseCache = new Map<string, Promise<any>>();
 const validatorPromiseCache = new Map<string, Promise<ValidateFunction | null>>();
 
+/**
+ * Validates that a given string is a valid HTTP or HTTPS URL to prevent loading unsafe protocol schemes.
+ */
+function isValidHttpUrl(urlString: string): boolean {
+  if (!urlString || typeof urlString !== 'string') return false;
+  try {
+    const parsed = new URL(urlString);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function normalizeSchemaUrl(url: string): string {
   // Replace json.schemastore.org with www.schemastore.org to prevent CORS redirect blocks in browser fetch
   if (url.startsWith('https://json.schemastore.org/')) {
@@ -22,6 +35,9 @@ function normalizeSchemaUrl(url: string): string {
 }
 
 export async function fetchSchema(rawUrl: string): Promise<any> {
+  if (!isValidHttpUrl(rawUrl)) {
+    return null;
+  }
   const url = normalizeSchemaUrl(rawUrl);
   if (schemaCache.has(url)) return schemaCache.get(url);
   if (schemaPromiseCache.has(url)) return schemaPromiseCache.get(url);
