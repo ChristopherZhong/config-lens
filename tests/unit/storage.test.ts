@@ -3,7 +3,11 @@ import { safeStorageGetItem, safeStorageSetItem, safeStorageRemoveItem } from '.
 
 describe('storage utility', () => {
   beforeEach(() => {
-    localStorage.clear();
+    try {
+      localStorage.clear();
+    } catch {
+      // Ignore
+    }
   });
 
   it('gets and sets item from localStorage when available', () => {

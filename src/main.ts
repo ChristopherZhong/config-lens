@@ -6,7 +6,7 @@ import type { EditorComponent } from './components/editor-component';
 import type { DiffComponent } from './components/diff-component';
 import * as jsYaml from 'js-yaml';
 import { checkLatestRelease } from './utils/version-check';
-import { safeStorageGetItem, safeStorageSetItem, safeStorageRemoveItem } from './utils/storage';
+import { safeStorageGetItem, safeStorageSetItem } from './utils/storage';
 
 const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
 const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
@@ -63,9 +63,19 @@ export class ConfigLensApp extends LitElement {
     }
 
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-weight: 600;
       font-size: 18px;
       letter-spacing: -0.02em;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      object-fit: contain;
     }
 
     .tabs {
@@ -377,31 +387,6 @@ export class ConfigLensApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    // Migrate legacy localStorage keys if present
-    const legacyContent = safeStorageGetItem('linter-content');
-    if (legacyContent !== null) {
-      if (safeStorageGetItem('config-lens-content') === null) {
-        safeStorageSetItem('config-lens-content', legacyContent);
-      }
-      safeStorageRemoveItem('linter-content');
-    }
-
-    const legacyMode = safeStorageGetItem('linter-mode');
-    if (legacyMode !== null) {
-      if (safeStorageGetItem('config-lens-mode') === null) {
-        safeStorageSetItem('config-lens-mode', legacyMode);
-      }
-      safeStorageRemoveItem('linter-mode');
-    }
-
-    const legacyTheme = safeStorageGetItem('linter-theme');
-    if (legacyTheme !== null) {
-      if (safeStorageGetItem('config-lens-theme') === null) {
-        safeStorageSetItem('config-lens-theme', legacyTheme);
-      }
-      safeStorageRemoveItem('linter-theme');
-    }
-
     const savedContent = safeStorageGetItem('config-lens-content');
     if (savedContent) {
         this.content = savedContent;
@@ -548,7 +533,10 @@ export class ConfigLensApp extends LitElement {
 
     return html`
       <header>
-        <div class="logo">ConfigLens</div>
+        <div class="logo">
+          <img src="./favicon.svg" alt="ConfigLens Logo" class="logo-icon" />
+          <span>ConfigLens</span>
+        </div>
         <div class="tabs" role="tablist">
           <button
             id="tab-lint"

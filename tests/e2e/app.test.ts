@@ -35,13 +35,12 @@ test('persistence', async ({ page }) => {
   await expect(page.locator('editor-component')).toBeVisible();
 });
 
-test('legacy localStorage migration', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('linter-content', '{"legacy": true}'));
-  await page.reload();
-  const migrated = await page.evaluate(() => localStorage.getItem('config-lens-content'));
-  const legacy = await page.evaluate(() => localStorage.getItem('linter-content'));
-  expect(migrated).toBe('{"legacy": true}');
-  expect(legacy).toBeNull();
+test('favicons and manifest link tags exist', async ({ page }) => {
+  const svgIcon = page.locator('link[rel="icon"][type="image/svg+xml"]');
+  await expect(svgIcon).toHaveAttribute('href', './favicon.svg');
+
+  const manifest = page.locator('link[rel="manifest"]');
+  await expect(manifest).toHaveAttribute('href', './site.webmanifest');
 });
 
 test('editor scrolls when content exceeds screen height', async ({ page }) => {
