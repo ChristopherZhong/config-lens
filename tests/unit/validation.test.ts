@@ -42,7 +42,7 @@ describe('validation logic', () => {
     const json = '{"$schema": "http://example.com/schema.json", "age": "not-a-number"}';
 
     // Mock fetch for schema
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         type: 'object',
@@ -50,7 +50,7 @@ describe('validation logic', () => {
           age: { type: 'number' }
         }
       })
-    });
+    }) as any;
 
     const result = await validateContent(json, 'json');
     expect(result.length).toBeGreaterThan(0);
@@ -60,7 +60,7 @@ describe('validation logic', () => {
   it('validates string formats such as uri using ajv-formats', async () => {
     const json = '{"$schema": "http://example.com/uri-schema.json", "homepage": "not a url"}';
 
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         type: 'object',
@@ -68,7 +68,7 @@ describe('validation logic', () => {
           homepage: { type: 'string', format: 'uri' }
         }
       })
-    });
+    }) as any;
 
     const result = await validateContent(json, 'json');
     expect(result.length).toBeGreaterThan(0);
@@ -79,7 +79,7 @@ describe('validation logic', () => {
     const schemaUrl = 'http://example.com/dedup-schema.json';
     let fetchCount = 0;
 
-    global.fetch = vi.fn().mockImplementation(async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => {
       fetchCount++;
       // Delayed response to simulate network latency
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -90,7 +90,7 @@ describe('validation logic', () => {
           properties: { name: { type: 'string' } }
         })
       };
-    });
+    }) as any;
 
     // Fire 5 concurrent fetches
     const results = await Promise.all([
@@ -110,7 +110,7 @@ describe('validation logic', () => {
     const json = '{"$schema": "http://example.com/concurrent-schema.json", "name": 123}';
     let fetchCount = 0;
 
-    global.fetch = vi.fn().mockImplementation(async () => {
+    globalThis.fetch = vi.fn().mockImplementation(async () => {
       fetchCount++;
       await new Promise(resolve => setTimeout(resolve, 50));
       return {
@@ -120,7 +120,7 @@ describe('validation logic', () => {
           properties: { name: { type: 'string' } }
         })
       };
-    });
+    }) as any;
 
     const [res1, res2, res3] = await Promise.all([
       validateContent(json, 'json'),
