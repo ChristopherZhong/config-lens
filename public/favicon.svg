@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Light Mode Gradient -->
+    <linearGradient id="bg-grad-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+
+    <!-- Dark Mode Gradient -->
+    <linearGradient id="bg-grad-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+
+    <!-- Sparkle Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    .bg { fill: url(#bg-grad-light); }
+    .bracket { fill: #ffffff; }
+    .sparkle { fill: #38bdf8; filter: url(#glow); }
+    .sparkle-core { fill: #f0f9ff; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: url(#bg-grad-dark); }
+      .bracket { fill: #f8fafc; }
+      .sparkle { fill: #38bdf8; }
+      .sparkle-core { fill: #ffffff; }
+    }
+  </style>
+
+  <!-- Background Rounded Square -->
+  <rect class="bg" width="512" height="512" rx="112" />
+
+  <!-- Left Bracket { -->
+  <path class="bracket" d="M 190 128 C 150 128 136 148 136 180 L 136 216 C 136 238 120 248 100 256 C 120 264 136 274 136 296 L 136 332 C 136 364 150 384 190 384 C 202 384 212 380 212 366 C 212 354 202 350 190 350 C 170 350 166 340 166 324 L 166 292 C 166 270 152 260 134 256 C 152 252 166 242 166 220 L 166 188 C 166 172 170 162 190 162 C 202 162 212 158 212 144 C 212 130 202 128 190 128 Z" />
+
+  <!-- Right Bracket } -->
+  <path class="bracket" d="M 322 128 C 334 128 344 130 344 144 C 344 158 334 162 322 162 C 302 162 298 172 298 188 L 298 220 C 298 242 312 252 330 256 C 312 260 298 270 298 292 L 298 324 C 298 340 302 350 322 350 C 334 350 344 354 344 366 C 344 380 334 384 322 384 C 282 384 268 364 268 332 L 268 296 C 268 274 252 264 232 256 C 252 248 268 238 268 216 L 268 180 C 268 148 282 128 322 128 Z" />
+
+  <!-- 4-point Sparkle top right -->
+  <!-- Outer glowing sparkle -->
+  <path class="sparkle" d="M 380 100 Q 380 140 420 140 Q 380 140 380 180 Q 380 140 340 140 Q 380 140 380 100 Z" />
+  <!-- Inner bright core sparkle -->
+  <path class="sparkle-core" d="M 380 115 Q 380 140 405 140 Q 380 140 380 165 Q 380 140 355 140 Q 380 140 380 115 Z" />
+
+  <!-- Small secondary sparkle -->
+  <path class="sparkle" d="M 425 190 Q 425 208 443 208 Q 425 208 425 226 Q 425 208 407 208 Q 425 208 425 190 Z" opacity="0.8" />
+</svg>
