@@ -6,6 +6,8 @@ import type { EditorComponent } from './components/editor-component';
 import type { DiffComponent } from './components/diff-component';
 import * as jsYaml from 'js-yaml';
 
+const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
+
 const DEFAULT_JSON = JSON.stringify({
   "$schema": "https://json.schemastore.org/package.json",
   "name": "linter-ai",
@@ -79,7 +81,8 @@ export class LinterApp extends LitElement {
 
     .tab:focus-visible,
     button:focus-visible,
-    select:focus-visible {
+    select:focus-visible,
+    footer a:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
@@ -256,6 +259,23 @@ export class LinterApp extends LitElement {
       color: var(--text-muted);
       background: var(--bg-sidebar);
     }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
   `;
 
   connectedCallback() {
@@ -274,19 +294,21 @@ export class LinterApp extends LitElement {
     }
 
     // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if (this.theme === 'system') {
-            this.applyTheme();
-            this.requestUpdate();
-        }
-    });
+    if (typeof window.matchMedia === 'function') {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (this.theme === 'system') {
+              this.applyTheme();
+              this.requestUpdate();
+          }
+      });
+    }
 
     this.applyTheme();
   }
 
   private getResolvedTheme(): 'light' | 'dark' {
     if (this.theme === 'system') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        return (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
     }
     return this.theme;
   }
@@ -476,7 +498,16 @@ export class LinterApp extends LitElement {
 
       <footer>
         <div>Ready</div>
-        <div>UTF-8</div>
+        <div class="footer-right">
+          <a
+            href="https://github.com/ChristopherZhong/linter/releases/tag/v${APP_VERSION}"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Version v${APP_VERSION}"
+          >v${APP_VERSION}</a>
+          <span>•</span>
+          <div>UTF-8</div>
+        </div>
       </footer>
     `;
   }
