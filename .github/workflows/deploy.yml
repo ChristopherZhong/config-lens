@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -16,9 +18,7 @@ concurrency:
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    environment: ${{ github.event_name != 'pull_request' && 'github-pages' || '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,6 +39,7 @@ jobs:
         run: npm test
 
       - name: Run semantic-release
+        if: github.event_name != 'pull_request'
         id: semantic
         run: npx semantic-release
         env:
