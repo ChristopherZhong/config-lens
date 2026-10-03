@@ -12,6 +12,7 @@ This project provides a modern, fast, static web-based linter, schema validator,
 - [x] **Auto-Formatting**: One-click beautification for JSON and YAML documents.
 - [x] **Persistence**: LocalStorage support for content, selected language mode, and theme.
 - [x] **Modern UI & Theming**: Segmented 3-state theme control (System Default, Light, Dark).
+- [x] **Version Check & Notice**: Automated GitHub release version check with refresh notice banner.
 - [x] **Accessibility**: ARIA labels, semantic tab/radio controls, and focus styles.
 - [x] **Static Deployment**: Automated GitHub Pages workflow via GitHub Actions.
 - [x] **Comprehensive Testing**: Vitest unit tests and Playwright E2E tests.
@@ -63,6 +64,11 @@ This project provides a modern, fast, static web-based linter, schema validator,
 - [x] Embed single source of truth for GitHub Description and Repository Topic Tags in `README.md`.
 - [x] Add Mermaid diagrams for system architecture and client-side data flow.
 - [x] Synchronize `AGENTS.md` and `PLAN.md` to ensure developer and AI alignment.
+
+### Phase 7: Version Check & Update Notification
+- [x] Add GitHub release version comparison utility (`src/utils/version-check.ts`).
+- [x] Display banner notice prompting page refresh when a new version is available.
+- [x] Add unit tests for version checking logic and banner rendering.
 
 ---
 
