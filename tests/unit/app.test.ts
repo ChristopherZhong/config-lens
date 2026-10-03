@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import '../../src/main';
-import type { LinterApp } from '../../src/main';
+import '~/src/main';
+import type { LinterApp } from '~/src/main';
 
 describe('LinterApp component', () => {
   let element: LinterApp;
