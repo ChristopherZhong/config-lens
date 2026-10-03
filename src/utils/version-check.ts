@@ -5,20 +5,16 @@ export interface VersionComponents {
 }
 
 /**
- * Parses a version string into numeric components { major, minor, patch }.
+ * Parses a version string into numeric components { major, minor, patch } using RegExp with named groups.
  */
 export function parseVersion(version: string): VersionComponents {
-  const cleaned = version.trim().replace(/^v/i, '');
-  const mainPart = cleaned.split('-')[0];
-  const parts = mainPart.split('.').map((p) => {
-    const num = parseInt(p, 10);
-    return isNaN(num) ? 0 : num;
-  });
+  const match = version.trim().match(/^v?(?<major>\d+)(?:\.(?<minor>\d+))?(?:\.(?<patch>\d+))?/i);
+  const groups = match?.groups;
 
   return {
-    major: parts[0] ?? 0,
-    minor: parts[1] ?? 0,
-    patch: parts[2] ?? 0,
+    major: groups?.major ? parseInt(groups.major, 10) : 0,
+    minor: groups?.minor ? parseInt(groups.minor, 10) : 0,
+    patch: groups?.patch ? parseInt(groups.patch, 10) : 0,
   };
 }
 
