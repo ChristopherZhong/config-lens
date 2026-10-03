@@ -23,4 +23,33 @@ describe('LinterApp component', () => {
     expect(versionLink?.getAttribute('rel')).toBe('noopener noreferrer');
     expect(versionLink?.getAttribute('href')).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/linter\/releases\/tag\/v/);
   });
+
+  it('renders version update notice banner when new version is available', async () => {
+    const shadow = element.shadowRoot;
+    expect(shadow).not.toBeNull();
+
+    // Initially no banner
+    expect(shadow?.querySelector('.version-notice-banner')).toBeNull();
+
+    // Simulate new version detected
+    (element as unknown as Record<string, unknown>).newVersionAvailable = true;
+    (element as unknown as Record<string, unknown>).latestVersion = '2.0.0';
+    await element.updateComplete;
+
+    const banner = shadow?.querySelector('.version-notice-banner');
+    expect(banner).not.toBeNull();
+    expect(banner?.textContent).toContain('v2.0.0');
+
+    const refreshBtn = shadow?.querySelector('.btn-refresh');
+    expect(refreshBtn).not.toBeNull();
+    expect(refreshBtn?.textContent?.trim()).toBe('Refresh');
+
+    // Click dismiss button
+    const dismissBtn = shadow?.querySelector<HTMLButtonElement>('.btn-dismiss');
+    expect(dismissBtn).not.toBeNull();
+    dismissBtn?.click();
+    await element.updateComplete;
+
+    expect(shadow?.querySelector('.version-notice-banner')).toBeNull();
+  });
 });

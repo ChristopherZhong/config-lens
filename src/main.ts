@@ -5,8 +5,10 @@ import './components/diff-component';
 import type { EditorComponent } from './components/editor-component';
 import type { DiffComponent } from './components/diff-component';
 import * as jsYaml from 'js-yaml';
+import { checkLatestRelease } from './utils/version-check';
 
 const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
+const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
 const DEFAULT_JSON = JSON.stringify({
   "$schema": "https://json.schemastore.org/package.json",
@@ -26,6 +28,17 @@ export class LinterApp extends LitElement {
   @state() private content = DEFAULT_JSON;
   @state() private modifiedContent = DEFAULT_JSON;
 
+  @state() private newVersionAvailable = false;
+  @state() private latestVersion: string | null = null;
+  @state() private noticeDismissed = false;
+
+  private versionCheckTimer?: number;
+  private handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      this.checkForUpdate();
+    }
+  };
+
   static styles = css`
     :host {
       display: flex;
@@ -43,6 +56,7 @@ export class LinterApp extends LitElement {
       padding: 0 24px;
       justify-content: space-between;
       background-color: var(--bg-sidebar);
+      flex-shrink: 0;
     }
 
     .logo {
@@ -87,6 +101,65 @@ export class LinterApp extends LitElement {
       outline-offset: 2px;
     }
 
+    .version-notice-banner {
+      background: var(--accent);
+      color: #ffffff;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .version-notice-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version-notice-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-refresh {
+      background: #ffffff;
+      color: var(--accent);
+      border: none;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-refresh:hover {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .btn-dismiss {
+      background: transparent;
+      color: #ffffff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .btn-dismiss:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
     main {
       flex: 1;
       display: flex;
@@ -94,7 +167,6 @@ export class LinterApp extends LitElement {
       padding: 20px;
       gap: 20px;
       min-height: 0;
-      height: calc(100vh - 56px - 32px);
       box-sizing: border-box;
     }
 
@@ -258,6 +330,7 @@ export class LinterApp extends LitElement {
       font-size: 11px;
       color: var(--text-muted);
       background: var(--bg-sidebar);
+      flex-shrink: 0;
     }
 
     footer a {
@@ -304,6 +377,35 @@ export class LinterApp extends LitElement {
     }
 
     this.applyTheme();
+
+    // Check for updates
+    this.checkForUpdate();
+    this.versionCheckTimer = window.setInterval(() => this.checkForUpdate(), CHECK_INTERVAL_MS);
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.versionCheckTimer) {
+      clearInterval(this.versionCheckTimer);
+    }
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+  }
+
+  private async checkForUpdate() {
+    const result = await checkLatestRelease(APP_VERSION);
+    if (result.newVersionAvailable) {
+      this.newVersionAvailable = true;
+      this.latestVersion = result.latestVersion;
+    }
+  }
+
+  private handleRefresh() {
+    window.location.reload();
+  }
+
+  private handleDismissNotice() {
+    this.noticeDismissed = true;
   }
 
   private getResolvedTheme(): 'light' | 'dark' {
@@ -447,6 +549,18 @@ export class LinterApp extends LitElement {
           </div>
         </div>
       </header>
+
+      ${this.newVersionAvailable && !this.noticeDismissed ? html`
+        <div class="version-notice-banner" role="status" aria-live="polite">
+          <div class="version-notice-content">
+            <span>🚀 A new version of Linter.ai ${this.latestVersion ? `(v${this.latestVersion})` : ''} is available!</span>
+          </div>
+          <div class="version-notice-actions">
+            <button class="btn-refresh" @click="${this.handleRefresh}" aria-label="Refresh page to update">Refresh</button>
+            <button class="btn-dismiss" @click="${this.handleDismissNotice}" aria-label="Dismiss notice">✕</button>
+          </div>
+        </div>
+      ` : ''}
 
       <main>
         ${this.activeTab === 'lint' ? html`
