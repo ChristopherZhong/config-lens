@@ -57,6 +57,24 @@ describe('validation logic', () => {
     expect(result[0].message).toContain('Schema: /age must be number');
   });
 
+  it('validates string formats such as uri using ajv-formats', async () => {
+    const json = '{"$schema": "http://example.com/uri-schema.json", "homepage": "not a url"}';
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        type: 'object',
+        properties: {
+          homepage: { type: 'string', format: 'uri' }
+        }
+      })
+    });
+
+    const result = await validateContent(json, 'json');
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0].message).toContain('Schema: /homepage must match format "uri"');
+  });
+
   it('deduplicates concurrent in-flight schema fetches', async () => {
     const schemaUrl = 'http://example.com/dedup-schema.json';
     let fetchCount = 0;

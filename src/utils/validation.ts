@@ -1,7 +1,10 @@
 import * as jsYaml from 'js-yaml';
 import Ajv, { ValidateFunction } from 'ajv';
+import addFormats from 'ajv-formats';
 
 const ajv = new Ajv({ allErrors: true, verbose: true });
+addFormats(ajv);
+
 const schemaCache = new Map<string, any>();
 const validatorCache = new Map<string, ValidateFunction>();
 
