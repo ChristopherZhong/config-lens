@@ -1,7 +1,13 @@
+export interface VersionComponents {
+  major: number;
+  minor: number;
+  patch: number;
+}
+
 /**
- * Parses a version string into numeric components [major, minor, patch].
+ * Parses a version string into numeric components { major, minor, patch }.
  */
-export function parseVersion(version: string): number[] {
+export function parseVersion(version: string): VersionComponents {
   const cleaned = version.trim().replace(/^v/i, '');
   const mainPart = cleaned.split('-')[0];
   const parts = mainPart.split('.').map((p) => {
@@ -9,10 +15,11 @@ export function parseVersion(version: string): number[] {
     return isNaN(num) ? 0 : num;
   });
 
-  while (parts.length < 3) {
-    parts.push(0);
-  }
-  return parts.slice(0, 3);
+  return {
+    major: parts[0] ?? 0,
+    minor: parts[1] ?? 0,
+    patch: parts[2] ?? 0,
+  };
 }
 
 /**
@@ -24,10 +31,14 @@ export function isNewerVersion(currentVersion: string, latestVersion: string): b
   const current = parseVersion(currentVersion);
   const latest = parseVersion(latestVersion);
 
-  for (let i = 0; i < 3; i++) {
-    if (latest[i] > current[i]) return true;
-    if (latest[i] < current[i]) return false;
-  }
+  if (latest.major > current.major) return true;
+  if (latest.major < current.major) return false;
+
+  if (latest.minor > current.minor) return true;
+  if (latest.minor < current.minor) return false;
+
+  if (latest.patch > current.patch) return true;
+  if (latest.patch < current.patch) return false;
 
   return false;
 }

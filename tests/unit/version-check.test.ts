@@ -4,15 +4,15 @@ import { parseVersion, isNewerVersion, checkLatestRelease } from '~src/utils/ver
 describe('version-check utility', () => {
   describe('parseVersion', () => {
     it('parses semver string correctly', () => {
-      expect(parseVersion('1.2.3')).toEqual([1, 2, 3]);
-      expect(parseVersion('v1.2.3')).toEqual([1, 2, 3]);
-      expect(parseVersion('2.0')).toEqual([2, 0, 0]);
-      expect(parseVersion('1.0.0-beta.1')).toEqual([1, 0, 0]);
+      expect(parseVersion('1.2.3')).toEqual({ major: 1, minor: 2, patch: 3 });
+      expect(parseVersion('v1.2.3')).toEqual({ major: 1, minor: 2, patch: 3 });
+      expect(parseVersion('2.0')).toEqual({ major: 2, minor: 0, patch: 0 });
+      expect(parseVersion('1.0.0-beta.1')).toEqual({ major: 1, minor: 0, patch: 0 });
     });
 
     it('handles invalid or empty strings gracefully', () => {
-      expect(parseVersion('')).toEqual([0, 0, 0]);
-      expect(parseVersion('invalid')).toEqual([0, 0, 0]);
+      expect(parseVersion('')).toEqual({ major: 0, minor: 0, patch: 0 });
+      expect(parseVersion('invalid')).toEqual({ major: 0, minor: 0, patch: 0 });
     });
   });
 
