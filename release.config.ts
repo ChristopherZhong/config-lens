@@ -1,8 +1,8 @@
-import type { Options } from 'semantic-release';
+import type { GlobalConfig } from 'semantic-release';
 
 const isDraft = process.env.IS_DRAFT === 'true';
 
-const config: Options = {
+const config: GlobalConfig = {
   branches: ['main'],
   plugins: [
     [
