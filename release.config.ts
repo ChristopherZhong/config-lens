@@ -20,7 +20,7 @@ const config: GlobalConfig = {
     [
       '@semantic-release/exec',
       {
-        prepareCmd: 'npm pkg set version=${nextRelease.version}',
+        prepareCmd: 'npm pkg set version=${nextRelease.version} && echo "should_deploy=true" >> $GITHUB_OUTPUT',
       },
     ],
     [
