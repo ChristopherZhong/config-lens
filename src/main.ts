@@ -61,9 +61,19 @@ export class ConfigLensApp extends LitElement {
     }
 
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-weight: 600;
       font-size: 18px;
       letter-spacing: -0.02em;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      object-fit: contain;
     }
 
     .tabs {
@@ -486,7 +496,10 @@ export class ConfigLensApp extends LitElement {
 
     return html`
       <header>
-        <div class="logo">ConfigLens</div>
+        <div class="logo">
+          <img src="./favicon.svg" alt="ConfigLens Logo" class="logo-icon" />
+          <span>ConfigLens</span>
+        </div>
         <div class="tabs" role="tablist">
           <button
             id="tab-lint"

@@ -2,7 +2,10 @@ import * as jsYaml from 'js-yaml';
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 
-const ajv = new Ajv({ allErrors: true, verbose: true });
+const ajv = new Ajv({
+  allErrors: true,
+  verbose: true
+});
 addFormats(ajv);
 
 const schemaCache = new Map<string, any>();
@@ -37,7 +40,6 @@ export async function fetchSchema(rawUrl: string): Promise<any> {
       schemaCache.set(url, schema);
       return schema;
     } catch (e) {
-      console.error('Failed to fetch schema', e);
       return null;
     } finally {
       schemaPromiseCache.delete(url);
@@ -61,7 +63,6 @@ export async function getValidator(url: string): Promise<ValidateFunction | null
       validatorCache.set(url, validate);
       return validate;
     } catch (e) {
-      console.error('AJV compile error', e);
       return null;
     } finally {
       validatorPromiseCache.delete(url);
