@@ -19,7 +19,7 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./*"]
+      "~*": ["./*"]
     }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts", "vite.config.ts", "vitest.config.ts"]

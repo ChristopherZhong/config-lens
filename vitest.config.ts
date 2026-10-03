@@ -3,9 +3,9 @@ import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   resolve: {
-    alias: {
-      '~': fileURLToPath(new URL('./', import.meta.url)),
-    },
+    alias: [
+      { find: /^~(.*)$/, replacement: fileURLToPath(new URL('./$1', import.meta.url)) },
+    ],
   },
   test: {
     environment: 'jsdom',

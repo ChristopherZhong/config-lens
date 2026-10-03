@@ -8,8 +8,8 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   resolve: {
-    alias: {
-      '~': fileURLToPath(new URL('./', import.meta.url)),
-    },
+    alias: [
+      { find: /^~(.*)$/, replacement: fileURLToPath(new URL('./$1', import.meta.url)) },
+    ],
   },
 });
