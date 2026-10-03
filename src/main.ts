@@ -499,14 +499,14 @@ export class LinterApp extends LitElement {
       <footer>
         <div>Ready</div>
         <div class="footer-right">
+          <div>UTF-8</div>
+          <span>•</span>
           <a
             href="https://github.com/ChristopherZhong/linter/releases/tag/v${APP_VERSION}"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Version v${APP_VERSION}"
           >v${APP_VERSION}</a>
-          <span>•</span>
-          <div>UTF-8</div>
         </div>
       </footer>
     `;
