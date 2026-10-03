@@ -52,4 +52,31 @@ describe('ConfigLensApp component', () => {
 
     expect(shadow?.querySelector('.version-notice-banner')).toBeNull();
   });
+
+  it('displays format status feedback when clicking Format button', async () => {
+    const shadow = element.shadowRoot;
+    expect(shadow).not.toBeNull();
+
+    const formatBtn = shadow?.querySelector<HTMLButtonElement>('button[aria-label="Format content"]');
+    expect(formatBtn).not.toBeNull();
+
+    // Valid JSON format feedback
+    formatBtn?.click();
+    await element.updateComplete;
+
+    let feedback = shadow?.querySelector('.format-feedback');
+    expect(feedback).not.toBeNull();
+    expect(feedback?.textContent?.trim()).toBe('Formatted!');
+    expect(feedback?.classList.contains('success')).toBe(true);
+
+    // Invalid JSON format feedback
+    (element as unknown as { content: string }).content = '{ invalid json ';
+    formatBtn?.click();
+    await element.updateComplete;
+
+    feedback = shadow?.querySelector('.format-feedback');
+    expect(feedback).not.toBeNull();
+    expect(feedback?.textContent?.trim()).toBe('Invalid syntax');
+    expect(feedback?.classList.contains('error')).toBe(true);
+  });
 });
