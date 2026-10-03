@@ -36,25 +36,26 @@ jobs:
         run: npm install
 
       - name: Run semantic-release
+        id: semantic
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        if: hashFiles('.released') != '' || github.event_name == 'workflow_dispatch'
+        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
         run: npm run build
 
       - name: Setup Pages
-        if: hashFiles('.released') != '' || github.event_name == 'workflow_dispatch'
+        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        if: hashFiles('.released') != '' || github.event_name == 'workflow_dispatch'
+        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-pages-artifact@v5
         with:
           path: './dist'
 
       - name: Deploy to GitHub Pages
-        if: hashFiles('.released') != '' || github.event_name == 'workflow_dispatch'
+        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
         id: deployment
         uses: actions/deploy-pages@v5
