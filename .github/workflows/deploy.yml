@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -45,7 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
         run: npm run build
 
       - name: Setup Pages
