@@ -211,7 +211,7 @@ When editing JSON documents, `ConfigLens` automatically detects the `$schema` ro
 ### Example:
 ```json
 {
-  "$schema": "https://json.schemastore.org/package.json",
+  "$schema": "https://www.schemastore.org/package.json",
   "name": "my-app",
   "version": "1.0.0"
 }
