@@ -1,73 +1,47 @@
 const inMemoryStorage = new Map<string, string>();
 
-let isLocalStorageSupported: boolean | null = null;
-
-export function resetStorageSupportCache(): void {
-  isLocalStorageSupported = null;
-}
-
-export function testLocalStorage(): boolean {
-  if (isLocalStorageSupported !== null) {
-    return isLocalStorageSupported;
-  }
+function getLocalStorage(): Storage | null {
   try {
-    if (typeof window === 'undefined') {
-      isLocalStorageSupported = false;
-      return false;
-    }
-    if (!('localStorage' in window)) {
-      isLocalStorageSupported = false;
-      return false;
-    }
-    const storage = window.localStorage;
-    if (!storage) {
-      isLocalStorageSupported = false;
-      return false;
-    }
-    const testKey = '__config_lens_storage_test__';
-    storage.setItem(testKey, testKey);
-    storage.getItem(testKey);
-    storage.removeItem(testKey);
-    isLocalStorageSupported = true;
-    return true;
+    return typeof window !== 'undefined' && 'localStorage' in window ? window.localStorage : null;
   } catch {
-    isLocalStorageSupported = false;
-    return false;
+    return null;
   }
 }
 
 export function safeStorageGetItem(key: string): string | null {
-  if (!testLocalStorage()) {
-    return inMemoryStorage.get(key) ?? null;
-  }
   try {
-    return window.localStorage.getItem(key);
-  } catch {
-    isLocalStorageSupported = false;
-    return inMemoryStorage.get(key) ?? null;
+    const storage = getLocalStorage();
+    if (storage) {
+      return storage.getItem(key);
+    }
+  } catch (e) {
+    // Fallback to in-memory storage
   }
+  return inMemoryStorage.get(key) ?? null;
 }
 
 export function safeStorageSetItem(key: string, value: string): void {
-  inMemoryStorage.set(key, value);
-  if (!testLocalStorage()) {
-    return;
-  }
   try {
-    window.localStorage.setItem(key, value);
-  } catch {
-    isLocalStorageSupported = false;
+    const storage = getLocalStorage();
+    if (storage) {
+      storage.setItem(key, value);
+      return;
+    }
+  } catch (e) {
+    // Fallback to in-memory storage
   }
+  inMemoryStorage.set(key, value);
 }
 
 export function safeStorageRemoveItem(key: string): void {
-  inMemoryStorage.delete(key);
-  if (!testLocalStorage()) {
-    return;
-  }
   try {
-    window.localStorage.removeItem(key);
-  } catch {
-    isLocalStorageSupported = false;
+    const storage = getLocalStorage();
+    if (storage) {
+      storage.removeItem(key);
+      return;
+    }
+  } catch (e) {
+    // Fallback to in-memory storage
   }
+  inMemoryStorage.delete(key);
 }
