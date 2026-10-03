@@ -32,8 +32,10 @@ export class ConfigLensApp extends LitElement {
   @state() private newVersionAvailable = false;
   @state() private latestVersion: string | null = null;
   @state() private noticeDismissed = false;
+  @state() private formatFeedback: { type: 'success' | 'error'; message: string } | null = null;
 
   private versionCheckTimer?: number;
+  private formatFeedbackTimer?: number;
   private handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
       this.checkForUpdate();
@@ -251,6 +253,26 @@ export class ConfigLensApp extends LitElement {
         background: var(--accent-hover);
     }
 
+    .format-feedback {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      align-self: center;
+    }
+
+    .format-feedback.success {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .format-feedback.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+    }
+
     .theme-toggle {
         display: flex;
         background: var(--bg-sidebar);
@@ -416,6 +438,9 @@ export class ConfigLensApp extends LitElement {
     if (this.versionCheckTimer) {
       clearInterval(this.versionCheckTimer);
     }
+    if (this.formatFeedbackTimer) {
+      clearTimeout(this.formatFeedbackTimer);
+    }
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
   }
 
@@ -471,6 +496,16 @@ export class ConfigLensApp extends LitElement {
     safeStorageSetItem('config-lens-mode', this.mode);
   }
 
+  private showFormatFeedback(type: 'success' | 'error', message: string) {
+    if (this.formatFeedbackTimer) {
+      clearTimeout(this.formatFeedbackTimer);
+    }
+    this.formatFeedback = { type, message };
+    this.formatFeedbackTimer = window.setTimeout(() => {
+      this.formatFeedback = null;
+    }, 2000);
+  }
+
   private formatContent() {
     try {
         if (this.mode === 'json') {
@@ -481,8 +516,10 @@ export class ConfigLensApp extends LitElement {
             this.content = jsYaml.dump(parsed);
         }
         safeStorageSetItem('config-lens-content', this.content);
+        this.showFormatFeedback('success', 'Formatted!');
     } catch (e) {
         console.error('Cannot format invalid content');
+        this.showFormatFeedback('error', 'Invalid syntax');
     }
   }
 
@@ -540,6 +577,15 @@ export class ConfigLensApp extends LitElement {
             <option value="yaml">YAML</option>
           </select>
           <button @click="${this.formatContent}" aria-label="Format content">Format</button>
+          ${this.formatFeedback ? html`
+            <span
+              class="format-feedback ${this.formatFeedback.type}"
+              role="status"
+              aria-live="polite"
+            >
+              ${this.formatFeedback.message}
+            </span>
+          ` : ''}
 
           <div class="theme-toggle" data-theme="${this.theme}" role="radiogroup" aria-label="Select theme">
             <div class="theme-slider"></div>
