@@ -22,6 +22,7 @@ This document establishes development rules and technical guidelines for AI agen
    - Write unit tests using `Vitest` for validation/parsing functions (`src/utils/validation.ts`).
    - Write E2E tests using `Playwright` for UI interactions and layout integrity.
 9. **Documentation Integrity**: Keep `README.md`, `PLAN.md`, and `AGENTS.md` updated as features evolve or project rules change.
+10. **Interview Flow Requirement**: When entering deep planning mode to clarify user expectations, agents MUST follow an interview flow, asking questions one at a time to ensure absolute clarity on requirements before forming the final plan.
 
 ---
 

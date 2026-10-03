@@ -298,3 +298,13 @@ test('fold all and expand all in compare view', async ({ page }) => {
 
   expect(foldPlaceholdersCountAfterExpand).toBe(0);
 });
+
+test('footer displays release version link', async ({ page }) => {
+  const versionLink = page.locator('linter-app').locator('footer a');
+  await expect(versionLink).toBeVisible();
+  await expect(versionLink).toHaveText(/^v\d+\.\d+\.\d+/);
+  await expect(versionLink).toHaveAttribute('target', '_blank');
+  await expect(versionLink).toHaveAttribute('rel', 'noopener noreferrer');
+  const href = await versionLink.getAttribute('href');
+  expect(href).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/linter\/releases\/tag\/v/);
+});
