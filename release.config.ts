@@ -9,6 +9,10 @@ const config: GlobalConfig = {
       '@semantic-release/commit-analyzer',
       {
         preset: 'conventionalcommits',
+        releaseRules: [
+          { type: 'refactor', release: 'patch' },
+          { type: 'chore', release: 'patch' },
+        ],
       },
     ],
     [
