@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
 });
 
 test('has title', async ({ page }) => {
-  await expect(page).toHaveTitle(/Linter.ai/);
+  await expect(page).toHaveTitle(/ConfigLens/);
 });
 
 test('switching tabs', async ({ page }) => {
@@ -30,9 +30,18 @@ test('formatting functionality', async ({ page }) => {
 });
 
 test('persistence', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('linter-content', '{"persisted": true}'));
+  await page.evaluate(() => localStorage.setItem('config-lens-content', '{"persisted": true}'));
   await page.reload();
   await expect(page.locator('editor-component')).toBeVisible();
+});
+
+test('legacy localStorage migration', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('linter-content', '{"legacy": true}'));
+  await page.reload();
+  const migrated = await page.evaluate(() => localStorage.getItem('config-lens-content'));
+  const legacy = await page.evaluate(() => localStorage.getItem('linter-content'));
+  expect(migrated).toBe('{"legacy": true}');
+  expect(legacy).toBeNull();
 });
 
 test('editor scrolls when content exceeds screen height', async ({ page }) => {
@@ -44,16 +53,16 @@ test('editor scrolls when content exceeds screen height', async ({ page }) => {
   );
 
   await page.evaluate((json) => {
-    localStorage.setItem('linter-content', json);
+    localStorage.setItem('config-lens-content', json);
   }, largeJson);
 
   await page.reload();
 
   const metrics = await page.evaluate(() => {
-    const editorComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('editor-component');
+    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
     const cmScroller = editorComp?.shadowRoot?.querySelector('.cm-scroller');
     const cmEditor = editorComp?.shadowRoot?.querySelector('.cm-editor');
-    const app = document.querySelector('linter-app');
+    const app = document.querySelector('config-lens-app');
     return {
       appHeight: app?.clientHeight,
       editorCompHeight: editorComp?.clientHeight,
@@ -76,7 +85,7 @@ test('diff component scrolls when content exceeds screen height', async ({ page 
   );
 
   await page.evaluate((json) => {
-    localStorage.setItem('linter-content', json);
+    localStorage.setItem('config-lens-content', json);
   }, largeJson);
 
   await page.reload();
@@ -85,7 +94,7 @@ test('diff component scrolls when content exceeds screen height', async ({ page 
   await compareTab.click();
 
   const isScrollable = await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     const cmScroller = diffComp?.shadowRoot?.querySelector('.cm-scroller');
     if (!cmScroller) return false;
     return cmScroller.scrollHeight > cmScroller.clientHeight;
@@ -102,7 +111,7 @@ test('diff component scroll is synchronized between side A and side B', async ({
   );
 
   await page.evaluate((json) => {
-    localStorage.setItem('linter-content', json);
+    localStorage.setItem('config-lens-content', json);
   }, largeJson);
 
   await page.reload();
@@ -112,7 +121,7 @@ test('diff component scroll is synchronized between side A and side B', async ({
 
   // Scroll side A
   await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
     if (scrollers && scrollers.length >= 2) {
       scrollers[0].scrollTop = 300;
@@ -124,7 +133,7 @@ test('diff component scroll is synchronized between side A and side B', async ({
   await page.waitForTimeout(100);
 
   const scrollTopB = await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
     return scrollers && scrollers.length >= 2 ? scrollers[1].scrollTop : 0;
   });
@@ -133,7 +142,7 @@ test('diff component scroll is synchronized between side A and side B', async ({
 
   // Scroll side B
   await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
     if (scrollers && scrollers.length >= 2) {
       scrollers[1].scrollTop = 150;
@@ -144,7 +153,7 @@ test('diff component scroll is synchronized between side A and side B', async ({
   await page.waitForTimeout(100);
 
   const scrollTopA = await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
     return scrollers && scrollers.length >= 2 ? scrollers[0].scrollTop : 0;
   });
@@ -186,7 +195,7 @@ test('editing text in left view of compare window updates state and persists', a
 
   // Focus and type text into left editor (side A)
   await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-content');
     if (scrollers && scrollers.length >= 1) {
       (scrollers[0] as HTMLElement).focus();
@@ -195,7 +204,7 @@ test('editing text in left view of compare window updates state and persists', a
 
   const editedText = '{"inserted": "left-side-test"}';
   await page.evaluate((text) => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     // Access CodeMirror view directly or dispatch doc change
     const mergeView = (diffComp as any)?.mergeView;
     if (mergeView?.a) {
@@ -206,7 +215,7 @@ test('editing text in left view of compare window updates state and persists', a
   }, editedText);
 
   // Check localStorage was updated
-  const stored = await page.evaluate(() => localStorage.getItem('linter-content'));
+  const stored = await page.evaluate(() => localStorage.getItem('config-lens-content'));
   expect(stored).toBe(editedText);
 
   // Switch back to Lint tab and verify editor content matches
@@ -214,7 +223,7 @@ test('editing text in left view of compare window updates state and persists', a
   await lintTab.click();
 
   const editorText = await page.evaluate(() => {
-    const editorComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('editor-component');
+    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
     const editorView = (editorComp as any)?.view;
     return editorView?.state.doc.toString();
   });
@@ -227,7 +236,7 @@ test('property annotations visible in compare view', async ({ page }) => {
   await compareTab.click();
 
   const annotationCount = await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     const annotations = diffComp?.shadowRoot?.querySelectorAll('.cm-property-annotation');
     return annotations ? annotations.length : 0;
   });
@@ -248,7 +257,7 @@ test('fold all and expand all in lint editor', async ({ page }) => {
 
   // Check if folded placeholders exist
   const foldPlaceholdersCount = await page.evaluate(() => {
-    const editorComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('editor-component');
+    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
     return editorComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
   });
 
@@ -259,7 +268,7 @@ test('fold all and expand all in lint editor', async ({ page }) => {
   await page.waitForTimeout(100);
 
   const foldPlaceholdersCountAfterExpand = await page.evaluate(() => {
-    const editorComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('editor-component');
+    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
     return editorComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
   });
 
@@ -281,7 +290,7 @@ test('fold all and expand all in compare view', async ({ page }) => {
   await page.waitForTimeout(100);
 
   const foldPlaceholdersCount = await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     return diffComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
   });
 
@@ -292,7 +301,7 @@ test('fold all and expand all in compare view', async ({ page }) => {
   await page.waitForTimeout(100);
 
   const foldPlaceholdersCountAfterExpand = await page.evaluate(() => {
-    const diffComp = document.querySelector('linter-app')?.shadowRoot?.querySelector('diff-component');
+    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
     return diffComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
   });
 
@@ -300,11 +309,11 @@ test('fold all and expand all in compare view', async ({ page }) => {
 });
 
 test('footer displays release version link', async ({ page }) => {
-  const versionLink = page.locator('linter-app').locator('footer a');
+  const versionLink = page.locator('config-lens-app').locator('footer a');
   await expect(versionLink).toBeVisible();
   await expect(versionLink).toHaveText(/^v\d+\.\d+\.\d+/);
   await expect(versionLink).toHaveAttribute('target', '_blank');
   await expect(versionLink).toHaveAttribute('rel', 'noopener noreferrer');
   const href = await versionLink.getAttribute('href');
-  expect(href).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/linter\/releases\/tag\/v/);
+  expect(href).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/config-lens\/releases\/tag\/v/);
 });

@@ -6,7 +6,7 @@ const schemaCache = new Map<string, any>();
 const validatorCache = new Map<string, ValidateFunction>();
 
 // Optimization: Cache active in-flight promises to deduplicate parallel network fetches
-// and AJV compilations triggered during fast user typing in the linter editor.
+// and AJV compilations triggered during fast user typing in the editor.
 const schemaPromiseCache = new Map<string, Promise<any>>();
 const validatorPromiseCache = new Map<string, Promise<ValidateFunction | null>>();
 

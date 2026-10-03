@@ -1,6 +1,6 @@
-# Linter.ai - JSON/YAML Linter & Diff Tool
+# ConfigLens - JSON/YAML Linter & Diff Tool
 
-[![Deploy to GitHub Pages](https://github.com/ChristopherZhong/linter/actions/workflows/deploy.yml/badge.svg)](https://github.com/ChristopherZhong/linter/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/ChristopherZhong/config-lens/actions/workflows/deploy.yml/badge.svg)](https://github.com/ChristopherZhong/config-lens/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 > A modern, lightning-fast, and static Web-based JSON and YAML linter, formatter, schema validator, and side-by-side text comparison tool built with Lit, CodeMirror 6, and TypeScript.
@@ -11,7 +11,7 @@
 
 This section serves as the canonical source of truth for the GitHub Repository settings and metadata.
 
-* **Repository Name**: `linter`
+* **Repository Name**: `config-lens`
 * **Short Description**: Fast, static client-side JSON/YAML linter, schema validator, auto-formatter, and side-by-side diff tool built with Lit and CodeMirror 6.
 * **Website / Live Demo**: Hosted on GitHub Pages via automated workflow.
 * **Repository Topics / Keywords**:
@@ -34,11 +34,11 @@ This section serves as the canonical source of truth for the GitHub Repository s
 
 ## 🏗️ System Architecture
 
-`Linter.ai` is structured as a client-side Single Page Application (SPA) leveraging Lit Web Components and CodeMirror 6.
+`ConfigLens` is structured as a client-side Single Page Application (SPA) leveraging Lit Web Components and CodeMirror 6.
 
 ```mermaid
 graph TD
-    App[linter-app Component] --> Header[Header & Nav Controls]
+    App[config-lens-app Component] --> Header[Header & Nav Controls]
     App --> MainPanel[Main Viewport]
     App --> Footer[Footer Status Bar]
 
@@ -133,8 +133,8 @@ sequenceDiagram
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ChristopherZhong/linter.git
-   cd linter
+   git clone https://github.com/ChristopherZhong/config-lens.git
+   cd config-lens
    ```
 
 2. Install dependencies:
@@ -206,7 +206,7 @@ npm run test:e2e
 
 ## 📜 JSON Schema Validation
 
-When editing JSON documents, `Linter.ai` automatically detects the `$schema` root property.
+When editing JSON documents, `ConfigLens` automatically detects the `$schema` root property.
 
 ### Example:
 ```json
