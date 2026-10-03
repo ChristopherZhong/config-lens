@@ -32,63 +32,75 @@ export class PropertyInfoWidget extends WidgetType {
   }
 }
 
-export function computeAnnotations(state: EditorState): DecorationSet {
+// Optimization: Pass visibleRanges to limit AST iteration to visible viewport lines
+// on large documents, preventing main-thread lag during scrolling or editing.
+export function computeAnnotations(
+  state: EditorState,
+  visibleRanges?: readonly { from: number; to: number }[]
+): DecorationSet {
   const lineAnnotationsMap = new Map<number, string[]>();
   const tree = syntaxTree(state);
+  const ranges = visibleRanges && visibleRanges.length > 0
+    ? visibleRanges
+    : [{ from: 0, to: state.doc.length }];
 
-  tree.iterate({
-    enter: (node) => {
-      const name = node.name;
+  for (const { from, to } of ranges) {
+    tree.iterate({
+      from,
+      to,
+      enter: (node) => {
+        const name = node.name;
 
-      // JSON Array & YAML Sequence / BlockSequence
-      if (name === 'Array' || name === 'BlockSequence' || name === 'Sequence') {
-        let count = 0;
-        let child = node.node.firstChild;
-        while (child) {
-          if (
-            child.name !== '[' &&
-            child.name !== ']' &&
-            child.name !== ',' &&
-            child.name !== '-' &&
-            child.name !== 'Comment'
-          ) {
-            count++;
+        // JSON Array & YAML Sequence / BlockSequence
+        if (name === 'Array' || name === 'BlockSequence' || name === 'Sequence') {
+          let count = 0;
+          let child = node.node.firstChild;
+          while (child) {
+            if (
+              child.name !== '[' &&
+              child.name !== ']' &&
+              child.name !== ',' &&
+              child.name !== '-' &&
+              child.name !== 'Comment'
+            ) {
+              count++;
+            }
+            child = child.nextSibling;
           }
-          child = child.nextSibling;
-        }
 
-        const line = state.doc.lineAt(node.from);
-        const label = count === 1 ? '1 item' : `${count} items`;
-        const list = lineAnnotationsMap.get(line.to) || [];
-        list.push(label);
-        lineAnnotationsMap.set(line.to, list);
-      }
-
-      // JSON Object & YAML Mapping / BlockMapping
-      if (name === 'Object' || name === 'BlockMapping' || name === 'Mapping') {
-        let count = 0;
-        let child = node.node.firstChild;
-        while (child) {
-          if (
-            child.name === 'Property' ||
-            child.name === 'Pair' ||
-            child.name === 'Key'
-          ) {
-            count++;
-          }
-          child = child.nextSibling;
-        }
-
-        if (count > 0) {
           const line = state.doc.lineAt(node.from);
-          const label = count === 1 ? '1 key' : `${count} keys`;
+          const label = count === 1 ? '1 item' : `${count} items`;
           const list = lineAnnotationsMap.get(line.to) || [];
           list.push(label);
           lineAnnotationsMap.set(line.to, list);
         }
-      }
-    },
-  });
+
+        // JSON Object & YAML Mapping / BlockMapping
+        if (name === 'Object' || name === 'BlockMapping' || name === 'Mapping') {
+          let count = 0;
+          let child = node.node.firstChild;
+          while (child) {
+            if (
+              child.name === 'Property' ||
+              child.name === 'Pair' ||
+              child.name === 'Key'
+            ) {
+              count++;
+            }
+            child = child.nextSibling;
+          }
+
+          if (count > 0) {
+            const line = state.doc.lineAt(node.from);
+            const label = count === 1 ? '1 key' : `${count} keys`;
+            const list = lineAnnotationsMap.get(line.to) || [];
+            list.push(label);
+            lineAnnotationsMap.set(line.to, list);
+          }
+        }
+      },
+    });
+  }
 
   const widgets: any[] = [];
   // Sort positions ascending for Decoration.set
@@ -113,12 +125,12 @@ export const propertyAnnotationsPlugin = ViewPlugin.fromClass(
     decorations: DecorationSet;
 
     constructor(view: EditorView) {
-      this.decorations = computeAnnotations(view.state);
+      this.decorations = computeAnnotations(view.state, view.visibleRanges);
     }
 
     update(update: ViewUpdate) {
       if (update.docChanged || update.viewportChanged) {
-        this.decorations = computeAnnotations(update.state);
+        this.decorations = computeAnnotations(update.state, update.view.visibleRanges);
       }
     }
   },

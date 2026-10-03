@@ -129,4 +129,30 @@ user:
     expect(resultA).toContain('// 2 items');
     expect(resultB).toContain('// 4 items');
   });
+
+  it('computes annotations restricted to specific visible ranges', () => {
+    const jsonContent = `{
+  "firstGroup": [1, 2],
+  "secondGroup": [3, 4, 5, 6]
+}`;
+    const state = EditorState.create({
+      doc: jsonContent,
+      extensions: [json()],
+    });
+
+    // Only inspect range containing secondGroup
+    const secondGroupPos = jsonContent.indexOf('"secondGroup"');
+    const visibleRanges = [{ from: secondGroupPos, to: jsonContent.length }];
+
+    const decorations = computeAnnotations(state, visibleRanges);
+    const result: string[] = [];
+    const iter = decorations.iter();
+    while (iter.value) {
+      result.push((iter.value.spec.widget as any).text);
+      iter.next();
+    }
+
+    expect(result).toContain('// 4 items');
+    expect(result).not.toContain('// 2 items');
+  });
 });
