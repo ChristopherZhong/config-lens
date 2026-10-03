@@ -10,7 +10,19 @@ const validatorCache = new Map<string, ValidateFunction>();
 const schemaPromiseCache = new Map<string, Promise<any>>();
 const validatorPromiseCache = new Map<string, Promise<ValidateFunction | null>>();
 
-export async function fetchSchema(url: string): Promise<any> {
+function normalizeSchemaUrl(url: string): string {
+  // Replace json.schemastore.org with www.schemastore.org to prevent CORS redirect blocks in browser fetch
+  if (url.startsWith('https://json.schemastore.org/')) {
+    return url.replace('https://json.schemastore.org/', 'https://www.schemastore.org/');
+  }
+  if (url.startsWith('http://json.schemastore.org/')) {
+    return url.replace('http://json.schemastore.org/', 'https://www.schemastore.org/');
+  }
+  return url;
+}
+
+export async function fetchSchema(rawUrl: string): Promise<any> {
+  const url = normalizeSchemaUrl(rawUrl);
   if (schemaCache.has(url)) return schemaCache.get(url);
   if (schemaPromiseCache.has(url)) return schemaPromiseCache.get(url);
 
