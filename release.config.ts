@@ -1,14 +1,18 @@
-import type { GlobalConfig } from 'semantic-release';
+import type { Options } from 'semantic-release';
 
 const isDraft = process.env.IS_DRAFT === 'true';
 
-const config: GlobalConfig = {
+const config: Options = {
   branches: ['main'],
   plugins: [
     [
       '@semantic-release/commit-analyzer',
       {
         preset: 'conventionalcommits',
+        releaseRules: [
+          { type: 'refactor', release: 'patch' },
+          { type: 'chore', release: 'patch' },
+        ],
       },
     ],
     [
