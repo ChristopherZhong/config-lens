@@ -12,16 +12,16 @@ const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
 const DEFAULT_JSON = JSON.stringify({
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "linter-ai",
+  "name": "config-lens",
   "version": "1.0.0",
-  "description": "Modern JSON/YAML Linter",
+  "description": "Modern JSON/YAML Config Tools",
   "scripts": {
     "test": "echo \"no test specified\""
   }
 }, null, 2);
 
-@customElement('linter-app')
-export class LinterApp extends LitElement {
+@customElement('config-lens-app')
+export class ConfigLensApp extends LitElement {
   @state() private activeTab: 'lint' | 'compare' = 'lint';
   @state() private mode: 'json' | 'yaml' = 'json';
   @state() private theme: 'light' | 'dark' | 'system' = 'system';
@@ -353,15 +353,41 @@ export class LinterApp extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    const savedContent = localStorage.getItem('linter-content');
+
+    // Migrate legacy localStorage keys if present
+    const legacyContent = localStorage.getItem('linter-content');
+    if (legacyContent !== null) {
+      if (localStorage.getItem('config-lens-content') === null) {
+        localStorage.setItem('config-lens-content', legacyContent);
+      }
+      localStorage.removeItem('linter-content');
+    }
+
+    const legacyMode = localStorage.getItem('linter-mode');
+    if (legacyMode !== null) {
+      if (localStorage.getItem('config-lens-mode') === null) {
+        localStorage.setItem('config-lens-mode', legacyMode);
+      }
+      localStorage.removeItem('linter-mode');
+    }
+
+    const legacyTheme = localStorage.getItem('linter-theme');
+    if (legacyTheme !== null) {
+      if (localStorage.getItem('config-lens-theme') === null) {
+        localStorage.setItem('config-lens-theme', legacyTheme);
+      }
+      localStorage.removeItem('linter-theme');
+    }
+
+    const savedContent = localStorage.getItem('config-lens-content');
     if (savedContent) {
         this.content = savedContent;
         this.modifiedContent = savedContent;
     }
-    const savedMode = localStorage.getItem('linter-mode');
+    const savedMode = localStorage.getItem('config-lens-mode');
     if (savedMode) this.mode = savedMode as 'json' | 'yaml';
 
-    const savedTheme = localStorage.getItem('linter-theme');
+    const savedTheme = localStorage.getItem('config-lens-theme');
     if (savedTheme) {
         this.theme = savedTheme as 'light' | 'dark' | 'system';
     }
@@ -421,18 +447,18 @@ export class LinterApp extends LitElement {
 
   private setTheme(theme: 'light' | 'dark' | 'system') {
     this.theme = theme;
-    localStorage.setItem('linter-theme', this.theme);
+    localStorage.setItem('config-lens-theme', this.theme);
     this.applyTheme();
   }
 
   private handleContentChange(e: CustomEvent) {
     this.content = e.detail.content;
-    localStorage.setItem('linter-content', this.content);
+    localStorage.setItem('config-lens-content', this.content);
   }
 
   private handleOriginalChange(e: CustomEvent) {
       this.content = e.detail.content;
-      localStorage.setItem('linter-content', this.content);
+      localStorage.setItem('config-lens-content', this.content);
   }
 
   private handleModifiedChange(e: CustomEvent) {
@@ -441,7 +467,7 @@ export class LinterApp extends LitElement {
 
   private handleModeChange(e: Event) {
     this.mode = (e.target as HTMLSelectElement).value as 'json' | 'yaml';
-    localStorage.setItem('linter-mode', this.mode);
+    localStorage.setItem('config-lens-mode', this.mode);
   }
 
   private formatContent() {
@@ -453,7 +479,7 @@ export class LinterApp extends LitElement {
             const parsed = jsYaml.load(this.content);
             this.content = jsYaml.dump(parsed);
         }
-        localStorage.setItem('linter-content', this.content);
+        localStorage.setItem('config-lens-content', this.content);
     } catch (e) {
         console.error('Cannot format invalid content');
     }
@@ -484,7 +510,7 @@ export class LinterApp extends LitElement {
 
     return html`
       <header>
-        <div class="logo">Linter.ai</div>
+        <div class="logo">ConfigLens</div>
         <div class="tabs" role="tablist">
           <button
             id="tab-lint"
@@ -553,7 +579,7 @@ export class LinterApp extends LitElement {
       ${this.newVersionAvailable && !this.noticeDismissed ? html`
         <div class="version-notice-banner" role="status" aria-live="polite">
           <div class="version-notice-content">
-            <span>🚀 A new version of Linter.ai ${this.latestVersion ? `(v${this.latestVersion})` : ''} is available!</span>
+            <span>🚀 A new version of ConfigLens ${this.latestVersion ? `(v${this.latestVersion})` : ''} is available!</span>
           </div>
           <div class="version-notice-actions">
             <button class="btn-refresh" @click="${this.handleRefresh}" aria-label="Refresh page to update">Refresh</button>
@@ -616,7 +642,7 @@ export class LinterApp extends LitElement {
           <div>UTF-8</div>
           <span>•</span>
           <a
-            href="https://github.com/ChristopherZhong/linter/releases/tag/v${APP_VERSION}"
+            href="https://github.com/ChristopherZhong/config-lens/releases/tag/v${APP_VERSION}"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Version v${APP_VERSION}"
@@ -629,6 +655,6 @@ export class LinterApp extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'linter-app': LinterApp;
+    'config-lens-app': ConfigLensApp;
   }
 }

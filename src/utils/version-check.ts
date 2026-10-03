@@ -44,7 +44,7 @@ export interface VersionCheckResult {
   latestVersion: string | null;
 }
 
-const GITHUB_RELEASES_URL = 'https://api.github.com/repos/ChristopherZhong/linter/releases/latest';
+const GITHUB_RELEASES_URL = 'https://api.github.com/repos/ChristopherZhong/config-lens/releases/latest';
 
 /**
  * Fetches the latest release tag from GitHub and checks if a newer version is available.

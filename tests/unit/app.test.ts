@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import '~src/main';
-import type { LinterApp } from '~src/main';
+import type { ConfigLensApp } from '~src/main';
 
-describe('LinterApp component', () => {
-  let element: LinterApp;
+describe('ConfigLensApp component', () => {
+  let element: ConfigLensApp;
 
   beforeEach(async () => {
     document.body.innerHTML = '';
-    element = document.createElement('linter-app') as LinterApp;
+    element = document.createElement('config-lens-app') as ConfigLensApp;
     document.body.appendChild(element);
     await element.updateComplete;
   });
@@ -21,7 +21,7 @@ describe('LinterApp component', () => {
     expect(versionLink?.textContent?.trim()).toMatch(/^v\d+\.\d+\.\d+/);
     expect(versionLink?.getAttribute('target')).toBe('_blank');
     expect(versionLink?.getAttribute('rel')).toBe('noopener noreferrer');
-    expect(versionLink?.getAttribute('href')).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/linter\/releases\/tag\/v/);
+    expect(versionLink?.getAttribute('href')).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/config-lens\/releases\/tag\/v/);
   });
 
   it('renders version update notice banner when new version is available', async () => {

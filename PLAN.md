@@ -46,7 +46,7 @@ This project provides a modern, fast, static web-based linter, schema validator,
 - [x] Implement schema detection, fetching, and AJV compilation (`src/utils/validation.ts`).
 
 ### Phase 3: UI Shell & Editor Views
-- [x] Build application shell (`<linter-app>` in `src/main.ts`).
+- [x] Build application shell (`<config-lens-app>` in `src/main.ts`).
 - [x] Build `<editor-component>` with CodeMirror 6 linting extensions.
 - [x] Implement formatting and LocalStorage persistence.
 

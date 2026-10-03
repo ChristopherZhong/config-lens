@@ -1,6 +1,6 @@
 # Sample YAML file
 project:
-  name: Linter.ai
+  name: ConfigLens
   version: 1.0.0
   features:
     - Linting
