@@ -1,4 +1,4 @@
 export interface DocumentParserStrategy {
   mode: string;
-  extractSchemaUrl(docText: string): string | null;
+  extractSchemaUrl(documentText: string): string | null;
 }

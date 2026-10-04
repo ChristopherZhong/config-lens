@@ -20,8 +20,8 @@ export function parseJsonPointer(pointer: string): string[] {
   );
 }
 
-export function getNodeText(node: SyntaxNode, docText: string): string {
-  const raw = docText.slice(node.from, node.to).trim();
+export function getNodeText(node: SyntaxNode, documentText: string): string {
+  const raw = documentText.slice(node.from, node.to).trim();
   // Strip quotes if present
   if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
     return raw.slice(1, -1);
@@ -90,7 +90,7 @@ export function getValueNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode |
 /**
  * Finds child syntax node corresponding to a key in object/mapping or index in array/sequence.
  */
-function findChildNode(container: SyntaxNode, segment: string, docText: string): SyntaxNode | null {
+function findChildNode(container: SyntaxNode, segment: string, documentText: string): SyntaxNode | null {
   let targetContainer = container;
 
   // Unwrap wrapper nodes like Stream, Document, JsonText to get to actual Object/BlockMapping or Array/BlockSequence
@@ -138,7 +138,7 @@ function findChildNode(container: SyntaxNode, segment: string, docText: string):
       if (child.name === 'Property' || child.name === 'Pair') {
         const keyNode = getKeyNodeFromProperty(child);
         if (keyNode) {
-          const keyText = getNodeText(keyNode, docText);
+          const keyText = getNodeText(keyNode, documentText);
           if (keyText === segment) {
             return child;
           }
@@ -188,17 +188,17 @@ function findChildNode(container: SyntaxNode, segment: string, docText: string):
  * Maps a JSON Pointer path (instancePath) to document character range ({from, to}).
  */
 export function findPositionForPath(
-  docText: string,
+  documentText: string,
   mode: 'json' | 'yaml',
   instancePath: string,
   keyword?: string,
   params?: any
 ): DocumentRange {
-  if (!docText) return { from: 0, to: 0 };
+  if (!documentText) return { from: 0, to: 0 };
 
   const segments = parseJsonPointer(instancePath);
   const extensions = [mode === 'json' ? json() : yaml()];
-  const state = EditorState.create({ doc: docText, extensions });
+  const state = EditorState.create({ doc: documentText, extensions });
   const tree = syntaxTree(state);
 
   let current: SyntaxNode = tree.topNode;
@@ -206,7 +206,7 @@ export function findPositionForPath(
   // Walk path segments
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
-    const childProperty = findChildNode(current, segment, docText);
+    const childProperty = findChildNode(current, segment, documentText);
     if (!childProperty) {
       break;
     }
@@ -221,7 +221,7 @@ export function findPositionForPath(
   }
 
   if (current === tree.topNode && segments.length > 0) {
-    return { from: 0, to: Math.min(docText.length, 1) };
+    return { from: 0, to: Math.min(documentText.length, 1) };
   }
 
   // Handle missing property or key highlighting

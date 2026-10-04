@@ -2,9 +2,9 @@ import { DocumentParserStrategy } from '../document-parser-strategy';
 
 export const jsonParserStrategy: DocumentParserStrategy = {
   mode: 'json',
-  extractSchemaUrl(docText: string): string | null {
+  extractSchemaUrl(documentText: string): string | null {
     try {
-      const parsed = JSON.parse(docText);
+      const parsed = JSON.parse(documentText);
       if (parsed && typeof parsed === 'object' && typeof parsed.$schema === 'string') {
         return parsed.$schema;
       }

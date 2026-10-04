@@ -148,7 +148,7 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
  */
 export function getPathAtPosition(view: EditorView, pos: number): { path: string[]; targetNode: SyntaxNode } | null {
   const tree = syntaxTree(view.state);
-  const docText = view.state.doc.toString();
+  const documentText = view.state.doc.toString();
   let node: SyntaxNode | null = tree.resolveInner(pos, -1);
 
   if (!node) return null;
@@ -161,7 +161,7 @@ export function getPathAtPosition(view: EditorView, pos: number): { path: string
     if (current.name === 'Property' || current.name === 'Pair') {
       const keyNode = getKeyNodeFromProperty(current);
       if (keyNode) {
-        const keyText = getNodeText(keyNode, docText);
+        const keyText = getNodeText(keyNode, documentText);
         if (keyText) {
           pathSegments.unshift(keyText);
         }
@@ -326,10 +326,10 @@ export function createHoverTooltipElement(info: HoverSchemaInfo): HTMLElement {
  */
 export function schemaHoverExtension(mode: string) {
   return hoverTooltip(async (view: EditorView, pos: number): Promise<Tooltip | null> => {
-    const docText = view.state.doc.toString();
-    if (!docText) return null;
+    const documentText = view.state.doc.toString();
+    if (!documentText) return null;
 
-    const schemaUrl = documentParserRegistry.extractSchemaUrl(mode, docText);
+    const schemaUrl = documentParserRegistry.extractSchemaUrl(mode, documentText);
     if (!schemaUrl) return null;
 
     const schema = await fetchSchema(schemaUrl);

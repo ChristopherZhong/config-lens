@@ -15,9 +15,9 @@ export class DocumentParserRegistry {
     return this.strategies.get(mode);
   }
 
-  extractSchemaUrl(mode: string, docText: string): string | null {
+  extractSchemaUrl(mode: string, documentText: string): string | null {
     const strategy = this.get(mode);
-    return strategy ? strategy.extractSchemaUrl(docText) : null;
+    return strategy ? strategy.extractSchemaUrl(documentText) : null;
   }
 }
 
