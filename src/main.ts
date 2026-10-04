@@ -272,6 +272,14 @@ export class ConfigLensApp extends LitElement {
       border-color: var(--accent);
     }
 
+    .header-center {
+      flex: 1 1 0%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+
     .controls {
         display: flex;
         gap: 12px;
@@ -320,6 +328,7 @@ export class ConfigLensApp extends LitElement {
       display: inline-flex;
       align-items: center;
       align-self: center;
+      white-space: nowrap;
     }
 
     .format-feedback.success {
@@ -605,12 +614,7 @@ export class ConfigLensApp extends LitElement {
             Compare
           </button>
         </div>
-        <div class="controls">
-          <select @change="${this.handleModeChange}" .value="${this.mode}" aria-label="Select language mode">
-            <option value="json">JSON</option>
-            <option value="yaml">YAML</option>
-          </select>
-          <button @click="${this.formatContent}" aria-label="Format content">Format</button>
+        <div class="header-center">
           ${this.formatFeedback ? html`
             <span
               class="format-feedback ${this.formatFeedback.type}"
@@ -620,6 +624,13 @@ export class ConfigLensApp extends LitElement {
               ${this.formatFeedback.message}
             </span>
           ` : ''}
+        </div>
+        <div class="controls">
+          <select @change="${this.handleModeChange}" .value="${this.mode}" aria-label="Select language mode">
+            <option value="json">JSON</option>
+            <option value="yaml">YAML</option>
+          </select>
+          <button @click="${this.formatContent}" aria-label="Format content">Format</button>
 
           <div class="theme-toggle" data-theme="${this.theme}" role="radiogroup" aria-label="Select theme">
             <div class="theme-slider"></div>
