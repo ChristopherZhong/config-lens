@@ -38,7 +38,7 @@ describe('validation logic', () => {
     expect(result).toEqual([]);
   });
 
-  it('validates against schema if $schema is present', async () => {
+  it('validates against schema if $schema is present and maps diagnostic position', async () => {
     const json = '{"$schema": "http://example.com/schema.json", "age": "not-a-number"}';
 
     // Mock fetch for schema
@@ -55,6 +55,9 @@ describe('validation logic', () => {
     const result = await validateContent(json, 'json');
     expect(result.length).toBeGreaterThan(0);
     expect(result[0].message).toContain('Schema: /age must be number');
+    // Ensure diagnostic range points directly to the value `"not-a-number"` rather than the entire document
+    const errorText = json.slice(result[0].from, result[0].to);
+    expect(errorText).toBe('"not-a-number"');
   });
 
   it('validates string formats such as uri using ajv-formats', async () => {

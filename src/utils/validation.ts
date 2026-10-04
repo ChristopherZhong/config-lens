@@ -1,6 +1,7 @@
 import * as jsYaml from 'js-yaml';
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
+import { findPositionForPath } from './schema-position';
 
 const ajv = new Ajv({
   allErrors: true,
@@ -139,13 +140,18 @@ export async function validateContent(text: string, mode: 'json' | 'yaml'): Prom
       const valid = validate(data);
       if (!valid && validate.errors) {
         validate.errors.forEach(err => {
-          // Schema errors are harder to map to precise positions without a source map
-          // Keeping document-wide for now or could try to refine if possible
+          const range = findPositionForPath(
+            text,
+            mode,
+            err.instancePath,
+            err.keyword,
+            err.params
+          );
           diagnostics.push({
-            from: 0,
-            to: text.length,
+            from: range.from,
+            to: range.to,
             severity: 'error',
-            message: `Schema: ${err.instancePath} ${err.message}`,
+            message: `Schema: ${err.instancePath || '/'} ${err.message}`,
           });
         });
       }

@@ -7,7 +7,10 @@ import { yaml } from '@codemirror/lang-yaml';
 import { Extension } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { MergeView } from '@codemirror/merge';
+import { linter, lintGutter } from '@codemirror/lint';
+import { validateContent } from '../utils/validation';
 import { propertyAnnotationsPlugin, annotationTheme } from '../utils/annotations';
+import { schemaHoverExtension } from '../utils/schema-hover';
 
 @customElement('diff-component')
 export class DiffComponent extends LitElement {
@@ -202,6 +205,9 @@ export class DiffComponent extends LitElement {
       this.mode === 'json' ? json() : yaml(),
       propertyAnnotationsPlugin,
       annotationTheme,
+      schemaHoverExtension(this.mode),
+      lintGutter(),
+      linter(async (view) => await validateContent(view.state.doc.toString(), this.mode)),
     ];
 
     if (this.theme === 'dark') {

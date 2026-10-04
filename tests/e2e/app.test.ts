@@ -307,6 +307,36 @@ test('fold all and expand all in compare view', async ({ page }) => {
   expect(foldPlaceholdersCountAfterExpand).toBe(0);
 });
 
+test('schema validation highlights error at specific location', async ({ page }) => {
+  const jsonWithSchemaError = JSON.stringify(
+    {
+      $schema: 'https://json-schema.org/draft-07/schema#',
+      type: 'object',
+      properties: {
+        port: { type: 'number' }
+      },
+      port: 'invalid-string'
+    },
+    null,
+    2
+  );
+
+  await page.evaluate((json) => {
+    localStorage.setItem('config-lens-content', json);
+  }, jsonWithSchemaError);
+
+  await page.reload();
+
+  // Check that lint error marker or underline diagnostic is rendered in the editor
+  const hasLintDiagnostics = await page.evaluate(() => {
+    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
+    const lintMarkers = editorComp?.shadowRoot?.querySelectorAll('.cm-lintRange-error, .cm-lint-marker-error');
+    return lintMarkers ? lintMarkers.length : 0;
+  });
+
+  expect(hasLintDiagnostics).toBeGreaterThan(0);
+});
+
 test('footer displays release version link', async ({ page }) => {
   const versionLink = page.locator('config-lens-app').locator('footer a');
   await expect(versionLink).toBeVisible();
