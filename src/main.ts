@@ -47,19 +47,27 @@ export class ConfigLensApp extends LitElement {
       display: flex;
       flex-direction: column;
       height: 100vh;
+      max-width: 100vw;
+      width: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
       background: var(--bg-main);
       color: var(--text-main);
     }
 
     header {
-      height: 56px;
+      min-height: 56px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      padding: 0 24px;
+      padding: 0 16px;
       justify-content: space-between;
       background-color: var(--bg-sidebar);
       flex-shrink: 0;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+      gap: 12px;
     }
 
     .logo {
@@ -69,6 +77,8 @@ export class ConfigLensApp extends LitElement {
       font-weight: 600;
       font-size: 18px;
       letter-spacing: -0.02em;
+      flex-shrink: 0;
+      min-width: 0;
     }
 
     .logo-icon {
@@ -76,6 +86,7 @@ export class ConfigLensApp extends LitElement {
       height: 24px;
       border-radius: 6px;
       object-fit: contain;
+      flex-shrink: 0;
     }
 
     .tabs {
@@ -126,6 +137,9 @@ export class ConfigLensApp extends LitElement {
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       z-index: 10;
       flex-shrink: 0;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     .version-notice-content {
@@ -174,17 +188,20 @@ export class ConfigLensApp extends LitElement {
     }
 
     main {
-      flex: 1;
+      flex: 1 1 0%;
       display: flex;
       overflow: hidden;
       padding: 20px;
       gap: 20px;
       min-height: 0;
+      min-width: 0;
+      max-width: 100%;
       box-sizing: border-box;
+      width: 100%;
     }
 
     .editor-wrapper {
-      flex: 1;
+      flex: 1 1 0%;
       display: flex;
       flex-direction: column;
       background: var(--bg-card);
@@ -192,25 +209,37 @@ export class ConfigLensApp extends LitElement {
       border-radius: 12px;
       overflow: hidden;
       min-height: 0;
+      min-width: 0;
+      max-width: 100%;
       height: 100%;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     editor-component,
     diff-component {
-      flex: 1;
+      flex: 1 1 0%;
       min-height: 0;
-      height: 0;
+      min-width: 0;
+      max-width: 100%;
+      height: 100%;
+      width: 100%;
       display: flex;
       flex-direction: column;
     }
 
     .editor-toolbar {
-      padding: 12px 16px;
+      padding: 8px 16px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--bg-sidebar);
+      flex-shrink: 0;
+      min-width: 0;
+      box-sizing: border-box;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .editor-title {
@@ -245,7 +274,31 @@ export class ConfigLensApp extends LitElement {
 
     .controls {
         display: flex;
-        gap: 12px;
+        gap: 8px;
+        align-items: center;
+        min-width: 0;
+        flex-shrink: 1;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 0 8px;
+        gap: 6px;
+      }
+      .logo span {
+        display: none;
+      }
+      .tab {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      main {
+        padding: 8px;
+        gap: 8px;
+      }
+      .editor-toolbar {
+        padding: 6px 10px;
+      }
     }
 
     button {
@@ -364,6 +417,9 @@ export class ConfigLensApp extends LitElement {
       color: var(--text-muted);
       background: var(--bg-sidebar);
       flex-shrink: 0;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     footer a {
