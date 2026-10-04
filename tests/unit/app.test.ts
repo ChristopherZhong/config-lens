@@ -12,6 +12,20 @@ describe('ConfigLensApp component', () => {
     await element.updateComplete;
   });
 
+  it('renders header with controls and responsive flex layout', () => {
+    const shadow = element.shadowRoot;
+    expect(shadow).not.toBeNull();
+
+    const header = shadow?.querySelector('header');
+    expect(header).not.toBeNull();
+    const logo = shadow?.querySelector('.logo');
+    expect(logo).not.toBeNull();
+    const tabs = shadow?.querySelector('.tabs');
+    expect(tabs).not.toBeNull();
+    const controls = shadow?.querySelector('.controls');
+    expect(controls).not.toBeNull();
+  });
+
   it('renders footer with release version link', () => {
     const shadow = element.shadowRoot;
     expect(shadow).not.toBeNull();
