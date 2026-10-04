@@ -23,11 +23,11 @@ export { yamlParserStrategy } from './strategies/yaml-parser-strategy';
 /**
  * Resolves $ref pointers within a root JSON schema.
  */
-export function resolveSchemaRef(rootSchema: unknown, ref: string): Record<string, unknown> | null {
-  if (!ref || typeof ref !== 'string') return null;
-  if (!ref.startsWith('#/')) return null;
+export function resolveSchemaRef(rootSchema: unknown, reference: string): Record<string, unknown> | null {
+  if (!reference || typeof reference !== 'string') return null;
+  if (!reference.startsWith('#/')) return null;
 
-  const parts = ref.slice(2).split('/');
+  const parts = reference.slice(2).split('/');
   let current: unknown = rootSchema;
   for (const part of parts) {
     if (!current || typeof current !== 'object') return null;
@@ -68,27 +68,27 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
   let isRequired = false;
 
   for (let i = 0; i < path.length; i++) {
-    const seg = path[i];
+    const segment = path[i];
     if (!current || typeof current !== 'object') return null;
 
     parentSchema = current;
-    const requiredArr = parentSchema.required;
-    isRequired = Array.isArray(requiredArr) && requiredArr.includes(seg);
+    const requiredArray = parentSchema.required;
+    isRequired = Array.isArray(requiredArray) && requiredArray.includes(segment);
 
     let nextSchema: unknown = null;
 
     // Check properties
-    const props = current.properties;
-    if (props && typeof props === 'object' && (props as Record<string, unknown>)[seg]) {
-      nextSchema = (props as Record<string, unknown>)[seg];
+    const properties = current.properties;
+    if (properties && typeof properties === 'object' && (properties as Record<string, unknown>)[segment]) {
+      nextSchema = (properties as Record<string, unknown>)[segment];
     }
     // Check patternProperties
     else if (current.patternProperties && typeof current.patternProperties === 'object') {
-      const patternProps = current.patternProperties as Record<string, unknown>;
-      for (const pattern of Object.keys(patternProps)) {
+      const patternProperties = current.patternProperties as Record<string, unknown>;
+      for (const pattern of Object.keys(patternProperties)) {
         try {
-          if (new RegExp(pattern).test(seg)) {
-            nextSchema = patternProps[pattern];
+          if (new RegExp(pattern).test(segment)) {
+            nextSchema = patternProperties[pattern];
             break;
           }
         } catch {}
@@ -100,8 +100,8 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
     }
     // Check items (array)
     if (!nextSchema && current.items) {
-      if (Array.isArray(current.items) && !isNaN(Number(seg))) {
-        nextSchema = current.items[Number(seg)] || current.additionalItems;
+      if (Array.isArray(current.items) && !isNaN(Number(segment))) {
+        nextSchema = current.items[Number(segment)] || current.additionalItems;
       } else if (typeof current.items === 'object') {
         nextSchema = current.items;
       }
@@ -113,11 +113,11 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
       const anyOf = Array.isArray(current.anyOf) ? current.anyOf : [];
       const candidates = [...allOf, ...oneOf, ...anyOf];
 
-      for (const cand of candidates) {
-        const resolvedCand = dereferenceSchema(rootSchema, cand);
-        const candProps = resolvedCand?.properties;
-        if (candProps && typeof candProps === 'object' && (candProps as Record<string, unknown>)[seg]) {
-          nextSchema = (candProps as Record<string, unknown>)[seg];
+      for (const candidate of candidates) {
+        const resolvedCandidate = dereferenceSchema(rootSchema, candidate);
+        const candidateProperties = resolvedCandidate?.properties;
+        if (candidateProperties && typeof candidateProperties === 'object' && (candidateProperties as Record<string, unknown>)[segment]) {
+          nextSchema = (candidateProperties as Record<string, unknown>)[segment];
           break;
         }
       }
@@ -142,12 +142,12 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
 }
 
 /**
- * Extracts JSON Pointer path from syntax tree at character position `pos`.
+ * Extracts JSON Pointer path from syntax tree at character position `position`.
  */
-export function getPathAtPosition(view: EditorView, pos: number): { path: string[]; targetNode: SyntaxNode } | null {
+export function getPathAtPosition(view: EditorView, position: number): { path: string[]; targetNode: SyntaxNode } | null {
   const tree = syntaxTree(view.state);
   const documentText = view.state.doc.toString();
-  let node: SyntaxNode | null = tree.resolveInner(pos, -1);
+  let node: SyntaxNode | null = tree.resolveInner(position, -1);
 
   if (!node) return null;
 
@@ -169,7 +169,7 @@ export function getPathAtPosition(view: EditorView, pos: number): { path: string
       let child = current.firstChild;
       let matchedIndex = -1;
       while (child) {
-        if (child.from <= pos && pos <= child.to) {
+        if (child.from <= position && position <= child.to) {
           if (
             child.name !== '[' &&
             child.name !== ']' &&
@@ -206,9 +206,9 @@ export function getPathAtPosition(view: EditorView, pos: number): { path: string
  * Renders tooltip DOM element for a sub-schema.
  */
 export function createHoverTooltipElement(info: HoverSchemaInfo): HTMLElement {
-  const dom = document.createElement('div');
-  dom.className = 'cm-schema-tooltip';
-  dom.style.cssText = `
+  const containerElement = document.createElement('div');
+  containerElement.className = 'cm-schema-tooltip';
+  containerElement.style.cssText = `
     padding: 8px 12px;
     font-family: system-ui, -apple-system, sans-serif;
     font-size: 12px;
@@ -233,11 +233,11 @@ export function createHoverTooltipElement(info: HoverSchemaInfo): HTMLElement {
   titleSpan.textContent = propertyName;
   header.appendChild(titleSpan);
 
-  const typeVal = schema.type;
-  const typeText = Array.isArray(typeVal)
-    ? typeVal.join(' | ')
-    : typeof typeVal === 'string'
-    ? typeVal
+  const typeValue = schema.type;
+  const typeText = Array.isArray(typeValue)
+    ? typeValue.join(' | ')
+    : typeof typeValue === 'string'
+    ? typeValue
     : schema.enum
     ? 'enum'
     : 'any';
@@ -255,49 +255,49 @@ export function createHoverTooltipElement(info: HoverSchemaInfo): HTMLElement {
   header.appendChild(typeBadge);
 
   if (isRequired) {
-    const reqBadge = document.createElement('span');
-    reqBadge.style.cssText = `
+    const requiredBadge = document.createElement('span');
+    requiredBadge.style.cssText = `
       background: rgba(239, 68, 68, 0.2);
       color: #f87171;
       padding: 1px 6px;
       border-radius: 4px;
       font-size: 11px;
     `;
-    reqBadge.textContent = 'Required';
-    header.appendChild(reqBadge);
+    requiredBadge.textContent = 'Required';
+    header.appendChild(requiredBadge);
   }
 
-  dom.appendChild(header);
+  containerElement.appendChild(header);
 
   // Schema title / description
   if (typeof schema.title === 'string') {
-    const titleEl = document.createElement('div');
-    titleEl.style.cssText = 'font-weight: 600; margin-bottom: 2px; color: #dcdcaa;';
-    titleEl.textContent = schema.title;
-    dom.appendChild(titleEl);
+    const titleElement = document.createElement('div');
+    titleElement.style.cssText = 'font-weight: 600; margin-bottom: 2px; color: #dcdcaa;';
+    titleElement.textContent = schema.title;
+    containerElement.appendChild(titleElement);
   }
 
   if (typeof schema.description === 'string') {
-    const descEl = document.createElement('div');
-    descEl.style.cssText = 'margin-bottom: 6px; white-space: pre-wrap; opacity: 0.9;';
-    descEl.textContent = schema.description;
-    dom.appendChild(descEl);
+    const descriptionElement = document.createElement('div');
+    descriptionElement.style.cssText = 'margin-bottom: 6px; white-space: pre-wrap; opacity: 0.9;';
+    descriptionElement.textContent = schema.description;
+    containerElement.appendChild(descriptionElement);
   }
 
   // Enum values
   if (Array.isArray(schema.enum)) {
-    const enumEl = document.createElement('div');
-    enumEl.style.cssText = 'margin-top: 4px; font-size: 11px; opacity: 0.85;';
-    enumEl.textContent = `Allowed values: ${schema.enum.map((v: unknown) => JSON.stringify(v)).join(', ')}`;
-    dom.appendChild(enumEl);
+    const enumElement = document.createElement('div');
+    enumElement.style.cssText = 'margin-top: 4px; font-size: 11px; opacity: 0.85;';
+    enumElement.textContent = `Allowed values: ${schema.enum.map((value: unknown) => JSON.stringify(value)).join(', ')}`;
+    containerElement.appendChild(enumElement);
   }
 
   // Default value
   if (schema.default !== undefined) {
-    const defaultEl = document.createElement('div');
-    defaultEl.style.cssText = 'margin-top: 4px; font-size: 11px; color: #ce9178; font-family: monospace;';
-    defaultEl.textContent = `Default: ${JSON.stringify(schema.default)}`;
-    dom.appendChild(defaultEl);
+    const defaultElement = document.createElement('div');
+    defaultElement.style.cssText = 'margin-top: 4px; font-size: 11px; color: #ce9178; font-family: monospace;';
+    defaultElement.textContent = `Default: ${JSON.stringify(schema.default)}`;
+    containerElement.appendChild(defaultElement);
   }
 
   // Constraints (min, max, pattern, etc.)
@@ -310,20 +310,20 @@ export function createHoverTooltipElement(info: HoverSchemaInfo): HTMLElement {
   if (schema.format) constraints.push(`format: ${schema.format}`);
 
   if (constraints.length > 0) {
-    const constrEl = document.createElement('div');
-    constrEl.style.cssText = 'margin-top: 4px; font-size: 11px; opacity: 0.75; font-family: monospace;';
-    constrEl.textContent = `Constraints: ${constraints.join(', ')}`;
-    dom.appendChild(constrEl);
+    const constraintsElement = document.createElement('div');
+    constraintsElement.style.cssText = 'margin-top: 4px; font-size: 11px; opacity: 0.75; font-family: monospace;';
+    constraintsElement.textContent = `Constraints: ${constraints.join(', ')}`;
+    containerElement.appendChild(constraintsElement);
   }
 
-  return dom;
+  return containerElement;
 }
 
 /**
  * Creates CodeMirror hoverTooltip extension for JSON Schema property tooltips.
  */
 export function schemaHoverExtension(mode: string) {
-  return hoverTooltip(async (view: EditorView, pos: number): Promise<Tooltip | null> => {
+  return hoverTooltip(async (view: EditorView, position: number): Promise<Tooltip | null> => {
     const documentText = view.state.doc.toString();
     if (!documentText) return null;
 
@@ -333,7 +333,7 @@ export function schemaHoverExtension(mode: string) {
     const schema = await fetchSchema(schemaUrl);
     if (!schema) return null;
 
-    const pathInfo = getPathAtPosition(view, pos);
+    const pathInfo = getPathAtPosition(view, position);
     if (!pathInfo || pathInfo.path.length === 0) return null;
 
     const hoverInfo = getSchemaForPath(schema, pathInfo.path);
