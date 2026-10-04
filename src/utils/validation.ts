@@ -1,7 +1,9 @@
-import * as jsYaml from 'js-yaml';
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { findPositionForPath } from './schema-position';
+import { documentValidationParserRegistry } from './document-validation-parser-registry';
+import './strategies/json-validation-parser-strategy';
+import './strategies/yaml-validation-parser-strategy';
 
 const ajv = new Ajv({
   allErrors: true,
@@ -102,37 +104,29 @@ export async function validateContent(text: string, mode: 'json' | 'yaml'): Prom
 
   const diagnostics: ValidationDiagnostic[] = [];
 
-  let data: any;
-  try {
-    if (mode === 'json') {
-      data = JSON.parse(text);
-    } else {
-      data = jsYaml.load(text);
-    }
-  } catch (e: any) {
-    // Attempt to extract line/column for better precision
+  const parseResult = documentValidationParserRegistry.parse(mode, text);
+  if (parseResult.error) {
     let from = 0;
     let to = text.length;
 
-    if (mode === 'yaml' && e.mark) {
-        from = e.mark.position;
-        to = from + 1; // Highlight at least one character
-    } else if (mode === 'json') {
-        const match = e.message.match(/at position (\d+)/);
-        if (match) {
-            from = parseInt(match[1], 10);
-            to = from + 1;
-        }
+    if (parseResult.error.markPosition !== undefined) {
+      from = parseResult.error.markPosition;
+      to = from + 1;
+    } else if (parseResult.error.matchPosition !== undefined) {
+      from = parseResult.error.matchPosition;
+      to = from + 1;
     }
 
     diagnostics.push({
       from,
       to,
       severity: 'error',
-      message: e.message,
+      message: parseResult.error.message,
     });
     return diagnostics;
   }
+
+  const data: any = parseResult.data;
 
   if (data && typeof data === 'object' && typeof data.$schema === 'string') {
     const validate = await getValidator(data.$schema);
