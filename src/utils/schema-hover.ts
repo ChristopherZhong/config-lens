@@ -12,6 +12,58 @@ export interface HoverSchemaInfo {
   isRequired?: boolean;
 }
 
+export interface DocumentParserStrategy {
+  mode: string;
+  extractSchemaUrl(docText: string): string | null;
+}
+
+export class DocumentParserRegistry {
+  private strategies = new Map<string, DocumentParserStrategy>();
+
+  register(strategy: DocumentParserStrategy): void {
+    this.strategies.set(strategy.mode, strategy);
+  }
+
+  get(mode: string): DocumentParserStrategy | undefined {
+    return this.strategies.get(mode);
+  }
+
+  extractSchemaUrl(mode: string, docText: string): string | null {
+    const strategy = this.get(mode);
+    return strategy ? strategy.extractSchemaUrl(docText) : null;
+  }
+}
+
+export const jsonParserStrategy: DocumentParserStrategy = {
+  mode: 'json',
+  extractSchemaUrl(docText: string): string | null {
+    try {
+      const parsed = JSON.parse(docText);
+      if (parsed && typeof parsed === 'object' && typeof parsed.$schema === 'string') {
+        return parsed.$schema;
+      }
+    } catch {}
+    return null;
+  }
+};
+
+export const yamlParserStrategy: DocumentParserStrategy = {
+  mode: 'yaml',
+  extractSchemaUrl(docText: string): string | null {
+    try {
+      const parsed: unknown = jsYaml.load(docText);
+      if (parsed && typeof parsed === 'object' && parsed !== null && typeof (parsed as Record<string, unknown>).$schema === 'string') {
+        return (parsed as Record<string, unknown>).$schema as string;
+      }
+    } catch {}
+    return null;
+  }
+};
+
+export const documentParserRegistry = new DocumentParserRegistry();
+documentParserRegistry.register(jsonParserStrategy);
+documentParserRegistry.register(yamlParserStrategy);
+
 /**
  * Resolves $ref pointers within a root JSON schema.
  */
@@ -314,28 +366,12 @@ export function createHoverTooltipElement(info: HoverSchemaInfo): HTMLElement {
 /**
  * Creates CodeMirror hoverTooltip extension for JSON Schema property tooltips.
  */
-export function schemaHoverExtension(mode: 'json' | 'yaml') {
+export function schemaHoverExtension(mode: string) {
   return hoverTooltip(async (view: EditorView, pos: number): Promise<Tooltip | null> => {
     const docText = view.state.doc.toString();
     if (!docText) return null;
 
-    let schemaUrl: string | null = null;
-    try {
-      if (mode === 'json') {
-        const parsed = JSON.parse(docText);
-        if (parsed && typeof parsed === 'object' && typeof parsed.$schema === 'string') {
-          schemaUrl = parsed.$schema;
-        }
-      } else {
-        const parsed: unknown = jsYaml.load(docText);
-        if (parsed && typeof parsed === 'object' && parsed !== null && typeof (parsed as Record<string, unknown>).$schema === 'string') {
-          schemaUrl = (parsed as Record<string, unknown>).$schema as string;
-        }
-      }
-    } catch {
-      return null;
-    }
-
+    const schemaUrl = documentParserRegistry.extractSchemaUrl(mode, docText);
     if (!schemaUrl) return null;
 
     const schema = await fetchSchema(schemaUrl);

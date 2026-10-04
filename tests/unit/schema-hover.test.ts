@@ -3,7 +3,8 @@ import {
   resolveSchemaRef,
   dereferenceSchema,
   getSchemaForPath,
-  createHoverTooltipElement
+  createHoverTooltipElement,
+  documentParserRegistry
 } from '../../src/utils/schema-hover';
 
 describe('schema-hover', () => {
@@ -39,6 +40,14 @@ describe('schema-hover', () => {
       }
     }
   };
+
+  it('extracts schema URL via DocumentParserRegistry for JSON and YAML', () => {
+    const jsonDoc = '{"$schema": "https://example.com/json.json"}';
+    const yamlDoc = '$schema: https://example.com/yaml.json\nfoo: bar';
+
+    expect(documentParserRegistry.extractSchemaUrl('json', jsonDoc)).toBe('https://example.com/json.json');
+    expect(documentParserRegistry.extractSchemaUrl('yaml', yamlDoc)).toBe('https://example.com/yaml.json');
+  });
 
   it('resolves $ref pointer in schema', () => {
     const resolved = resolveSchemaRef(sampleSchema, '#/$defs/ServerConfig');
