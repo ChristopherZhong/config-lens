@@ -17,10 +17,8 @@ export {
   DocumentParserRegistry,
   documentParserRegistry
 } from './document-parser-registry';
-export {
-  jsonParserStrategy,
-  yamlParserStrategy
-} from './strategies';
+export { jsonParserStrategy } from './strategies/json-parser-strategy';
+export { yamlParserStrategy } from './strategies/yaml-parser-strategy';
 
 /**
  * Resolves $ref pointers within a root JSON schema.

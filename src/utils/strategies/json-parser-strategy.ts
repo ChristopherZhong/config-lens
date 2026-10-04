@@ -1,3 +1,4 @@
+import { documentParserRegistry } from '../document-parser-registry';
 import { DocumentParserStrategy } from '../document-parser-strategy';
 
 export const jsonParserStrategy: DocumentParserStrategy = {
@@ -12,3 +13,5 @@ export const jsonParserStrategy: DocumentParserStrategy = {
     return null;
   }
 };
+
+documentParserRegistry.register(jsonParserStrategy);
