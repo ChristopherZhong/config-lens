@@ -12,13 +12,15 @@ export interface HoverSchemaInfo {
   isRequired?: boolean;
 }
 
-export type { DocumentParserStrategy } from './document-parser-registry';
+export type { DocumentParserStrategy } from './document-parser-strategy';
 export {
   DocumentParserRegistry,
-  documentParserRegistry,
+  documentParserRegistry
+} from './document-parser-registry';
+export {
   jsonParserStrategy,
   yamlParserStrategy
-} from './document-parser-registry';
+} from './document-parser-strategies';
 
 /**
  * Resolves $ref pointers within a root JSON schema.

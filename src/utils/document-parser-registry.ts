@@ -1,9 +1,5 @@
+import { DocumentParserStrategy } from './document-parser-strategy';
 import { jsonParserStrategy, yamlParserStrategy } from './document-parser-strategies';
-
-export interface DocumentParserStrategy {
-  mode: string;
-  extractSchemaUrl(docText: string): string | null;
-}
 
 export class DocumentParserRegistry {
   private strategies = new Map<string, DocumentParserStrategy>();
@@ -25,8 +21,6 @@ export class DocumentParserRegistry {
     return strategy ? strategy.extractSchemaUrl(docText) : null;
   }
 }
-
-export { jsonParserStrategy, yamlParserStrategy } from './document-parser-strategies';
 
 export const documentParserRegistry = new DocumentParserRegistry();
 documentParserRegistry.register(jsonParserStrategy);
