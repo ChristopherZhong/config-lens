@@ -61,17 +61,23 @@ export class ConfigLensApp extends LitElement {
       min-height: 56px;
       height: auto;
       border-bottom: 1px solid var(--border);
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
       padding: 8px 24px;
-      justify-content: space-between;
       background-color: var(--bg-sidebar);
       flex-shrink: 0;
       min-width: 0;
       max-width: 100%;
       box-sizing: border-box;
-      flex-wrap: wrap;
-      gap: 8px 16px;
+      gap: 16px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 0;
     }
 
     .logo {
@@ -98,6 +104,15 @@ export class ConfigLensApp extends LitElement {
       padding: 4px;
       border-radius: 8px;
       border: 1px solid var(--border);
+      justify-self: center;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      min-width: 0;
     }
 
     .tab {
@@ -285,6 +300,9 @@ export class ConfigLensApp extends LitElement {
         padding: 8px 12px;
         gap: 8px;
       }
+      .header-right {
+        gap: 8px;
+      }
       .controls {
         gap: 8px;
       }
@@ -320,6 +338,7 @@ export class ConfigLensApp extends LitElement {
       display: inline-flex;
       align-items: center;
       align-self: center;
+      white-space: nowrap;
     }
 
     .format-feedback.success {
@@ -579,9 +598,11 @@ export class ConfigLensApp extends LitElement {
 
     return html`
       <header>
-        <div class="logo">
-          <img src="./favicon.svg" alt="ConfigLens Logo" class="logo-icon" />
-          <span>ConfigLens</span>
+        <div class="header-left">
+          <div class="logo">
+            <img src="./favicon.svg" alt="ConfigLens Logo" class="logo-icon" />
+            <span>ConfigLens</span>
+          </div>
         </div>
         <div class="tabs" role="tablist">
           <button
@@ -605,12 +626,7 @@ export class ConfigLensApp extends LitElement {
             Compare
           </button>
         </div>
-        <div class="controls">
-          <select @change="${this.handleModeChange}" .value="${this.mode}" aria-label="Select language mode">
-            <option value="json">JSON</option>
-            <option value="yaml">YAML</option>
-          </select>
-          <button @click="${this.formatContent}" aria-label="Format content">Format</button>
+        <div class="header-right">
           ${this.formatFeedback ? html`
             <span
               class="format-feedback ${this.formatFeedback.type}"
@@ -620,39 +636,46 @@ export class ConfigLensApp extends LitElement {
               ${this.formatFeedback.message}
             </span>
           ` : ''}
+          <div class="controls">
+            <select @change="${this.handleModeChange}" .value="${this.mode}" aria-label="Select language mode">
+              <option value="json">JSON</option>
+              <option value="yaml">YAML</option>
+            </select>
+            <button @click="${this.formatContent}" aria-label="Format content">Format</button>
 
-          <div class="theme-toggle" data-theme="${this.theme}" role="radiogroup" aria-label="Select theme">
-            <div class="theme-slider"></div>
-            <button
-              class="theme-option ${this.theme === 'system' ? 'active' : ''}"
-              @click="${() => this.setTheme('system')}"
-              role="radio"
-              aria-checked="${this.theme === 'system'}"
-              title="System Theme"
-              aria-label="System Theme"
-            >
-              🖥️
-            </button>
-            <button
-              class="theme-option ${this.theme === 'light' ? 'active' : ''}"
-              @click="${() => this.setTheme('light')}"
-              role="radio"
-              aria-checked="${this.theme === 'light'}"
-              title="Light Theme"
-              aria-label="Light Theme"
-            >
-              ☀️
-            </button>
-            <button
-              class="theme-option ${this.theme === 'dark' ? 'active' : ''}"
-              @click="${() => this.setTheme('dark')}"
-              role="radio"
-              aria-checked="${this.theme === 'dark'}"
-              title="Dark Theme"
-              aria-label="Dark Theme"
-            >
-              🌙
-            </button>
+            <div class="theme-toggle" data-theme="${this.theme}" role="radiogroup" aria-label="Select theme">
+              <div class="theme-slider"></div>
+              <button
+                class="theme-option ${this.theme === 'system' ? 'active' : ''}"
+                @click="${() => this.setTheme('system')}"
+                role="radio"
+                aria-checked="${this.theme === 'system'}"
+                title="System Theme"
+                aria-label="System Theme"
+              >
+                🖥️
+              </button>
+              <button
+                class="theme-option ${this.theme === 'light' ? 'active' : ''}"
+                @click="${() => this.setTheme('light')}"
+                role="radio"
+                aria-checked="${this.theme === 'light'}"
+                title="Light Theme"
+                aria-label="Light Theme"
+              >
+                ☀️
+              </button>
+              <button
+                class="theme-option ${this.theme === 'dark' ? 'active' : ''}"
+                @click="${() => this.setTheme('dark')}"
+                role="radio"
+                aria-checked="${this.theme === 'dark'}"
+                title="Dark Theme"
+                aria-label="Dark Theme"
+              >
+                🌙
+              </button>
+            </div>
           </div>
         </div>
       </header>
