@@ -6,7 +6,7 @@ export class DocumentParserRegistry {
 
   register(strategy: DocumentParserStrategy): void {
     if (this.strategies.has(strategy.mode)) {
-      console.warn(`[DocumentParserRegistry] Strategy for mode '${strategy.mode}' is already registered; duplicate registration will be ignored.`);
+      console.warn(`[${DocumentParserRegistry.name}] Strategy for mode '${strategy.mode}' is already registered; duplicate registration will be ignored.`);
       return;
     }
     this.strategies.set(strategy.mode, strategy);
