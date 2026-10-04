@@ -56,17 +56,20 @@ export class ConfigLensApp extends LitElement {
     }
 
     header {
-      height: 56px;
+      min-height: 56px;
+      height: auto;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      padding: 0 24px;
+      padding: 8px 24px;
       justify-content: space-between;
       background-color: var(--bg-sidebar);
       flex-shrink: 0;
       min-width: 0;
       max-width: 100%;
       box-sizing: border-box;
+      flex-wrap: wrap;
+      gap: 8px 16px;
     }
 
     .logo {
@@ -272,6 +275,24 @@ export class ConfigLensApp extends LitElement {
         gap: 12px;
         align-items: center;
         min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 8px 12px;
+        gap: 8px;
+      }
+      .controls {
+        gap: 8px;
+      }
+      .tabs {
+        padding: 2px;
+      }
+      .tab {
+        padding: 4px 10px;
+        font-size: 12px;
+      }
     }
 
     button {
