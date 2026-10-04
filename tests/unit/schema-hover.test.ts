@@ -43,15 +43,17 @@ describe('schema-hover', () => {
   it('resolves $ref pointer in schema', () => {
     const resolved = resolveSchemaRef(sampleSchema, '#/$defs/ServerConfig');
     expect(resolved).toBeDefined();
-    expect(resolved.type).toBe('object');
-    expect(resolved.properties.port).toBeDefined();
+    expect(resolved?.type).toBe('object');
+    const props = resolved?.properties as Record<string, unknown>;
+    expect(props?.port).toBeDefined();
   });
 
   it('dereferences schema correctly', () => {
     const subSchema = { $ref: '#/$defs/ServerConfig' };
     const derefed = dereferenceSchema(sampleSchema, subSchema);
-    expect(derefed.type).toBe('object');
-    expect(derefed.properties.port.type).toBe('integer');
+    expect(derefed?.type).toBe('object');
+    const props = derefed?.properties as Record<string, Record<string, unknown>>;
+    expect(props?.port?.type).toBe('integer');
   });
 
   it('navigates schema for nested path /server/port', () => {
