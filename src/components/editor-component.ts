@@ -9,6 +9,7 @@ import { EditorState, Extension, StateEffect } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { validateContent } from '../utils/validation';
 import { propertyAnnotationsPlugin, annotationTheme } from '../utils/annotations';
+import { schemaHoverExtension } from '../utils/schema-hover';
 
 @customElement('editor-component')
 export class EditorComponent extends LitElement {
@@ -89,6 +90,7 @@ export class EditorComponent extends LitElement {
       this.mode === 'json' ? json() : yaml(),
       propertyAnnotationsPlugin,
       annotationTheme,
+      schemaHoverExtension(this.mode),
       lintGutter(),
       linter(async (view) => await validateContent(view.state.doc.toString(), this.mode)),
       EditorView.updateListener.of((update) => {

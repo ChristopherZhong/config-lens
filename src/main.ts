@@ -4,9 +4,11 @@ import './components/editor-component';
 import './components/diff-component';
 import type { EditorComponent } from './components/editor-component';
 import type { DiffComponent } from './components/diff-component';
-import * as jsYaml from 'js-yaml';
 import { checkLatestRelease } from './utils/version-check';
 import { safeStorageGetItem, safeStorageSetItem } from './utils/storage';
+import { documentFormatterRegistry } from './utils/document-formatter-registry';
+import './utils/strategies/json-formatter-strategy';
+import './utils/strategies/yaml-formatter-strategy';
 
 const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
 const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
@@ -543,13 +545,7 @@ export class ConfigLensApp extends LitElement {
 
   private formatContent() {
     try {
-        if (this.mode === 'json') {
-            const parsed = JSON.parse(this.content);
-            this.content = JSON.stringify(parsed, null, 2);
-        } else {
-            const parsed = jsYaml.load(this.content);
-            this.content = jsYaml.dump(parsed);
-        }
+        this.content = documentFormatterRegistry.format(this.mode, this.content);
         safeStorageSetItem('config-lens-content', this.content);
         this.showFormatFeedback('success', 'Formatted!');
     } catch (e) {
