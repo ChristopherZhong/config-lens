@@ -3,6 +3,9 @@ import { json } from '@codemirror/lang-json';
 import { yaml } from '@codemirror/lang-yaml';
 import { syntaxTree } from '@codemirror/language';
 import { SyntaxNode } from '@lezer/common';
+import { schemaPositionRegistry } from './schema-position-registry';
+import './strategies/json-position-strategy';
+import './strategies/yaml-position-strategy';
 
 export interface DocumentRange {
   from: number;
@@ -22,7 +25,6 @@ export function parseJsonPointer(pointer: string): string[] {
 
 export function getNodeText(node: SyntaxNode, documentText: string): string {
   const raw = documentText.slice(node.from, node.to).trim();
-  // Strip quotes if present
   if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
     return raw.slice(1, -1);
   }
@@ -30,157 +32,23 @@ export function getNodeText(node: SyntaxNode, documentText: string): string {
 }
 
 export function getKeyNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
-  const name = propertyNode.name;
-  if (name === 'Property') {
-    // JSON property
-    const propNameNode = propertyNode.getChild('PropertyName');
-    if (propNameNode) return propNameNode;
-    const stringNode = propertyNode.getChild('String');
-    if (stringNode) return stringNode;
-    return propertyNode.firstChild;
+  const strategy = schemaPositionRegistry.get('json') || schemaPositionRegistry.get('yaml');
+  if (propertyNode.name === 'Property') {
+    return schemaPositionRegistry.get('json')?.getKeyNodeFromProperty(propertyNode) || null;
   }
-  if (name === 'Pair') {
-    // YAML Pair
-    const keyNode = propertyNode.getChild('Key');
-    if (keyNode) {
-      return keyNode.firstChild || keyNode;
-    }
-    return propertyNode.firstChild;
+  if (propertyNode.name === 'Pair') {
+    return schemaPositionRegistry.get('yaml')?.getKeyNodeFromProperty(propertyNode) || null;
   }
-  return null;
+  return strategy ? strategy.getKeyNodeFromProperty(propertyNode) : null;
 }
 
 export function getValueNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
-  const name = propertyNode.name;
-  if (name === 'Property') {
-    let child = propertyNode.firstChild;
-    let foundColon = false;
-    while (child) {
-      if (foundColon && child.name !== 'Comment') {
-        return child;
-      }
-      if (child.name === ':') {
-        foundColon = true;
-      }
-      child = child.nextSibling;
-    }
-    return propertyNode.lastChild !== propertyNode.firstChild ? propertyNode.lastChild : null;
+  if (propertyNode.name === 'Property') {
+    return schemaPositionRegistry.get('json')?.getValueNodeFromProperty(propertyNode) || null;
   }
-  if (name === 'Pair') {
-    const valNode = propertyNode.getChild('Value');
-    if (valNode) {
-      return valNode.firstChild || valNode;
-    }
-    let child = propertyNode.firstChild;
-    let pastKey = false;
-    while (child) {
-      if (pastKey && child.name !== ':' && child.name !== 'Comment') {
-        return child;
-      }
-      if (child.name === 'Key' || child.name === ':') {
-        pastKey = true;
-      }
-      child = child.nextSibling;
-    }
-    return propertyNode.lastChild;
+  if (propertyNode.name === 'Pair') {
+    return schemaPositionRegistry.get('yaml')?.getValueNodeFromProperty(propertyNode) || null;
   }
-  return null;
-}
-
-/**
- * Finds child syntax node corresponding to a key in object/mapping or index in array/sequence.
- */
-function findChildNode(container: SyntaxNode, segment: string, documentText: string): SyntaxNode | null {
-  let targetContainer = container;
-
-  // Unwrap wrapper nodes like Stream, Document, JsonText to get to actual Object/BlockMapping or Array/BlockSequence
-  while (
-    targetContainer.name === 'Stream' ||
-    targetContainer.name === 'Document' ||
-    targetContainer.name === 'JsonText'
-  ) {
-    let child = targetContainer.firstChild;
-    let foundInner = false;
-    while (child) {
-      if (
-        child.name === 'Object' ||
-        child.name === 'BlockMapping' ||
-        child.name === 'Mapping' ||
-        child.name === 'Array' ||
-        child.name === 'BlockSequence' ||
-        child.name === 'Sequence'
-      ) {
-        targetContainer = child;
-        foundInner = true;
-        break;
-      }
-      child = child.nextSibling;
-    }
-    if (!foundInner) {
-      if (targetContainer.firstChild) {
-        targetContainer = targetContainer.firstChild;
-      } else {
-        break;
-      }
-    }
-  }
-
-  const containerName = targetContainer.name;
-
-  // Object / Mapping handling
-  if (
-    containerName === 'Object' ||
-    containerName === 'BlockMapping' ||
-    containerName === 'Mapping'
-  ) {
-    let child = targetContainer.firstChild;
-    while (child) {
-      if (child.name === 'Property' || child.name === 'Pair') {
-        const keyNode = getKeyNodeFromProperty(child);
-        if (keyNode) {
-          const keyText = getNodeText(keyNode, documentText);
-          if (keyText === segment) {
-            return child;
-          }
-        }
-      }
-      child = child.nextSibling;
-    }
-  }
-
-  // Array / Sequence handling
-  if (
-    containerName === 'Array' ||
-    containerName === 'BlockSequence' ||
-    containerName === 'Sequence'
-  ) {
-    const index = parseInt(segment, 10);
-    if (!isNaN(index) && index >= 0) {
-      let count = 0;
-      let child = targetContainer.firstChild;
-      while (child) {
-        if (child.name === 'SequenceItem') {
-          if (count === index) {
-            return child.firstChild || child;
-          }
-          count++;
-        } else if (
-          child.name !== '[' &&
-          child.name !== ']' &&
-          child.name !== ',' &&
-          child.name !== '-' &&
-          child.name !== 'Comment'
-        ) {
-          if (count === index) {
-            return child;
-          }
-          count++;
-        }
-        child = child.nextSibling;
-      }
-    }
-  }
-
   return null;
 }
 
@@ -196,6 +64,11 @@ export function findPositionForPath(
 ): DocumentRange {
   if (!documentText) return { from: 0, to: 0 };
 
+  const strategy = schemaPositionRegistry.get(mode);
+  if (!strategy) {
+    return { from: 0, to: Math.min(documentText.length, 1) };
+  }
+
   const segments = parseJsonPointer(instancePath);
   const extensions = [mode === 'json' ? json() : yaml()];
   const state = EditorState.create({ doc: documentText, extensions });
@@ -203,10 +76,10 @@ export function findPositionForPath(
 
   let current: SyntaxNode = tree.topNode;
 
-  // Walk path segments
+  // Walk path segments using position strategy
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
-    const childProperty = findChildNode(current, segment, documentText);
+    const childProperty = strategy.findChildNode(current, segment, documentText);
     if (!childProperty) {
       break;
     }
@@ -214,8 +87,7 @@ export function findPositionForPath(
     if (i === segments.length - 1) {
       current = childProperty;
     } else {
-      // If we matched a Property/Pair, navigate to its value node for the next segment
-      const valNode = getValueNodeFromProperty(childProperty);
+      const valNode = strategy.getValueNodeFromProperty(childProperty);
       current = valNode || childProperty;
     }
   }
@@ -227,16 +99,16 @@ export function findPositionForPath(
   // Handle missing property or key highlighting
   if (current.name === 'Property' || current.name === 'Pair') {
     if (keyword === 'required' && params?.missingProperty) {
-      const keyNode = getKeyNodeFromProperty(current);
+      const keyNode = strategy.getKeyNodeFromProperty(current);
       if (keyNode) {
         return { from: keyNode.from, to: keyNode.to };
       }
     } else {
-      const valNode = getValueNodeFromProperty(current);
+      const valNode = strategy.getValueNodeFromProperty(current);
       if (valNode) {
         return { from: valNode.from, to: valNode.to };
       }
-      const keyNode = getKeyNodeFromProperty(current);
+      const keyNode = strategy.getKeyNodeFromProperty(current);
       if (keyNode) {
         return { from: keyNode.from, to: keyNode.to };
       }
