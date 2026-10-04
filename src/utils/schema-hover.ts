@@ -20,7 +20,7 @@ export {
 export {
   jsonParserStrategy,
   yamlParserStrategy
-} from './document-parser-strategies';
+} from './strategies';
 
 /**
  * Resolves $ref pointers within a root JSON schema.
