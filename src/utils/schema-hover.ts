@@ -1,7 +1,7 @@
 import { hoverTooltip, Tooltip, EditorView } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 import { SyntaxNode } from '@lezer/common';
-import { fetchSchema } from './validation';
+import { fetchSchema, getValidator } from './validation';
 import { getKeyNodeFromProperty, getNodeText } from './schema-position';
 import { documentParserRegistry } from './document-parser-registry';
 
@@ -330,7 +330,8 @@ export function schemaHoverExtension(mode: string) {
     const schemaUrl = documentParserRegistry.extractSchemaUrl(mode, documentText);
     if (!schemaUrl) return null;
 
-    const schema = await fetchSchema(schemaUrl);
+    const validator = await getValidator(schemaUrl);
+    const schema = validator?.schema || (await fetchSchema(schemaUrl));
     if (!schema) return null;
 
     const pathInfo = getPathAtPosition(view, position);
