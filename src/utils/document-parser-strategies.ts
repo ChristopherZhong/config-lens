@@ -1,5 +1,6 @@
 import * as jsYaml from 'js-yaml';
 import { DocumentParserStrategy } from './document-parser-strategy';
+import { documentParserRegistry } from './document-parser-registry';
 
 export const jsonParserStrategy: DocumentParserStrategy = {
   mode: 'json',
@@ -26,3 +27,6 @@ export const yamlParserStrategy: DocumentParserStrategy = {
     return null;
   }
 };
+
+documentParserRegistry.register(jsonParserStrategy);
+documentParserRegistry.register(yamlParserStrategy);

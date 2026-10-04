@@ -1,5 +1,4 @@
 import { DocumentParserStrategy } from './document-parser-strategy';
-import { jsonParserStrategy, yamlParserStrategy } from './document-parser-strategies';
 
 export class DocumentParserRegistry {
   private strategies = new Map<string, DocumentParserStrategy>();
@@ -23,5 +22,3 @@ export class DocumentParserRegistry {
 }
 
 export const documentParserRegistry = new DocumentParserRegistry();
-documentParserRegistry.register(jsonParserStrategy);
-documentParserRegistry.register(yamlParserStrategy);
