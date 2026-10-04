@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   resolveSchemaRef,
   dereferenceSchema,
@@ -47,6 +47,23 @@ describe('schema-hover', () => {
 
     expect(documentParserRegistry.extractSchemaUrl('json', jsonDoc)).toBe('https://example.com/json.json');
     expect(documentParserRegistry.extractSchemaUrl('yaml', yamlDoc)).toBe('https://example.com/yaml.json');
+  });
+
+  it('warns and ignores duplicate strategy registrations in DocumentParserRegistry', () => {
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    documentParserRegistry.register({
+      mode: 'json',
+      extractSchemaUrl: () => 'https://override.com/schema.json'
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Strategy for mode 'json' is already registered")
+    );
+    // Ensure original strategy remains registered
+    expect(documentParserRegistry.extractSchemaUrl('json', '{"$schema": "https://original.com"}')).toBe('https://original.com');
+
+    consoleSpy.mockRestore();
   });
 
   it('resolves $ref pointer in schema', () => {
