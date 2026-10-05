@@ -155,4 +155,39 @@ user:
     expect(result).toContain('// 4 items');
     expect(result).not.toContain('// 2 items');
   });
+
+  it('does not duplicate annotations when visibleRanges contain multiple overlapping ranges covering the same node', () => {
+    const jsonContent = `{
+  "bad": [
+    { "a": 1 },
+    { "b": 2 },
+    { "c": 3 },
+    { "d": 4 }
+  ]
+}`;
+    const state = EditorState.create({
+      doc: jsonContent,
+      extensions: [json()],
+    });
+
+    // Pass duplicate / overlapping visible ranges covering line 1 and line 2
+    const visibleRanges = [
+      { from: 0, to: jsonContent.length },
+      { from: 0, to: jsonContent.length },
+      { from: 0, to: 50 },
+    ];
+
+    const decorations = computeAnnotations(state, visibleRanges);
+    const result: string[] = [];
+    const iter = decorations.iter();
+    while (iter.value) {
+      result.push((iter.value.spec.widget as any).text);
+      iter.next();
+    }
+
+    // Line 1 should only be "// 1 key", not "// 1 key, 1 key, 1 key"
+    expect(result[0]).toBe('// 1 key');
+    // Line 2 ("bad": [) should only be "// 4 items", not "// 4 items, 4 items..."
+    expect(result[1]).toBe('// 4 items');
+  });
 });

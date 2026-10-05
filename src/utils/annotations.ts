@@ -39,6 +39,7 @@ export function computeAnnotations(
   visibleRanges?: readonly { from: number; to: number }[]
 ): DecorationSet {
   const lineAnnotationsMap = new Map<number, string[]>();
+  const visitedNodes = new Set<string>();
   const tree = syntaxTree(state);
   const ranges = visibleRanges && visibleRanges.length > 0
     ? visibleRanges
@@ -49,6 +50,12 @@ export function computeAnnotations(
       from,
       to,
       enter: (node) => {
+        const nodeKey = `${node.name}:${node.from}:${node.to}`;
+        if (visitedNodes.has(nodeKey)) {
+          return;
+        }
+        visitedNodes.add(nodeKey);
+
         const name = node.name;
 
         // JSON Array & YAML Sequence / BlockSequence
