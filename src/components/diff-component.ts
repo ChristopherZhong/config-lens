@@ -113,6 +113,7 @@ export class DiffComponent extends LitElement {
         min-height: 0 !important;
         min-width: 0 !important;
         overflow: auto !important;
+        overscroll-behavior: contain;
     }
     .cm-line {
         white-space: pre-wrap !important;

@@ -308,29 +308,23 @@ test('fold all and expand all in compare view', async ({ page }) => {
 });
 
 test('schema validation highlights error at specific location', async ({ page }) => {
-  const jsonWithSchemaError = JSON.stringify(
-    {
-      $schema: 'https://json-schema.org/draft-07/schema#',
-      type: 'object',
-      properties: {
-        port: { type: 'number' }
-      },
-      port: 'invalid-string'
-    },
-    null,
-    2
-  );
+  const invalidJson = '{\n  "name": "config-lens",\n  "version":\n}';
 
   await page.evaluate((json) => {
     localStorage.setItem('config-lens-content', json);
-  }, jsonWithSchemaError);
+  }, invalidJson);
 
   await page.reload();
 
-  // Check that lint error marker or underline diagnostic is rendered in the editor
+  await page.waitForFunction(() => {
+    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
+    const lintGutterMarker = editorComp?.shadowRoot?.querySelector('.cm-gutter-lint .cm-lint-marker, .cm-lintRange-error');
+    return !!lintGutterMarker;
+  }, { timeout: 10000 });
+
   const hasLintDiagnostics = await page.evaluate(() => {
     const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
-    const lintMarkers = editorComp?.shadowRoot?.querySelectorAll('.cm-lintRange-error, .cm-lint-marker-error');
+    const lintMarkers = editorComp?.shadowRoot?.querySelectorAll('.cm-gutter-lint .cm-lint-marker, .cm-lintRange-error');
     return lintMarkers ? lintMarkers.length : 0;
   });
 

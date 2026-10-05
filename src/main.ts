@@ -22,9 +22,64 @@ const DEFAULT_JSON = JSON.stringify({
   "$schema": "https://www.schemastore.org/package.json",
   "name": "config-lens",
   "version": "1.0.0",
-  "description": "Modern JSON/YAML Config Tools",
+  "description": "Modern web-based JSON/YAML config tools with schema validation, side-by-side diffing, and inline annotations.",
+  "keywords": [
+    "json",
+    "yaml",
+    "config",
+    "editor",
+    "diff",
+    "validator",
+    "schema"
+  ],
+  "homepage": "https://christopherzhong.github.io/config-lens",
+  "bugs": {
+    "url": "https://github.com/ChristopherZhong/config-lens/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChristopherZhong/config-lens.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Christopher Zhong",
+  "type": "module",
+  "main": "index.html",
   "scripts": {
-    "test": "echo \"no test specified\""
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build -o dist/storybook"
+  },
+  "dependencies": {
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lang-yaml": "^6.0.1",
+    "@codemirror/lint": "^6.8.4",
+    "@codemirror/merge": "^6.7.3",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@codemirror/view": "^6.36.3",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "codemirror": "^6.0.1",
+    "js-yaml": "^4.1.0",
+    "lit": "^3.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.0",
+    "@storybook/addon-essentials": "^8.6.4",
+    "@storybook/web-components-vite": "^8.6.4",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.13.10",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+    "vitest": "^3.0.7"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }, null, 2);
 
