@@ -2,6 +2,11 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import './components/editor-component';
 import './components/diff-component';
+import './components/theme-toggle';
+import './components/version-notice-banner';
+import './components/editor-toolbar';
+import './components/app-header';
+import './components/app-footer';
 import type { EditorComponent } from './components/editor-component';
 import type { DiffComponent } from './components/diff-component';
 import { checkLatestRelease } from './utils/version-check';
@@ -57,153 +62,6 @@ export class ConfigLensApp extends LitElement {
       color: var(--text-main);
     }
 
-    header {
-      min-height: 56px;
-      height: auto;
-      border-bottom: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      padding: 8px 24px;
-      background-color: var(--bg-sidebar);
-      flex-shrink: 0;
-      min-width: 0;
-      max-width: 100%;
-      box-sizing: border-box;
-      gap: 16px;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      min-width: 0;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 18px;
-      letter-spacing: -0.02em;
-      flex-shrink: 0;
-    }
-
-    .logo-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      object-fit: contain;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--bg-main);
-      padding: 4px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      justify-self: center;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 16px;
-      min-width: 0;
-    }
-
-    .tab {
-      padding: 6px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-muted);
-      border: none;
-      background: transparent;
-      font-family: inherit;
-    }
-
-    .tab.active {
-      background: var(--bg-card);
-      color: var(--text-main);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    .tab:focus-visible,
-    button:focus-visible,
-    select:focus-visible,
-    footer a:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-
-    .version-notice-banner {
-      background: var(--accent);
-      color: #ffffff;
-      padding: 8px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px;
-      font-weight: 500;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      z-index: 10;
-      flex-shrink: 0;
-      min-width: 0;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-
-    .version-notice-content {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .version-notice-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-refresh {
-      background: #ffffff;
-      color: var(--accent);
-      border: none;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .btn-refresh:hover {
-      background: rgba(255, 255, 255, 0.9);
-    }
-
-    .btn-dismiss {
-      background: transparent;
-      color: #ffffff;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      opacity: 0.8;
-      transition: opacity 0.2s;
-    }
-
-    .btn-dismiss:hover {
-      opacity: 1;
-      background: rgba(255, 255, 255, 0.15);
-    }
-
     main {
       flex: 1 1 0%;
       display: flex;
@@ -243,215 +101,6 @@ export class ConfigLensApp extends LitElement {
       width: 100%;
       display: flex;
       flex-direction: column;
-    }
-
-    .editor-toolbar {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-sidebar);
-      flex-shrink: 0;
-      min-width: 0;
-      box-sizing: border-box;
-    }
-
-    .editor-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .toolbar-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-secondary {
-      background: var(--bg-main);
-      color: var(--text-main);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background: var(--bg-card);
-      border-color: var(--accent);
-    }
-
-    .controls {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        min-width: 0;
-        flex-wrap: wrap;
-    }
-
-    @media (max-width: 768px) {
-      header {
-        padding: 8px 12px;
-        gap: 8px;
-      }
-      .header-right {
-        gap: 8px;
-      }
-      .controls {
-        gap: 8px;
-      }
-      .tabs {
-        padding: 2px;
-      }
-      .tab {
-        padding: 4px 10px;
-        font-size: 12px;
-      }
-    }
-
-    button {
-        background: var(--accent);
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: var(--accent-hover);
-    }
-
-    .format-feedback {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      align-self: center;
-      white-space: nowrap;
-    }
-
-    .format-feedback.success {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--success);
-    }
-
-    .format-feedback.error {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--error);
-    }
-
-    .theme-toggle {
-        display: flex;
-        background: var(--bg-sidebar);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 2px;
-        position: relative;
-        height: 32px;
-        box-sizing: border-box;
-    }
-
-    .theme-slider {
-        position: absolute;
-        top: 2px;
-        bottom: 2px;
-        left: 2px;
-        width: calc((100% - 4px) / 3);
-        background: var(--bg-card);
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-        border: 1px solid var(--border);
-        transition: transform 0.2s ease;
-        z-index: 0;
-    }
-
-    .theme-toggle[data-theme="light"] .theme-slider {
-        transform: translateX(100%);
-    }
-
-    .theme-toggle[data-theme="dark"] .theme-slider {
-        transform: translateX(200%);
-    }
-
-    .theme-option {
-        flex: 1;
-        background: transparent;
-        border: none;
-        color: var(--text-muted);
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 1;
-        padding: 0 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        width: 32px;
-        opacity: 0.5;
-    }
-
-    .theme-option:hover {
-        background: transparent;
-        color: var(--text-main);
-        opacity: 0.8;
-    }
-
-    .theme-option.active {
-        color: var(--text-main);
-        opacity: 1;
-    }
-
-    select {
-      background: var(--bg-main);
-      color: var(--text-main);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 12px;
-    }
-
-    footer {
-      height: 32px;
-      border-top: 1px solid var(--border);
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: var(--text-muted);
-      background: var(--bg-sidebar);
-      flex-shrink: 0;
-      min-width: 0;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-
-    footer a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer a:hover {
-      color: var(--accent);
-      text-decoration: underline;
-    }
-
-    .footer-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
   `;
 
@@ -547,9 +196,17 @@ export class ConfigLensApp extends LitElement {
       this.modifiedContent = e.detail.content;
   }
 
-  private handleModeChange(e: Event) {
-    this.mode = (e.target as HTMLSelectElement).value as 'json' | 'yaml';
+  private handleModeChange(e: CustomEvent) {
+    this.mode = e.detail.mode;
     safeStorageSetItem('config-lens-mode', this.mode);
+  }
+
+  private handleTabChange(e: CustomEvent) {
+    this.activeTab = e.detail.tab;
+  }
+
+  private handleThemeChange(e: CustomEvent) {
+    this.setTheme(e.detail.theme);
   }
 
   private showFormatFeedback(type: 'success' | 'error', message: string) {
@@ -597,99 +254,23 @@ export class ConfigLensApp extends LitElement {
     const resolvedTheme = this.getResolvedTheme();
 
     return html`
-      <header>
-        <div class="header-left">
-          <div class="logo">
-            <img src="./favicon.svg" alt="ConfigLens Logo" class="logo-icon" />
-            <span>ConfigLens</span>
-          </div>
-        </div>
-        <div class="tabs" role="tablist">
-          <button
-            id="tab-lint"
-            class="tab ${this.activeTab === 'lint' ? 'active' : ''}"
-            role="tab"
-            aria-selected="${this.activeTab === 'lint'}"
-            aria-controls="panel-lint"
-            @click="${() => this.activeTab = 'lint'}"
-          >
-            Lint
-          </button>
-          <button
-            id="tab-compare"
-            class="tab ${this.activeTab === 'compare' ? 'active' : ''}"
-            role="tab"
-            aria-selected="${this.activeTab === 'compare'}"
-            aria-controls="panel-compare"
-            @click="${() => this.activeTab = 'compare'}"
-          >
-            Compare
-          </button>
-        </div>
-        <div class="header-right">
-          ${this.formatFeedback ? html`
-            <span
-              class="format-feedback ${this.formatFeedback.type}"
-              role="status"
-              aria-live="polite"
-            >
-              ${this.formatFeedback.message}
-            </span>
-          ` : ''}
-          <div class="controls">
-            <select @change="${this.handleModeChange}" .value="${this.mode}" aria-label="Select language mode">
-              <option value="json">JSON</option>
-              <option value="yaml">YAML</option>
-            </select>
-            <button @click="${this.formatContent}" aria-label="Format content">Format</button>
-
-            <div class="theme-toggle" data-theme="${this.theme}" role="radiogroup" aria-label="Select theme">
-              <div class="theme-slider"></div>
-              <button
-                class="theme-option ${this.theme === 'system' ? 'active' : ''}"
-                @click="${() => this.setTheme('system')}"
-                role="radio"
-                aria-checked="${this.theme === 'system'}"
-                title="System Theme"
-                aria-label="System Theme"
-              >
-                🖥️
-              </button>
-              <button
-                class="theme-option ${this.theme === 'light' ? 'active' : ''}"
-                @click="${() => this.setTheme('light')}"
-                role="radio"
-                aria-checked="${this.theme === 'light'}"
-                title="Light Theme"
-                aria-label="Light Theme"
-              >
-                ☀️
-              </button>
-              <button
-                class="theme-option ${this.theme === 'dark' ? 'active' : ''}"
-                @click="${() => this.setTheme('dark')}"
-                role="radio"
-                aria-checked="${this.theme === 'dark'}"
-                title="Dark Theme"
-                aria-label="Dark Theme"
-              >
-                🌙
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <app-header
+        .activeTab="${this.activeTab}"
+        .mode="${this.mode}"
+        .theme="${this.theme}"
+        .formatFeedback="${this.formatFeedback}"
+        @tab-change="${this.handleTabChange}"
+        @mode-change="${this.handleModeChange}"
+        @theme-change="${this.handleThemeChange}"
+        @format-click="${this.formatContent}"
+      ></app-header>
 
       ${this.newVersionAvailable && !this.noticeDismissed ? html`
-        <div class="version-notice-banner" role="status" aria-live="polite">
-          <div class="version-notice-content">
-            <span>🚀 A new version of ConfigLens ${this.latestVersion ? `(v${this.latestVersion})` : ''} is available!</span>
-          </div>
-          <div class="version-notice-actions">
-            <button class="btn-refresh" @click="${this.handleRefresh}" aria-label="Refresh page to update">Refresh</button>
-            <button class="btn-dismiss" @click="${this.handleDismissNotice}" aria-label="Dismiss notice">✕</button>
-          </div>
-        </div>
+        <version-notice-banner
+          .latestVersion="${this.latestVersion}"
+          @refresh-click="${this.handleRefresh}"
+          @dismiss-click="${this.handleDismissNotice}"
+        ></version-notice-banner>
       ` : ''}
 
       <main>
@@ -700,13 +281,11 @@ export class ConfigLensApp extends LitElement {
             role="tabpanel"
             aria-labelledby="tab-lint"
           >
-            <div class="editor-toolbar">
-              <div class="editor-title">Editor</div>
-              <div class="toolbar-actions">
-                <button class="btn-secondary" @click="${this.handleFoldAll}" aria-label="Fold All">Fold All</button>
-                <button class="btn-secondary" @click="${this.handleUnfoldAll}" aria-label="Expand All">Expand All</button>
-              </div>
-            </div>
+            <editor-toolbar
+              title="Editor"
+              @fold-all="${this.handleFoldAll}"
+              @unfold-all="${this.handleUnfoldAll}"
+            ></editor-toolbar>
             <editor-component
                 .mode="${this.mode}"
                 .theme="${resolvedTheme}"
@@ -721,13 +300,11 @@ export class ConfigLensApp extends LitElement {
             role="tabpanel"
             aria-labelledby="tab-compare"
           >
-            <div class="editor-toolbar">
-              <div class="editor-title">Compare (Original vs Modified)</div>
-              <div class="toolbar-actions">
-                <button class="btn-secondary" @click="${this.handleFoldAll}" aria-label="Fold All">Fold All</button>
-                <button class="btn-secondary" @click="${this.handleUnfoldAll}" aria-label="Expand All">Expand All</button>
-              </div>
-            </div>
+            <editor-toolbar
+              title="Compare (Original vs Modified)"
+              @fold-all="${this.handleFoldAll}"
+              @unfold-all="${this.handleUnfoldAll}"
+            ></editor-toolbar>
             <diff-component
                 .mode="${this.mode}"
                 .theme="${resolvedTheme}"
@@ -740,19 +317,11 @@ export class ConfigLensApp extends LitElement {
         `}
       </main>
 
-      <footer>
-        <div>Ready</div>
-        <div class="footer-right">
-          <div>UTF-8</div>
-          <span>•</span>
-          <a
-            href="https://github.com/ChristopherZhong/config-lens/releases/tag/v${APP_VERSION}"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Version v${APP_VERSION}"
-          >v${APP_VERSION}</a>
-        </div>
-      </footer>
+      <app-footer
+        status="Ready"
+        encoding="UTF-8"
+        .version="${APP_VERSION}"
+      ></app-footer>
     `;
   }
 }

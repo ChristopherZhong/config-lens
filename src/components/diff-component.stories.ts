@@ -21,7 +21,8 @@ const originalJson = JSON.stringify(
   {
     name: "config-lens",
     version: "1.0.0",
-    status: "active"
+    status: "active",
+    features: ["linting", "formatting"]
   },
   null,
   2
@@ -32,13 +33,32 @@ const modifiedJson = JSON.stringify(
     name: "config-lens",
     version: "1.1.0",
     status: "active",
-    newFeature: true
+    features: ["linting", "formatting", "diffing"],
+    newSetting: true
   },
   null,
   2
 );
 
-export const Default: Story = {
+const originalYaml = `name: config-lens
+version: 1.0.0
+status: active
+features:
+  - linting
+  - formatting
+`;
+
+const modifiedYaml = `name: config-lens
+version: 1.1.0
+status: active
+features:
+  - linting
+  - formatting
+  - diffing
+newSetting: true
+`;
+
+export const JsonDiffLight: Story = {
   args: {
     mode: 'json',
     theme: 'light',
@@ -57,7 +77,7 @@ export const Default: Story = {
   `,
 };
 
-export const DarkTheme: Story = {
+export const JsonDiffDark: Story = {
   args: {
     mode: 'json',
     theme: 'dark',
@@ -66,6 +86,63 @@ export const DarkTheme: Story = {
   },
   render: (args) => html`
     <div style="height: 400px; border: 1px solid #333; border-radius: 8px; background: #0a0a0a;">
+      <diff-component
+        .mode="${args.mode}"
+        .theme="${args.theme}"
+        .original="${args.original}"
+        .modified="${args.modified}"
+      ></diff-component>
+    </div>
+  `,
+};
+
+export const YamlDiffLight: Story = {
+  args: {
+    mode: 'yaml',
+    theme: 'light',
+    original: originalYaml,
+    modified: modifiedYaml,
+  },
+  render: (args) => html`
+    <div style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
+      <diff-component
+        .mode="${args.mode}"
+        .theme="${args.theme}"
+        .original="${args.original}"
+        .modified="${args.modified}"
+      ></diff-component>
+    </div>
+  `,
+};
+
+export const IdenticalDocumentsNoDiff: Story = {
+  args: {
+    mode: 'json',
+    theme: 'light',
+    original: originalJson,
+    modified: originalJson,
+  },
+  render: (args) => html`
+    <div style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
+      <diff-component
+        .mode="${args.mode}"
+        .theme="${args.theme}"
+        .original="${args.original}"
+        .modified="${args.modified}"
+      ></diff-component>
+    </div>
+  `,
+};
+
+export const EmptyDocuments: Story = {
+  args: {
+    mode: 'json',
+    theme: 'light',
+    original: '',
+    modified: '',
+  },
+  render: (args) => html`
+    <div style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
       <diff-component
         .mode="${args.mode}"
         .theme="${args.theme}"
