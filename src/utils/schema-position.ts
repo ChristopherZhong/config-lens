@@ -1,7 +1,5 @@
-import { EditorState } from '@codemirror/state';
-import { json } from '@codemirror/lang-json';
-import { yaml } from '@codemirror/lang-yaml';
-import { syntaxTree } from '@codemirror/language';
+import { jsonLanguage } from '@codemirror/lang-json';
+import { yamlLanguage } from '@codemirror/lang-yaml';
 import { SyntaxNode } from '@lezer/common';
 import { schemaPositionRegistry } from './schema-position-registry';
 import './strategies/json-position-strategy';
@@ -70,9 +68,10 @@ export function findPositionForPath(
   }
 
   const segments = parseJsonPointer(instancePath);
-  const extensions = [mode === 'json' ? json() : yaml()];
-  const state = EditorState.create({ doc: documentText, extensions });
-  const tree = syntaxTree(state);
+  // Optimization: Parse syntax tree directly using language parser instead of
+  // instantiating a full CodeMirror EditorState object with extensions for every path lookup.
+  const parser = mode === 'json' ? jsonLanguage.parser : yamlLanguage.parser;
+  const tree = parser.parse(documentText);
 
   let current: SyntaxNode = tree.topNode;
 
