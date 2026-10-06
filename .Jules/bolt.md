@@ -5,3 +5,7 @@
 ## 2026-06-18 - Viewport-Restricted Syntax Tree Iteration for CodeMirror Annotations
 **Learning:** CodeMirror 6 `ViewPlugin` instances that construct `Decoration.widget` based on syntax tree inspection (`syntaxTree(state).iterate`) execute full document AST traversals on every scroll (`update.viewportChanged`) or edit (`update.docChanged`) if ranges are omitted. Passing `view.visibleRanges` limits AST iteration to visible lines, preventing main-thread lag when viewing large documents.
 **Action:** Always pass `view.visibleRanges` (or `update.view.visibleRanges`) to AST traversal helpers in CodeMirror decoration plugins to maintain O(viewport) execution time regardless of document size.
+
+## 2026-06-18 - Direct Parser Invocation for Standalone AST Traversals
+**Learning:** When resolving document AST syntax nodes outside an active CodeMirror `EditorView` (e.g., mapping schema validation errors to character ranges in `findPositionForPath`), creating a full `EditorState` via `EditorState.create({ doc, extensions })` allocates redundant state facets and extension configurations. Using `language.parser.parse(documentText)` directly constructs the Lezer `Tree` faster without state creation overhead.
+**Action:** Prefer calling `jsonLanguage.parser.parse(...)` or `yamlLanguage.parser.parse(...)` directly when only an AST `Tree` is needed outside `EditorView` context.
