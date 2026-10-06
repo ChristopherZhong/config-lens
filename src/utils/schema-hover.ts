@@ -30,11 +30,17 @@ export function resolveSchemaRef(rootSchema: unknown, reference: string): Record
   const parts = reference.slice(2).split('/');
   let current: unknown = rootSchema;
   for (const part of parts) {
-    if (!current || typeof current !== 'object') return null;
+    if (!current || typeof current !== 'object' || Array.isArray(current)) return null;
     const decoded = part.replace(/~1/g, '/').replace(/~0/g, '~');
+    if (decoded === '__proto__' || decoded === 'constructor' || decoded === 'prototype') {
+      return null;
+    }
+    if (!Object.prototype.hasOwnProperty.call(current, decoded)) {
+      return null;
+    }
     current = (current as Record<string, unknown>)[decoded];
   }
-  return current && typeof current === 'object' ? (current as Record<string, unknown>) : null;
+  return current && typeof current === 'object' && !Array.isArray(current) ? (current as Record<string, unknown>) : null;
 }
 
 /**
@@ -77,21 +83,32 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
 
     let nextSchema: unknown = null;
 
+    if (segment === '__proto__' || segment === 'constructor' || segment === 'prototype') {
+      return null;
+    }
+
     // Check properties
     const properties = current.properties;
-    if (properties && typeof properties === 'object' && (properties as Record<string, unknown>)[segment]) {
+    if (
+      properties &&
+      typeof properties === 'object' &&
+      !Array.isArray(properties) &&
+      Object.prototype.hasOwnProperty.call(properties, segment)
+    ) {
       nextSchema = (properties as Record<string, unknown>)[segment];
     }
     // Check patternProperties
-    else if (current.patternProperties && typeof current.patternProperties === 'object') {
+    else if (current.patternProperties && typeof current.patternProperties === 'object' && !Array.isArray(current.patternProperties)) {
       const patternProperties = current.patternProperties as Record<string, unknown>;
       for (const pattern of Object.keys(patternProperties)) {
-        try {
-          if (new RegExp(pattern).test(segment)) {
-            nextSchema = patternProperties[pattern];
-            break;
-          }
-        } catch {}
+        if (Object.prototype.hasOwnProperty.call(patternProperties, pattern)) {
+          try {
+            if (new RegExp(pattern).test(segment)) {
+              nextSchema = patternProperties[pattern];
+              break;
+            }
+          } catch {}
+        }
       }
     }
     // Check additionalProperties
@@ -116,7 +133,12 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
       for (const candidate of candidates) {
         const resolvedCandidate = dereferenceSchema(rootSchema, candidate);
         const candidateProperties = resolvedCandidate?.properties;
-        if (candidateProperties && typeof candidateProperties === 'object' && (candidateProperties as Record<string, unknown>)[segment]) {
+        if (
+          candidateProperties &&
+          typeof candidateProperties === 'object' &&
+          !Array.isArray(candidateProperties) &&
+          Object.prototype.hasOwnProperty.call(candidateProperties, segment)
+        ) {
           nextSchema = (candidateProperties as Record<string, unknown>)[segment];
           break;
         }
