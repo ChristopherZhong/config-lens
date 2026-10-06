@@ -7,10 +7,24 @@ const meta: Meta = {
   component: 'diff-component',
   tags: ['autodocs'],
   argTypes: {
-    mode: { control: 'select', options: ['json', 'yaml'] },
-    theme: { control: 'select', options: ['light', 'dark'] },
-    original: { control: 'text' },
-    modified: { control: 'text' },
+    mode: {
+      control: 'select',
+      options: ['json', 'yaml'],
+      description: 'Document language syntax mode',
+    },
+    theme: {
+      control: 'select',
+      options: ['light', 'dark'],
+      description: 'Diff view visual theme',
+    },
+    original: {
+      control: 'text',
+      description: 'Original content (Side A / Left)',
+    },
+    modified: {
+      control: 'text',
+      description: 'Modified content (Side B / Right)',
+    },
   },
 };
 
@@ -19,10 +33,10 @@ type Story = StoryObj;
 
 const originalJson = JSON.stringify(
   {
-    name: "config-lens",
-    version: "1.0.0",
-    status: "active",
-    features: ["linting", "formatting"]
+    name: 'config-lens',
+    version: '1.0.0',
+    status: 'active',
+    features: ['linting', 'formatting'],
   },
   null,
   2
@@ -30,11 +44,11 @@ const originalJson = JSON.stringify(
 
 const modifiedJson = JSON.stringify(
   {
-    name: "config-lens",
-    version: "1.1.0",
-    status: "active",
-    features: ["linting", "formatting", "diffing"],
-    newSetting: true
+    name: 'config-lens',
+    version: '1.1.0',
+    status: 'active',
+    features: ['linting', 'formatting', 'diffing'],
+    newSetting: true,
   },
   null,
   2
@@ -58,61 +72,41 @@ features:
 newSetting: true
 `;
 
-export const JsonDiffLight: Story = {
+const renderWithContainer = (args: any, height = '400px') => {
+  const isDark = args.theme === 'dark';
+  const background = isDark ? '#0a0a0a' : '#ffffff';
+  const border = isDark ? '1px solid #333' : '1px solid #ccc';
+
+  return html`
+    <div style="height: ${height}; border: ${border}; border-radius: 8px; background: ${background}; overflow: hidden;">
+      <diff-component
+        .mode="${args.mode}"
+        .theme="${args.theme}"
+        .original="${args.original}"
+        .modified="${args.modified}"
+      ></diff-component>
+    </div>
+  `;
+};
+
+export const JsonDiff: Story = {
   args: {
     mode: 'json',
     theme: 'light',
     original: originalJson,
     modified: modifiedJson,
   },
-  render: (args) => html`
-    <div style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
-      <diff-component
-        .mode="${args.mode}"
-        .theme="${args.theme}"
-        .original="${args.original}"
-        .modified="${args.modified}"
-      ></diff-component>
-    </div>
-  `,
+  render: (args) => renderWithContainer(args),
 };
 
-export const JsonDiffDark: Story = {
-  args: {
-    mode: 'json',
-    theme: 'dark',
-    original: originalJson,
-    modified: modifiedJson,
-  },
-  render: (args) => html`
-    <div style="height: 400px; border: 1px solid #333; border-radius: 8px; background: #0a0a0a;">
-      <diff-component
-        .mode="${args.mode}"
-        .theme="${args.theme}"
-        .original="${args.original}"
-        .modified="${args.modified}"
-      ></diff-component>
-    </div>
-  `,
-};
-
-export const YamlDiffLight: Story = {
+export const YamlDiff: Story = {
   args: {
     mode: 'yaml',
     theme: 'light',
     original: originalYaml,
     modified: modifiedYaml,
   },
-  render: (args) => html`
-    <div style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
-      <diff-component
-        .mode="${args.mode}"
-        .theme="${args.theme}"
-        .original="${args.original}"
-        .modified="${args.modified}"
-      ></diff-component>
-    </div>
-  `,
+  render: (args) => renderWithContainer(args),
 };
 
 export const IdenticalDocumentsNoDiff: Story = {
@@ -122,16 +116,7 @@ export const IdenticalDocumentsNoDiff: Story = {
     original: originalJson,
     modified: originalJson,
   },
-  render: (args) => html`
-    <div style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
-      <diff-component
-        .mode="${args.mode}"
-        .theme="${args.theme}"
-        .original="${args.original}"
-        .modified="${args.modified}"
-      ></diff-component>
-    </div>
-  `,
+  render: (args) => renderWithContainer(args),
 };
 
 export const EmptyDocuments: Story = {
@@ -141,14 +126,5 @@ export const EmptyDocuments: Story = {
     original: '',
     modified: '',
   },
-  render: (args) => html`
-    <div style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
-      <diff-component
-        .mode="${args.mode}"
-        .theme="${args.theme}"
-        .original="${args.original}"
-        .modified="${args.modified}"
-      ></diff-component>
-    </div>
-  `,
+  render: (args) => renderWithContainer(args),
 };
