@@ -7,9 +7,18 @@ const meta: Meta = {
   component: 'app-footer',
   tags: ['autodocs'],
   argTypes: {
-    status: { control: 'text' },
-    encoding: { control: 'text' },
-    version: { control: 'text' },
+    status: {
+      control: 'text',
+      description: 'Current application status text displayed in footer',
+    },
+    encoding: {
+      control: 'text',
+      description: 'Document text encoding scheme',
+    },
+    version: {
+      control: 'text',
+      description: 'Application version string',
+    },
   },
 };
 

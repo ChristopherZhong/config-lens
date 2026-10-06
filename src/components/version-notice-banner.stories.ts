@@ -7,7 +7,10 @@ const meta: Meta = {
   component: 'version-notice-banner',
   tags: ['autodocs'],
   argTypes: {
-    latestVersion: { control: 'text', description: 'Latest detected application release version' },
+    latestVersion: {
+      control: 'text',
+      description: 'Latest detected application release version',
+    },
   },
 };
 

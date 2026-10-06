@@ -7,7 +7,10 @@ const meta: Meta = {
   component: 'editor-toolbar',
   tags: ['autodocs'],
   argTypes: {
-    title: { control: 'text', description: 'Section heading title' },
+    title: {
+      control: 'text',
+      description: 'Section heading title',
+    },
   },
 };
 
