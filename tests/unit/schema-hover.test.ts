@@ -114,4 +114,18 @@ describe('schema-hover', () => {
     expect(dom.textContent).toContain('Default: 8080');
     expect(dom.textContent).toContain('min: 1');
   });
+
+  it('prevents prototype traversal in resolveSchemaRef', () => {
+    expect(resolveSchemaRef(sampleSchema, '#/__proto__')).toBeNull();
+    expect(resolveSchemaRef(sampleSchema, '#/constructor')).toBeNull();
+    expect(resolveSchemaRef(sampleSchema, '#/prototype')).toBeNull();
+    expect(resolveSchemaRef(sampleSchema, '#/toString')).toBeNull();
+  });
+
+  it('prevents prototype traversal in getSchemaForPath', () => {
+    expect(getSchemaForPath(sampleSchema, ['__proto__'])).toBeNull();
+    expect(getSchemaForPath(sampleSchema, ['constructor'])).toBeNull();
+    expect(getSchemaForPath(sampleSchema, ['toString'])).toBeNull();
+    expect(getSchemaForPath(sampleSchema, ['server', 'constructor'])).toBeNull();
+  });
 });
