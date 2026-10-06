@@ -72,8 +72,22 @@ export class EditorToolbar extends LitElement {
       <div class="editor-toolbar">
         <div class="editor-title">${this.title}</div>
         <div class="toolbar-actions">
-          <button class="btn-secondary" @click="${this.handleFoldAll}" aria-label="Fold All">Fold All</button>
-          <button class="btn-secondary" @click="${this.handleUnfoldAll}" aria-label="Expand All">Expand All</button>
+          <button
+            class="btn-secondary"
+            @click="${this.handleFoldAll}"
+            aria-label="Fold All"
+            title="Fold all code blocks"
+          >
+            <span aria-hidden="true">▾</span> Fold All
+          </button>
+          <button
+            class="btn-secondary"
+            @click="${this.handleUnfoldAll}"
+            aria-label="Expand All"
+            title="Expand all code blocks"
+          >
+            <span aria-hidden="true">▸</span> Expand All
+          </button>
         </div>
       </div>
     `;

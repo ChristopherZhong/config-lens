@@ -207,7 +207,7 @@ export class AppHeader extends LitElement {
             <span>ConfigLens</span>
           </div>
         </div>
-        <div class="tabs" role="tablist">
+        <div class="tabs" role="tablist" aria-label="Editor view options">
           <button
             id="tab-lint"
             class="tab ${this.activeTab === 'lint' ? 'active' : ''}"
@@ -240,11 +240,22 @@ export class AppHeader extends LitElement {
             </span>
           ` : ''}
           <div class="controls">
-            <select @change="${this.handleModeSelect}" .value="${this.mode}" aria-label="Select language mode">
+            <select
+              @change="${this.handleModeSelect}"
+              .value="${this.mode}"
+              aria-label="Select language mode"
+              title="Select language mode"
+            >
               <option value="json">JSON</option>
               <option value="yaml">YAML</option>
             </select>
-            <button @click="${this.handleFormat}" aria-label="Format content">Format</button>
+            <button
+              @click="${this.handleFormat}"
+              aria-label="Format content"
+              title="Format document (re-indent code)"
+            >
+              Format
+            </button>
 
             <theme-toggle
               .theme="${this.theme}"
