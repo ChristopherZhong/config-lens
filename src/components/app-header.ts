@@ -182,6 +182,32 @@ export class AppHeader extends LitElement {
     }));
   }
 
+  private handleTabKeyDown(e: KeyboardEvent) {
+    const tabs: ('lint' | 'compare')[] = ['lint', 'compare'];
+    const currentIndex = tabs.indexOf(this.activeTab);
+    let newIndex = -1;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      newIndex = (currentIndex + 1) % tabs.length;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    } else if (e.key === 'Home') {
+      newIndex = 0;
+    } else if (e.key === 'End') {
+      newIndex = tabs.length - 1;
+    }
+
+    if (newIndex !== -1) {
+      e.preventDefault();
+      const targetTab = tabs[newIndex];
+      this.handleTabSelect(targetTab);
+      this.updateComplete.then(() => {
+        const button = this.shadowRoot?.querySelector<HTMLButtonElement>(`#tab-${targetTab}`);
+        button?.focus();
+      });
+    }
+  }
+
   private handleModeSelect(e: Event) {
     const mode = (e.target as HTMLSelectElement).value as 'json' | 'yaml';
     this.dispatchEvent(new CustomEvent('mode-change', {
@@ -207,13 +233,14 @@ export class AppHeader extends LitElement {
             <span>ConfigLens</span>
           </div>
         </div>
-        <div class="tabs" role="tablist" aria-label="Editor view options">
+        <div class="tabs" role="tablist" aria-label="Editor view options" @keydown="${this.handleTabKeyDown}">
           <button
             id="tab-lint"
             class="tab ${this.activeTab === 'lint' ? 'active' : ''}"
             role="tab"
             aria-selected="${this.activeTab === 'lint'}"
             aria-controls="panel-lint"
+            tabindex="${this.activeTab === 'lint' ? 0 : -1}"
             @click="${() => this.handleTabSelect('lint')}"
           >
             Lint
@@ -224,6 +251,7 @@ export class AppHeader extends LitElement {
             role="tab"
             aria-selected="${this.activeTab === 'compare'}"
             aria-controls="panel-compare"
+            tabindex="${this.activeTab === 'compare' ? 0 : -1}"
             @click="${() => this.handleTabSelect('compare')}"
           >
             Compare
