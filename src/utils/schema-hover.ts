@@ -168,7 +168,6 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
  */
 export function getPathAtPosition(view: EditorView, position: number): { path: string[]; targetNode: SyntaxNode } | null {
   const tree = syntaxTree(view.state);
-  const documentText = view.state.doc.toString();
   let node: SyntaxNode | null = tree.resolveInner(position, -1);
 
   if (!node) return null;
@@ -181,7 +180,12 @@ export function getPathAtPosition(view: EditorView, position: number): { path: s
     if (current.name === 'Property' || current.name === 'Pair') {
       const keyNode = getKeyNodeFromProperty(current);
       if (keyNode) {
-        const keyText = getNodeText(keyNode, documentText);
+        // Optimization: Slice text directly from EditorState instead of allocating
+        // a full document string with view.state.doc.toString().
+        const raw = view.state.sliceDoc(keyNode.from, keyNode.to).trim();
+        const keyText = (raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))
+          ? raw.slice(1, -1)
+          : raw;
         if (keyText) {
           pathSegments.unshift(keyText);
         }
@@ -346,18 +350,20 @@ export function createHoverTooltipElement(info: HoverSchemaInfo): HTMLElement {
  */
 export function schemaHoverExtension(mode: string) {
   return hoverTooltip(async (view: EditorView, position: number): Promise<Tooltip | null> => {
-    const documentText = view.state.doc.toString();
-    if (!documentText) return null;
+    if (view.state.doc.length === 0) return null;
 
+    // Optimization: Check if position maps to a valid property path segment before
+    // extracting schema or allocating document string.
+    const pathInfo = getPathAtPosition(view, position);
+    if (!pathInfo || pathInfo.path.length === 0) return null;
+
+    const documentText = view.state.doc.toString();
     const schemaUrl = documentParserRegistry.extractSchemaUrl(mode, documentText);
     if (!schemaUrl) return null;
 
     const validator = await getValidator(schemaUrl);
     const schema = validator?.schema || (await fetchSchema(schemaUrl));
     if (!schema) return null;
-
-    const pathInfo = getPathAtPosition(view, position);
-    if (!pathInfo || pathInfo.path.length === 0) return null;
 
     const hoverInfo = getSchemaForPath(schema, pathInfo.path);
     if (!hoverInfo) return null;

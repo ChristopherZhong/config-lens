@@ -9,3 +9,7 @@
 ## 2026-06-18 - Direct Parser Invocation for Standalone AST Traversals
 **Learning:** When resolving document AST syntax nodes outside an active CodeMirror `EditorView` (e.g., mapping schema validation errors to character ranges in `findPositionForPath`), creating a full `EditorState` via `EditorState.create({ doc, extensions })` allocates redundant state facets and extension configurations. Using `language.parser.parse(documentText)` directly constructs the Lezer `Tree` faster without state creation overhead.
 **Action:** Prefer calling `jsonLanguage.parser.parse(...)` or `yamlLanguage.parser.parse(...)` directly when only an AST `Tree` is needed outside `EditorView` context.
+
+## 2026-06-18 - Fast Fast-Path Regex Schema Extraction & Direct State Slicing
+**Learning:** Calling full JSON/YAML document parsers (`JSON.parse` / `jsYaml.load`) or converting entire CodeMirror document ropes (`view.state.doc.toString()`) inside high-frequency event handlers like CodeMirror's `hoverTooltip` causes severe UI thread blocking (~5ms-30ms per hover check).
+**Action:** Use fast regex string matching (~0.001ms) as a fast-path before falling back to full object parsers, and slice specific AST node text directly from `view.state.sliceDoc(from, to)` to prevent heap allocations on hover.
