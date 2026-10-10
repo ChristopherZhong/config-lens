@@ -38,16 +38,15 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Build
+        run: npm run build
+
       - name: Run semantic-release
         if: github.event_name != 'pull_request'
         id: semantic
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build
-        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
-        run: npm run build
 
       - name: Setup Pages
         if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
