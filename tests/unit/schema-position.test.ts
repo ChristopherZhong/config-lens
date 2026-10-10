@@ -70,4 +70,17 @@ items:
     const text = jsonDoc.slice(pos.from, pos.to);
     expect(text).toBe('"server"');
   });
+
+  it('safely handles prototype traversal keys in instancePath', () => {
+    const jsonDoc = JSON.stringify({ server: { host: 'localhost' } }, null, 2);
+
+    const posProto = findPositionForPath(jsonDoc, 'json', '/__proto__/polluted');
+    expect(posProto).toEqual({ from: 0, to: 1 });
+
+    const posCtor = findPositionForPath(jsonDoc, 'json', '/constructor/prototype');
+    expect(posCtor).toEqual({ from: 0, to: 1 });
+
+    const posProtoSegment = findPositionForPath(jsonDoc, 'json', '/server/prototype/host');
+    expect(posProtoSegment).toEqual({ from: 0, to: 1 });
+  });
 });

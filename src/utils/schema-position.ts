@@ -78,6 +78,10 @@ export function findPositionForPath(
   // Walk path segments using position strategy
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
+    // Security: Block prototype manipulation / traversal keys in JSON pointer path segments
+    if (segment === '__proto__' || segment === 'constructor' || segment === 'prototype') {
+      return { from: 0, to: Math.min(documentText.length, 1) };
+    }
     const childProperty = strategy.findChildNode(current, segment, documentText);
     if (!childProperty) {
       break;
