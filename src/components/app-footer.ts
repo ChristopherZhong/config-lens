@@ -57,6 +57,11 @@ export class AppFooter extends LitElement {
       <footer>
         <div>${this.status}</div>
         <div class="footer-right">
+          <a
+            href="./storybook/"
+            aria-label="Storybook component library"
+          >Storybook</a>
+          <span>•</span>
           <div>${this.encoding}</div>
           <span>•</span>
           <a
