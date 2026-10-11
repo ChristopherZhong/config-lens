@@ -2,7 +2,7 @@ import { hoverTooltip, Tooltip, EditorView } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 import { SyntaxNode } from '@lezer/common';
 import { fetchSchema, getValidator } from './validation';
-import { getKeyNodeFromProperty, getNodeText } from './schema-position';
+import { getKeyNodeFromProperty } from './schema-position';
 import { documentParserRegistry } from './document-parser-registry';
 
 export interface HoverSchemaInfo {
