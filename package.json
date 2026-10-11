@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "lint": "tsc --noEmit",
     "build": "tsc && vite build && npm run build-storybook",
     "preview": "vite preview",
     "test": "vitest run",

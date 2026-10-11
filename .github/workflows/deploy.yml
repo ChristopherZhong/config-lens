@@ -3,8 +3,6 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -18,22 +16,22 @@ concurrency:
 
 jobs:
   deploy:
-    environment: ${{ github.event_name != 'pull_request' && 'github-pages' || '' }}
+    environment: github-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run tests
         run: npm test
@@ -42,7 +40,6 @@ jobs:
         run: npm run build
 
       - name: Run semantic-release
-        if: github.event_name != 'pull_request'
         id: semantic
         run: npx semantic-release
         env:
