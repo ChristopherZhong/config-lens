@@ -1,9 +1,19 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 
 @customElement('editor-toolbar')
 export class EditorToolbar extends LitElement {
   @property({ type: String }) title = 'Editor';
+  @state() private copied = false;
+
+  private copyTimeout?: number;
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.copyTimeout) {
+      clearTimeout(this.copyTimeout);
+    }
+  }
 
   static styles = css`
     :host {
@@ -67,6 +77,17 @@ export class EditorToolbar extends LitElement {
     this.dispatchEvent(new CustomEvent('unfold-all', { bubbles: true, composed: true }));
   }
 
+  private handleCopy() {
+    this.dispatchEvent(new CustomEvent('copy-content', { bubbles: true, composed: true }));
+    this.copied = true;
+    if (this.copyTimeout) {
+      clearTimeout(this.copyTimeout);
+    }
+    this.copyTimeout = window.setTimeout(() => {
+      this.copied = false;
+    }, 2000);
+  }
+
   render() {
     return html`
       <div class="editor-toolbar">
@@ -87,6 +108,14 @@ export class EditorToolbar extends LitElement {
             title="Expand all code blocks"
           >
             <span aria-hidden="true">▸</span> Expand All
+          </button>
+          <button
+            class="btn-secondary"
+            @click="${this.handleCopy}"
+            aria-label="${this.copied ? 'Content copied to clipboard' : 'Copy code to clipboard'}"
+            title="${this.copied ? 'Copied!' : 'Copy code to clipboard'}"
+          >
+            <span aria-hidden="true">${this.copied ? '✓' : '📋'}</span> ${this.copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
       </div>
