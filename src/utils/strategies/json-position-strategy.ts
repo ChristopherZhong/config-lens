@@ -1,5 +1,4 @@
-import { SyntaxNode } from '@lezer/common';
-import { SchemaPositionStrategy } from '../schema-position-strategy';
+import { SchemaPositionStrategy, SyntaxNode } from '../schema-position-strategy';
 import { schemaPositionRegistry } from '../schema-position-registry';
 
 function getNodeText(node: SyntaxNode, documentText: string): string {

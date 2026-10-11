@@ -13,3 +13,7 @@
 ## 2026-06-18 - Fast Fast-Path Regex Schema Extraction & Direct State Slicing
 **Learning:** Calling full JSON/YAML document parsers (`JSON.parse` / `jsYaml.load`) or converting entire CodeMirror document ropes (`view.state.doc.toString()`) inside high-frequency event handlers like CodeMirror's `hoverTooltip` causes severe UI thread blocking (~5ms-30ms per hover check).
 **Action:** Use fast regex string matching (~0.001ms) as a fast-path before falling back to full object parsers, and slice specific AST node text directly from `view.state.sliceDoc(from, to)` to prevent heap allocations on hover.
+
+## 2026-06-18 - Single-Pass AST Construction for Batch Validation Error Mapping
+**Learning:** When mapping multiple JSON Schema validation errors (`validate.errors`) to character ranges in `validateContent`, calling `findPositionForPath` for each error without sharing the syntax tree caused `jsonLanguage.parser.parse(...)` or `yamlLanguage.parser.parse(...)` to execute N times for N errors, incurring O(N * L) overhead during linting.
+**Action:** Parse the document syntax tree once per validation cycle and pass the pre-parsed `Tree` to error position resolution functions to keep batch error mapping time at O(L).

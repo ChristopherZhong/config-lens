@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { jsonLanguage } from '@codemirror/lang-json';
 import { findPositionForPath, parseJsonPointer } from '../../src/utils/schema-position';
 
 describe('schema-position', () => {
@@ -82,5 +83,13 @@ items:
 
     const posProtoSegment = findPositionForPath(jsonDoc, 'json', '/server/prototype/host');
     expect(posProtoSegment).toEqual({ from: 0, to: 1 });
+  });
+
+  it('supports passing a pre-parsed Lezer syntax tree for performance', () => {
+    const jsonDoc = JSON.stringify({ server: { port: 8080 } }, null, 2);
+    const parsedTree = jsonLanguage.parser.parse(jsonDoc);
+    const posPort = findPositionForPath(jsonDoc, 'json', '/server/port', undefined, undefined, parsedTree);
+    const portText = jsonDoc.slice(posPort.from, posPort.to);
+    expect(portText).toBe('8080');
   });
 });

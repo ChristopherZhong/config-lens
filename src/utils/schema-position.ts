@@ -1,6 +1,6 @@
 import { jsonLanguage } from '@codemirror/lang-json';
 import { yamlLanguage } from '@codemirror/lang-yaml';
-import { SyntaxNode } from '@lezer/common';
+import { SyntaxNode, Tree } from './schema-position-strategy';
 import { schemaPositionRegistry } from './schema-position-registry';
 import './strategies/json-position-strategy';
 import './strategies/yaml-position-strategy';
@@ -52,13 +52,15 @@ export function getValueNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode |
 
 /**
  * Maps a JSON Pointer path (instancePath) to document character range ({from, to}).
+ * Optimization: Reuses pre-parsed Lezer syntax tree if passed in parsedTree parameter.
  */
 export function findPositionForPath(
   documentText: string,
   mode: 'json' | 'yaml',
   instancePath: string,
   keyword?: string,
-  params?: any
+  params?: any,
+  parsedTree?: Tree
 ): DocumentRange {
   if (!documentText) return { from: 0, to: 0 };
 
@@ -68,10 +70,9 @@ export function findPositionForPath(
   }
 
   const segments = parseJsonPointer(instancePath);
-  // Optimization: Parse syntax tree directly using language parser instead of
-  // instantiating a full CodeMirror EditorState object with extensions for every path lookup.
-  const parser = mode === 'json' ? jsonLanguage.parser : yamlLanguage.parser;
-  const tree = parser.parse(documentText);
+  // Optimization: Parse syntax tree directly using language parser or reuse pre-parsed tree
+  // to prevent redundant AST parsing when mapping multiple schema errors.
+  const tree = parsedTree || (mode === 'json' ? jsonLanguage.parser : yamlLanguage.parser).parse(documentText);
 
   let current: SyntaxNode = tree.topNode;
 
