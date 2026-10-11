@@ -38,7 +38,7 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Build
+      - name: Build check
         run: npm run build
 
       - name: Run semantic-release
@@ -47,6 +47,10 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build release bundle
+        if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
+        run: npm run build
 
       - name: Setup Pages
         if: steps.semantic.outputs.should_deploy == 'true' || github.event_name == 'workflow_dispatch'
