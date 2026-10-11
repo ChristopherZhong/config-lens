@@ -20,13 +20,34 @@ const schemaPromiseCache = new Map<string, Promise<any>>();
 const validatorPromiseCache = new Map<string, Promise<ValidateFunction | null>>();
 
 /**
- * Validates that a given string is a valid HTTP or HTTPS URL to prevent loading unsafe protocol schemes.
+ * Validates that a given string is a valid HTTP or HTTPS URL to prevent loading unsafe protocol schemes,
+ * local addresses, loopback endpoints, and private network IP ranges.
  */
 function isValidHttpUrl(urlString: string): boolean {
   if (!urlString || typeof urlString !== 'string') return false;
   try {
     const parsed = new URL(urlString);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return false;
+    }
+    const hostname = parsed.hostname.toLowerCase();
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '0.0.0.0' ||
+      hostname === '[::1]' ||
+      hostname === '::1' ||
+      hostname.endsWith('.local') ||
+      hostname.endsWith('.internal') ||
+      hostname.endsWith('.localhost') ||
+      hostname.startsWith('169.254.') ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('192.168.') ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+    ) {
+      return false;
+    }
+    return true;
   } catch {
     return false;
   }
@@ -128,7 +149,12 @@ export async function validateContent(text: string, mode: 'json' | 'yaml'): Prom
 
   const data: any = parseResult.data;
 
-  if (data && typeof data === 'object' && typeof data.$schema === 'string') {
+  if (
+    data &&
+    typeof data === 'object' &&
+    Object.prototype.hasOwnProperty.call(data, '$schema') &&
+    typeof data.$schema === 'string'
+  ) {
     const validate = await getValidator(data.$schema);
     if (validate) {
       const valid = validate(data);
