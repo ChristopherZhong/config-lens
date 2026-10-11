@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
 import './diff-component';
+import {
+  originalJson,
+  modifiedJson,
+  originalYaml,
+  modifiedYaml,
+} from '../constants/samples';
 
 const meta: Meta = {
   title: 'Components/DiffComponent',
@@ -30,47 +36,6 @@ const meta: Meta = {
 
 export default meta;
 type Story = StoryObj;
-
-const originalJson = JSON.stringify(
-  {
-    name: 'config-lens',
-    version: '1.0.0',
-    status: 'active',
-    features: ['linting', 'formatting'],
-  },
-  null,
-  2
-);
-
-const modifiedJson = JSON.stringify(
-  {
-    name: 'config-lens',
-    version: '1.1.0',
-    status: 'active',
-    features: ['linting', 'formatting', 'diffing'],
-    newSetting: true,
-  },
-  null,
-  2
-);
-
-const originalYaml = `name: config-lens
-version: 1.0.0
-status: active
-features:
-  - linting
-  - formatting
-`;
-
-const modifiedYaml = `name: config-lens
-version: 1.1.0
-status: active
-features:
-  - linting
-  - formatting
-  - diffing
-newSetting: true
-`;
 
 const renderWithContainer = (args: any, height = '400px') => {
   const isDark = args.theme === 'dark';

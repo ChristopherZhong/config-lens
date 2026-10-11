@@ -14,74 +14,10 @@ import { safeStorageGetItem, safeStorageSetItem } from './utils/storage';
 import { documentFormatterRegistry } from './utils/document-formatter-registry';
 import './utils/strategies/json-formatter-strategy';
 import './utils/strategies/yaml-formatter-strategy';
+import { DEFAULT_JSON, DEFAULT_YAML } from './constants/samples';
 
 const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
 const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
-
-const DEFAULT_JSON = JSON.stringify({
-  "$schema": "https://www.schemastore.org/package.json",
-  "name": "config-lens",
-  "version": "1.0.0",
-  "description": "Modern web-based JSON/YAML config tools with schema validation, side-by-side diffing, and inline annotations.",
-  "keywords": [
-    "json",
-    "yaml",
-    "config",
-    "editor",
-    "diff",
-    "validator",
-    "schema"
-  ],
-  "homepage": "https://christopherzhong.github.io/config-lens",
-  "bugs": {
-    "url": "https://github.com/ChristopherZhong/config-lens/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ChristopherZhong/config-lens.git"
-  },
-  "license": "Apache-2.0",
-  "author": "Christopher Zhong",
-  "type": "module",
-  "main": "index.html",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build -o dist/storybook"
-  },
-  "dependencies": {
-    "@codemirror/lang-json": "^6.0.1",
-    "@codemirror/lang-yaml": "^6.0.1",
-    "@codemirror/lint": "^6.8.4",
-    "@codemirror/merge": "^6.7.3",
-    "@codemirror/state": "^6.5.2",
-    "@codemirror/theme-one-dark": "^6.1.2",
-    "@codemirror/view": "^6.36.3",
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1",
-    "codemirror": "^6.0.1",
-    "js-yaml": "^4.1.0",
-    "lit": "^3.2.1"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.51.0",
-    "@storybook/addon-essentials": "^8.6.4",
-    "@storybook/web-components-vite": "^8.6.4",
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.13.10",
-    "typescript": "~5.7.2",
-    "vite": "^6.2.0",
-    "vitest": "^3.0.7"
-  },
-  "engines": {
-    "node": ">=24"
-  }
-}, null, 2);
 
 @customElement('config-lens-app')
 export class ConfigLensApp extends LitElement {
@@ -162,26 +98,31 @@ export class ConfigLensApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    const savedContent = safeStorageGetItem('config-lens-content');
-    if (savedContent) {
-        this.content = savedContent;
-        this.modifiedContent = savedContent;
-    }
     const savedMode = safeStorageGetItem('config-lens-mode');
-    if (savedMode) this.mode = savedMode as 'json' | 'yaml';
+    if (savedMode === 'json' || savedMode === 'yaml') {
+      this.mode = savedMode;
+    }
+
+    const defaultContent = this.mode === 'json' ? DEFAULT_JSON : DEFAULT_YAML;
+
+    const savedContent = safeStorageGetItem(`config-lens-content-${this.mode}`);
+    this.content = savedContent !== null ? savedContent : defaultContent;
+
+    const savedModified = safeStorageGetItem(`config-lens-modified-${this.mode}`);
+    this.modifiedContent = savedModified !== null ? savedModified : defaultContent;
 
     const savedTheme = safeStorageGetItem('config-lens-theme');
     if (savedTheme) {
-        this.theme = savedTheme as 'light' | 'dark' | 'system';
+      this.theme = savedTheme as 'light' | 'dark' | 'system';
     }
 
     // Listen for system theme changes
     if (typeof window.matchMedia === 'function') {
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-          if (this.theme === 'system') {
-              this.applyTheme();
-              this.requestUpdate();
-          }
+        if (this.theme === 'system') {
+          this.applyTheme();
+          this.requestUpdate();
+        }
       });
     }
 
@@ -222,7 +163,9 @@ export class ConfigLensApp extends LitElement {
 
   private getResolvedTheme(): 'light' | 'dark' {
     if (this.theme === 'system') {
-        return (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
     }
     return this.theme;
   }
@@ -239,21 +182,36 @@ export class ConfigLensApp extends LitElement {
 
   private handleContentChange(e: CustomEvent) {
     this.content = e.detail.content;
-    safeStorageSetItem('config-lens-content', this.content);
+    safeStorageSetItem(`config-lens-content-${this.mode}`, this.content);
   }
 
   private handleOriginalChange(e: CustomEvent) {
-      this.content = e.detail.content;
-      safeStorageSetItem('config-lens-content', this.content);
+    this.content = e.detail.content;
+    safeStorageSetItem(`config-lens-content-${this.mode}`, this.content);
   }
 
   private handleModifiedChange(e: CustomEvent) {
-      this.modifiedContent = e.detail.content;
+    this.modifiedContent = e.detail.content;
+    safeStorageSetItem(`config-lens-modified-${this.mode}`, this.modifiedContent);
   }
 
   private handleModeChange(e: CustomEvent) {
-    this.mode = e.detail.mode;
+    const newMode = e.detail.mode as 'json' | 'yaml';
+    if (this.mode === newMode) return;
+
+    // Save current content before switching
+    safeStorageSetItem(`config-lens-content-${this.mode}`, this.content);
+    safeStorageSetItem(`config-lens-modified-${this.mode}`, this.modifiedContent);
+
+    this.mode = newMode;
     safeStorageSetItem('config-lens-mode', this.mode);
+
+    const defaultContent = this.mode === 'json' ? DEFAULT_JSON : DEFAULT_YAML;
+    const savedContent = safeStorageGetItem(`config-lens-content-${this.mode}`);
+    this.content = savedContent !== null ? savedContent : defaultContent;
+
+    const savedModified = safeStorageGetItem(`config-lens-modified-${this.mode}`);
+    this.modifiedContent = savedModified !== null ? savedModified : defaultContent;
   }
 
   private handleTabChange(e: CustomEvent) {
@@ -276,12 +234,12 @@ export class ConfigLensApp extends LitElement {
 
   private formatContent() {
     try {
-        this.content = documentFormatterRegistry.format(this.mode, this.content);
-        safeStorageSetItem('config-lens-content', this.content);
-        this.showFormatFeedback('success', 'Formatted!');
+      this.content = documentFormatterRegistry.format(this.mode, this.content);
+      safeStorageSetItem(`config-lens-content-${this.mode}`, this.content);
+      this.showFormatFeedback('success', 'Formatted!');
     } catch (e) {
-        console.error('Cannot format invalid content');
-        this.showFormatFeedback('error', 'Invalid syntax');
+      console.error('Cannot format invalid content', e);
+      this.showFormatFeedback('error', 'Invalid syntax');
     }
   }
 
@@ -320,56 +278,60 @@ export class ConfigLensApp extends LitElement {
         @format-click="${this.formatContent}"
       ></app-header>
 
-      ${this.newVersionAvailable && !this.noticeDismissed ? html`
-        <version-notice-banner
-          .latestVersion="${this.latestVersion}"
-          @refresh-click="${this.handleRefresh}"
-          @dismiss-click="${this.handleDismissNotice}"
-        ></version-notice-banner>
-      ` : ''}
+      ${this.newVersionAvailable && !this.noticeDismissed
+        ? html`
+            <version-notice-banner
+              .latestVersion="${this.latestVersion}"
+              @refresh-click="${this.handleRefresh}"
+              @dismiss-click="${this.handleDismissNotice}"
+            ></version-notice-banner>
+          `
+        : ''}
 
       <main>
-        ${this.activeTab === 'lint' ? html`
-          <div
-            id="panel-lint"
-            class="editor-wrapper"
-            role="tabpanel"
-            aria-labelledby="tab-lint"
-          >
-            <editor-toolbar
-              title="Editor"
-              @fold-all="${this.handleFoldAll}"
-              @unfold-all="${this.handleUnfoldAll}"
-            ></editor-toolbar>
-            <editor-component
-                .mode="${this.mode}"
-                .theme="${resolvedTheme}"
-                .content="${this.content}"
-                @content-changed="${this.handleContentChange}"
-            ></editor-component>
-          </div>
-        ` : html`
-          <div
-            id="panel-compare"
-            class="editor-wrapper"
-            role="tabpanel"
-            aria-labelledby="tab-compare"
-          >
-            <editor-toolbar
-              title="Compare (Original vs Modified)"
-              @fold-all="${this.handleFoldAll}"
-              @unfold-all="${this.handleUnfoldAll}"
-            ></editor-toolbar>
-            <diff-component
-                .mode="${this.mode}"
-                .theme="${resolvedTheme}"
-                .original="${this.content}"
-                .modified="${this.modifiedContent}"
-                @original-changed="${this.handleOriginalChange}"
-                @modified-changed="${this.handleModifiedChange}"
-            ></diff-component>
-          </div>
-        `}
+        ${this.activeTab === 'lint'
+          ? html`
+              <div
+                id="panel-lint"
+                class="editor-wrapper"
+                role="tabpanel"
+                aria-labelledby="tab-lint"
+              >
+                <editor-toolbar
+                  title="Editor"
+                  @fold-all="${this.handleFoldAll}"
+                  @unfold-all="${this.handleUnfoldAll}"
+                ></editor-toolbar>
+                <editor-component
+                  .mode="${this.mode}"
+                  .theme="${resolvedTheme}"
+                  .content="${this.content}"
+                  @content-changed="${this.handleContentChange}"
+                ></editor-component>
+              </div>
+            `
+          : html`
+              <div
+                id="panel-compare"
+                class="editor-wrapper"
+                role="tabpanel"
+                aria-labelledby="tab-compare"
+              >
+                <editor-toolbar
+                  title="Compare (Original vs Modified)"
+                  @fold-all="${this.handleFoldAll}"
+                  @unfold-all="${this.handleUnfoldAll}"
+                ></editor-toolbar>
+                <diff-component
+                  .mode="${this.mode}"
+                  .theme="${resolvedTheme}"
+                  .original="${this.content}"
+                  .modified="${this.modifiedContent}"
+                  @original-changed="${this.handleOriginalChange}"
+                  @modified-changed="${this.handleModifiedChange}"
+                ></diff-component>
+              </div>
+            `}
       </main>
 
       <app-footer

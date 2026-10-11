@@ -30,7 +30,7 @@ test('formatting functionality', async ({ page }) => {
 });
 
 test('persistence', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('config-lens-content', '{"persisted": true}'));
+  await page.evaluate(() => localStorage.setItem('config-lens-content-json', '{"persisted": true}'));
   await page.reload();
   await expect(page.locator('editor-component')).toBeVisible();
 });
@@ -52,7 +52,7 @@ test('editor scrolls when content exceeds screen height', async ({ page }) => {
   );
 
   await page.evaluate((json) => {
-    localStorage.setItem('config-lens-content', json);
+    localStorage.setItem('config-lens-content-json', json);
   }, largeJson);
 
   await page.reload();
@@ -84,7 +84,7 @@ test('diff component scrolls when content exceeds screen height', async ({ page 
   );
 
   await page.evaluate((json) => {
-    localStorage.setItem('config-lens-content', json);
+    localStorage.setItem('config-lens-content-json', json);
   }, largeJson);
 
   await page.reload();
@@ -110,7 +110,7 @@ test('diff component scroll is synchronized between side A and side B', async ({
   );
 
   await page.evaluate((json) => {
-    localStorage.setItem('config-lens-content', json);
+    localStorage.setItem('config-lens-content-json', json);
   }, largeJson);
 
   await page.reload();
@@ -214,7 +214,7 @@ test('editing text in left view of compare window updates state and persists', a
   }, editedText);
 
   // Check localStorage was updated
-  const stored = await page.evaluate(() => localStorage.getItem('config-lens-content'));
+  const stored = await page.evaluate(() => localStorage.getItem('config-lens-content-json'));
   expect(stored).toBe(editedText);
 
   // Switch back to Lint tab and verify editor content matches
@@ -311,7 +311,7 @@ test('schema validation highlights error at specific location', async ({ page })
   const invalidJson = '{\n  "name": "config-lens",\n  "version":\n}';
 
   await page.evaluate((json) => {
-    localStorage.setItem('config-lens-content', json);
+    localStorage.setItem('config-lens-content-json', json);
   }, invalidJson);
 
   await page.reload();

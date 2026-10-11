@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
 import './editor-component';
+import {
+  sampleValidJson,
+  sampleInvalidJson,
+  sampleValidYaml,
+  sampleInvalidYaml,
+} from '../constants/samples';
 
 const meta: Meta = {
   title: 'Components/EditorComponent',
@@ -26,55 +32,6 @@ const meta: Meta = {
 
 export default meta;
 type Story = StoryObj;
-
-const sampleValidJson = JSON.stringify(
-  {
-    $schema: 'https://www.schemastore.org/package.json',
-    name: 'config-lens',
-    version: '1.0.0',
-    description: 'Modern JSON/YAML Config Tools',
-    keywords: ['json', 'yaml', 'config', 'editor'],
-    author: {
-      name: 'ConfigLens Team',
-      email: 'support@example.com',
-    },
-    features: ['Linting', 'Comparing', 'Formatting'],
-  },
-  null,
-  2
-);
-
-const sampleInvalidJson = `{
-  "name": "config-lens",
-  "version": 1.0.0,
-  "description": "Unclosed string key,
-  "missingComma": true
-  "syntaxError":
-}`;
-
-const sampleValidYaml = `name: config-lens
-version: 1.0.0
-description: Modern JSON/YAML Config Tools
-keywords:
-  - json
-  - yaml
-  - config
-author:
-  name: ConfigLens Team
-  email: support@example.com
-features:
-  - Linting
-  - Comparing
-  - Formatting
-`;
-
-const sampleInvalidYaml = `name: config-lens
-version: 1.0.0
-description: invalid indent
-  features:
-- linting
- - syntax error: [
-`;
 
 const largeDocument = JSON.stringify(
   Array.from({ length: 25 }, (_, idx) => ({
