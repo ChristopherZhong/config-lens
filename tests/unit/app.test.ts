@@ -4,11 +4,13 @@ import type { ConfigLensApp } from '~src/main';
 import type { AppHeader } from '~src/components/app-header';
 import type { AppFooter } from '~src/components/app-footer';
 import type { VersionNoticeBanner } from '~src/components/version-notice-banner';
+import { safeStorageGetItem } from '~src/utils/storage';
 
 describe('ConfigLensApp component', () => {
   let element: ConfigLensApp;
 
   beforeEach(async () => {
+    localStorage.clear();
     document.body.innerHTML = '';
     element = document.createElement('config-lens-app') as ConfigLensApp;
     document.body.appendChild(element);
@@ -35,14 +37,19 @@ describe('ConfigLensApp component', () => {
     expect(controls).not.toBeNull();
   });
 
-  it('renders footer with release version link', () => {
+  it('renders footer with Storybook link and release version link', () => {
     const shadow = element.shadowRoot;
     expect(shadow).not.toBeNull();
 
     const appFooter = shadow?.querySelector<AppFooter>('app-footer');
     expect(appFooter).not.toBeNull();
 
-    const versionLink = appFooter?.shadowRoot?.querySelector('footer a');
+    const storybookLink = appFooter?.shadowRoot?.querySelector('a[href="./storybook/"]');
+    expect(storybookLink).not.toBeNull();
+    expect(storybookLink?.textContent?.trim()).toBe('Storybook');
+    expect(storybookLink?.getAttribute('target')).toBeNull();
+
+    const versionLink = appFooter?.shadowRoot?.querySelector('a[href*="releases/tag/v"]');
     expect(versionLink).not.toBeNull();
     expect(versionLink?.textContent?.trim()).toMatch(/^v\d+\.\d+\.\d+/);
     expect(versionLink?.getAttribute('target')).toBe('_blank');
@@ -151,5 +158,50 @@ describe('ConfigLensApp component', () => {
     expect(tabLint?.getAttribute('tabindex')).toBe('0');
     expect(tabCompare?.getAttribute('tabindex')).toBe('-1');
     expect(tabLint?.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('maintains separate localStorage content and modified content for JSON and YAML modes', async () => {
+    const appHeader = element.shadowRoot?.querySelector<AppHeader>('app-header');
+    expect(appHeader).not.toBeNull();
+
+    // Set JSON content
+    const jsonContent = '{"mode": "json-test"}';
+    const jsonModified = '{"mode": "json-modified-test"}';
+    (element as unknown as { handleContentChange: (e: CustomEvent) => void }).handleContentChange(
+      new CustomEvent('content-changed', { detail: { content: jsonContent } })
+    );
+    (element as unknown as { handleModifiedChange: (e: CustomEvent) => void }).handleModifiedChange(
+      new CustomEvent('modified-changed', { detail: { content: jsonModified } })
+    );
+
+    expect(safeStorageGetItem('config-lens-content-json')).toBe(jsonContent);
+    expect(safeStorageGetItem('config-lens-modified-json')).toBe(jsonModified);
+
+    // Switch to YAML mode
+    appHeader?.dispatchEvent(new CustomEvent('mode-change', { detail: { mode: 'yaml' } }));
+    await element.updateComplete;
+
+    expect((element as unknown as { mode: string }).mode).toBe('yaml');
+    expect(safeStorageGetItem('config-lens-mode')).toBe('yaml');
+
+    // Set YAML content
+    const yamlContent = 'mode: yaml-test';
+    const yamlModified = 'mode: yaml-modified-test';
+    (element as unknown as { handleContentChange: (e: CustomEvent) => void }).handleContentChange(
+      new CustomEvent('content-changed', { detail: { content: yamlContent } })
+    );
+    (element as unknown as { handleModifiedChange: (e: CustomEvent) => void }).handleModifiedChange(
+      new CustomEvent('modified-changed', { detail: { content: yamlModified } })
+    );
+
+    expect(safeStorageGetItem('config-lens-content-yaml')).toBe(yamlContent);
+    expect(safeStorageGetItem('config-lens-modified-yaml')).toBe(yamlModified);
+
+    // Switch back to JSON mode and verify stored JSON content is restored
+    appHeader?.dispatchEvent(new CustomEvent('mode-change', { detail: { mode: 'json' } }));
+    await element.updateComplete;
+
+    expect((element as unknown as { content: string }).content).toBe(jsonContent);
+    expect((element as unknown as { modifiedContent: string }).modifiedContent).toBe(jsonModified);
   });
 });
