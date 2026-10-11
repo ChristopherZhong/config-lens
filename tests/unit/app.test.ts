@@ -37,14 +37,19 @@ describe('ConfigLensApp component', () => {
     expect(controls).not.toBeNull();
   });
 
-  it('renders footer with release version link', () => {
+  it('renders footer with Storybook link and release version link', () => {
     const shadow = element.shadowRoot;
     expect(shadow).not.toBeNull();
 
     const appFooter = shadow?.querySelector<AppFooter>('app-footer');
     expect(appFooter).not.toBeNull();
 
-    const versionLink = appFooter?.shadowRoot?.querySelector('footer a');
+    const storybookLink = appFooter?.shadowRoot?.querySelector('a[href="./storybook/"]');
+    expect(storybookLink).not.toBeNull();
+    expect(storybookLink?.textContent?.trim()).toBe('Storybook');
+    expect(storybookLink?.getAttribute('target')).toBeNull();
+
+    const versionLink = appFooter?.shadowRoot?.querySelector('a[href*="releases/tag/v"]');
     expect(versionLink).not.toBeNull();
     expect(versionLink?.textContent?.trim()).toMatch(/^v\d+\.\d+\.\d+/);
     expect(versionLink?.getAttribute('target')).toBe('_blank');
