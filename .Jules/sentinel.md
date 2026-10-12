@@ -12,3 +12,7 @@
 **Vulnerability:** Exact hostname string matching for `127.0.0.1` and `0.0.0.0` allowed SSRF via non-standard loopback IP addresses (e.g., `127.0.0.2`, `127.254.0.1`), IPv4-mapped IPv6 syntax (`[::ffff:127.0.0.1]`, `[::ffff:10.0.0.1]`), `0.x.x.x` addresses, or Carrier-Grade NAT IPs (`100.64.0.0/10`).
 **Learning:** `new URL().hostname` retains IPv6 brackets (`[...]`) and IPv4-mapped IPv6 prefixes (`::ffff:`), preventing standard IPv4 prefix checks from matching.
 **Prevention:** Strip IPv6 bracket notation, unwrap `::ffff:` IPv4-mapped IPv6 prefixes, and check against full subnet prefix ranges (`127.0.0.0/8`, `0.0.0.0/8`, `100.64.0.0/10`).
+
+## Package Manager Requirement - Strict NPM Usage
+**Constraint:** This repository uses `npm` exclusively (`package-lock.json`). Never run `pnpm` or introduce `pnpm-lock.yaml`.
+**Execution:** Always execute `npm test`, `npm run lint`, `npm install`, and `npm run build`.
