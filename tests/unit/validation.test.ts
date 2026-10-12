@@ -156,4 +156,63 @@ describe('validation logic', () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
+
+  it('validates multiple schema errors in JSON document and maps ranges for every error', async () => {
+    const json = JSON.stringify({
+      "$schema": "http://example.com/multi-schema.json",
+      "age": "invalid-age",
+      "port": "invalid-port"
+    }, null, 2);
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        type: 'object',
+        properties: {
+          age: { type: 'number' },
+          port: { type: 'integer' }
+        }
+      })
+    }) as any;
+
+    const result = await validateContent(json, 'json');
+    expect(result.length).toBe(2);
+
+    const ageError = result.find(r => r.message.includes('/age'));
+    expect(ageError).toBeDefined();
+    expect(json.slice(ageError!.from, ageError!.to)).toBe('"invalid-age"');
+
+    const portError = result.find(r => r.message.includes('/port'));
+    expect(portError).toBeDefined();
+    expect(json.slice(portError!.from, portError!.to)).toBe('"invalid-port"');
+  });
+
+  it('validates multiple schema errors in YAML document and maps ranges for every error', async () => {
+    const yaml = `$schema: "http://example.com/multi-yaml-schema.json"
+age: invalid-age
+port: invalid-port
+`;
+
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        type: 'object',
+        properties: {
+          age: { type: 'number' },
+          port: { type: 'integer' }
+        }
+      })
+    }) as any;
+
+    const result = await validateContent(yaml, 'yaml');
+    expect(result.length).toBe(2);
+
+    const ageError = result.find(r => r.message.includes('/age'));
+    expect(ageError).toBeDefined();
+    expect(yaml.slice(ageError!.from, ageError!.to).trim()).toBe('invalid-age');
+
+    const portError = result.find(r => r.message.includes('/port'));
+    expect(portError).toBeDefined();
+    expect(yaml.slice(portError!.from, portError!.to).trim()).toBe('invalid-port');
+  });
 });
