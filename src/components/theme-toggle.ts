@@ -86,35 +86,73 @@ export class ThemeToggle extends LitElement {
     }));
   }
 
+  private handleKeyDown(e: KeyboardEvent) {
+    const themes: ('system' | 'light' | 'dark')[] = ['system', 'light', 'dark'];
+    const currentIndex = themes.indexOf(this.theme);
+    let newIndex = -1;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      newIndex = (currentIndex + 1) % themes.length;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      newIndex = (currentIndex - 1 + themes.length) % themes.length;
+    } else if (e.key === 'Home') {
+      newIndex = 0;
+    } else if (e.key === 'End') {
+      newIndex = themes.length - 1;
+    }
+
+    if (newIndex !== -1) {
+      e.preventDefault();
+      const targetTheme = themes[newIndex];
+      this.selectTheme(targetTheme);
+      this.updateComplete.then(() => {
+        const button = this.shadowRoot?.querySelector<HTMLButtonElement>(`#theme-option-${targetTheme}`);
+        button?.focus();
+      });
+    }
+  }
+
   render() {
     return html`
-      <div class="theme-toggle" data-theme="${this.theme}" role="radiogroup" aria-label="Select theme">
+      <div
+        class="theme-toggle"
+        data-theme="${this.theme}"
+        role="radiogroup"
+        aria-label="Select theme"
+        @keydown="${this.handleKeyDown}"
+      >
         <div class="theme-slider"></div>
         <button
+          id="theme-option-system"
           class="theme-option ${this.theme === 'system' ? 'active' : ''}"
           @click="${() => this.selectTheme('system')}"
           role="radio"
           aria-checked="${this.theme === 'system'}"
+          tabindex="${this.theme === 'system' ? 0 : -1}"
           title="System Theme"
           aria-label="System Theme"
         >
           🖥️
         </button>
         <button
+          id="theme-option-light"
           class="theme-option ${this.theme === 'light' ? 'active' : ''}"
           @click="${() => this.selectTheme('light')}"
           role="radio"
           aria-checked="${this.theme === 'light'}"
+          tabindex="${this.theme === 'light' ? 0 : -1}"
           title="Light Theme"
           aria-label="Light Theme"
         >
           ☀️
         </button>
         <button
+          id="theme-option-dark"
           class="theme-option ${this.theme === 'dark' ? 'active' : ''}"
           @click="${() => this.selectTheme('dark')}"
           role="radio"
           aria-checked="${this.theme === 'dark'}"
+          tabindex="${this.theme === 'dark' ? 0 : -1}"
           title="Dark Theme"
           aria-label="Dark Theme"
         >
