@@ -1,5 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
+import { jsonLanguage } from '@codemirror/lang-json';
+import { yamlLanguage } from '@codemirror/lang-yaml';
 import { findPositionForPath } from './schema-position';
 import { documentValidationParserRegistry } from './document-validation-parser-registry';
 import './strategies/json-validation-parser-strategy';
@@ -159,13 +161,19 @@ export async function validateContent(text: string, mode: 'json' | 'yaml'): Prom
     if (validate) {
       const valid = validate(data);
       if (!valid && validate.errors) {
+        // Optimization: Parse syntax tree once prior to error position mapping loop
+        // to prevent O(N) re-parsing of the same document syntax tree across N schema errors.
+        const parser = mode === 'json' ? jsonLanguage.parser : yamlLanguage.parser;
+        const parsedTree = parser.parse(text);
+
         validate.errors.forEach(err => {
           const range = findPositionForPath(
             text,
             mode,
             err.instancePath,
             err.keyword,
-            err.params
+            err.params,
+            parsedTree
           );
           diagnostics.push({
             from: range.from,

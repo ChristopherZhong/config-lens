@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { jsonLanguage } from '@codemirror/lang-json';
 import { findPositionForPath, parseJsonPointer } from '../../src/utils/schema-position';
 
 describe('schema-position', () => {
@@ -69,6 +70,27 @@ items:
     const pos = findPositionForPath(jsonDoc, 'json', '/server', 'required', { missingProperty: 'port' });
     const text = jsonDoc.slice(pos.from, pos.to);
     expect(text).toBe('"server"');
+  });
+
+  it('uses optional pre-parsed tree when provided to avoid re-parsing', () => {
+    const jsonDoc = JSON.stringify(
+      {
+        server: {
+          port: 'not-a-number',
+          host: 'localhost'
+        }
+      },
+      null,
+      2
+    );
+
+    const parsedTree = jsonLanguage.parser.parse(jsonDoc);
+    const posPortWithTree = findPositionForPath(jsonDoc, 'json', '/server/port', undefined, undefined, parsedTree);
+    const posPortWithoutTree = findPositionForPath(jsonDoc, 'json', '/server/port');
+
+    expect(posPortWithTree).toEqual(posPortWithoutTree);
+    const portText = jsonDoc.slice(posPortWithTree.from, posPortWithTree.to);
+    expect(portText).toBe('"not-a-number"');
   });
 
   it('safely handles prototype traversal keys in instancePath', () => {
