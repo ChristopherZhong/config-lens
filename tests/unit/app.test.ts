@@ -4,6 +4,7 @@ import type { ConfigLensApp } from '~src/main';
 import type { AppHeader } from '~src/components/app-header';
 import type { AppFooter } from '~src/components/app-footer';
 import type { VersionNoticeBanner } from '~src/components/version-notice-banner';
+import type { EditorToolbar } from '~src/components/editor-toolbar';
 import { safeStorageGetItem } from '~src/utils/storage';
 
 describe('ConfigLensApp component', () => {
@@ -203,5 +204,32 @@ describe('ConfigLensApp component', () => {
 
     expect((element as unknown as { content: string }).content).toBe(jsonContent);
     expect((element as unknown as { modifiedContent: string }).modifiedContent).toBe(jsonModified);
+  });
+
+  it('triggers copy-content event and copies code to clipboard when Copy button is clicked in toolbar', async () => {
+    let copiedText = '';
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: async (text: string) => {
+          copiedText = text;
+        }
+      },
+      configurable: true
+    });
+
+    const shadow = element.shadowRoot;
+    const toolbar = shadow?.querySelector<EditorToolbar>('editor-toolbar');
+    expect(toolbar).not.toBeNull();
+
+    const toolbarShadow = toolbar?.shadowRoot;
+    const copyButton = toolbarShadow?.querySelector<HTMLButtonElement>('button[title="Copy code to clipboard"]');
+    expect(copyButton).not.toBeNull();
+
+    copyButton?.click();
+    await element.updateComplete;
+    await toolbar?.updateComplete;
+
+    expect(copiedText).toBe((element as unknown as { content: string }).content);
+    expect(copyButton?.textContent).toContain('Copied!');
   });
 });

@@ -263,6 +263,15 @@ export class ConfigLensApp extends LitElement {
     }
   }
 
+  private handleCopyContent() {
+    const textToCopy = this.content;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(textToCopy).catch((err) => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  }
+
   render() {
     const resolvedTheme = this.getResolvedTheme();
 
@@ -301,6 +310,7 @@ export class ConfigLensApp extends LitElement {
                   title="Editor"
                   @fold-all="${this.handleFoldAll}"
                   @unfold-all="${this.handleUnfoldAll}"
+                  @copy-content="${this.handleCopyContent}"
                 ></editor-toolbar>
                 <editor-component
                   .mode="${this.mode}"
@@ -321,6 +331,7 @@ export class ConfigLensApp extends LitElement {
                   title="Compare (Original vs Modified)"
                   @fold-all="${this.handleFoldAll}"
                   @unfold-all="${this.handleUnfoldAll}"
+                  @copy-content="${this.handleCopyContent}"
                 ></editor-toolbar>
                 <diff-component
                   .mode="${this.mode}"
