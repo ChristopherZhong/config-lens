@@ -1,6 +1,6 @@
 import { jsonLanguage } from '@codemirror/lang-json';
 import { yamlLanguage } from '@codemirror/lang-yaml';
-import { SyntaxNode } from '@lezer/common';
+import { SyntaxNode } from './schema-position-strategy';
 import { schemaPositionRegistry } from './schema-position-registry';
 import './strategies/json-position-strategy';
 import './strategies/yaml-position-strategy';

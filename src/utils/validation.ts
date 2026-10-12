@@ -30,20 +30,40 @@ function isValidHttpUrl(urlString: string): boolean {
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
       return false;
     }
-    const hostname = parsed.hostname.toLowerCase();
+    let hostname = parsed.hostname.toLowerCase();
+    if (hostname.startsWith('[') && hostname.endsWith(']')) {
+      hostname = hostname.slice(1, -1);
+    }
+    if (hostname.startsWith('::ffff:')) {
+      const rest = hostname.slice(7);
+      if (rest.includes('.')) {
+        hostname = rest;
+      } else if (rest.includes(':')) {
+        const parts = rest.split(':');
+        if (parts.length === 2) {
+          const high = parseInt(parts[0], 16);
+          const low = parseInt(parts[1], 16);
+          if (!isNaN(high) && !isNaN(low)) {
+            hostname = `${(high >> 8) & 255}.${high & 255}.${(low >> 8) & 255}.${low & 255}`;
+          }
+        }
+      }
+    }
+
     if (
       hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname === '0.0.0.0' ||
-      hostname === '[::1]' ||
+      hostname === '0' ||
       hostname === '::1' ||
       hostname.endsWith('.local') ||
       hostname.endsWith('.internal') ||
       hostname.endsWith('.localhost') ||
+      hostname.startsWith('127.') ||
+      hostname.startsWith('0.') ||
       hostname.startsWith('169.254.') ||
       hostname.startsWith('10.') ||
       hostname.startsWith('192.168.') ||
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
+      /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(hostname)
     ) {
       return false;
     }

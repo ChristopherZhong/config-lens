@@ -1,4 +1,6 @@
-import { SyntaxNode } from '@lezer/common';
+import { jsonLanguage } from '@codemirror/lang-json';
+
+export type SyntaxNode = ReturnType<typeof jsonLanguage.parser.parse>['topNode'];
 
 export interface SchemaPositionStrategy {
   mode: string;

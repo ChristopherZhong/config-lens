@@ -1,6 +1,6 @@
 import { hoverTooltip, Tooltip, EditorView } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
-import { SyntaxNode } from '@lezer/common';
+import { SyntaxNode } from './schema-position-strategy';
 import { fetchSchema, getValidator } from './validation';
 import { getKeyNodeFromProperty } from './schema-position';
 import { documentParserRegistry } from './document-parser-registry';
