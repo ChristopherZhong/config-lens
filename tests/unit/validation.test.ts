@@ -156,4 +156,29 @@ describe('validation logic', () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
+
+  it('rejects loopback, private IP, and internal network URLs to prevent SSRF', async () => {
+    const fetchSpy = vi.fn();
+    global.fetch = fetchSpy;
+
+    const ssrfUrls = [
+      'http://localhost/schema.json',
+      'http://127.0.0.1/schema.json',
+      'http://0.0.0.0/schema.json',
+      'http://[::1]/schema.json',
+      'http://169.254.169.254/latest/meta-data/',
+      'http://10.0.0.1/schema.json',
+      'http://192.168.1.1/schema.json',
+      'http://172.16.0.1/schema.json',
+      'http://service.local/schema.json',
+      'http://internal.service.internal/schema.json',
+    ];
+
+    for (const url of ssrfUrls) {
+      const result = await fetchSchema(url);
+      expect(result).toBeNull();
+    }
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });
