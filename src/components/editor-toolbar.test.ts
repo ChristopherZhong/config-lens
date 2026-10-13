@@ -12,12 +12,16 @@ describe('EditorToolbar component', () => {
     await element.updateComplete;
   });
 
-  it('renders title and action buttons', async () => {
+  it('renders title and action buttons with ARIA toolbar attributes', async () => {
     element.title = 'Test Editor';
     await element.updateComplete;
 
     const shadow = element.shadowRoot;
     expect(shadow).not.toBeNull();
+
+    const toolbar = shadow?.querySelector('.editor-toolbar');
+    expect(toolbar?.getAttribute('role')).toBe('toolbar');
+    expect(toolbar?.getAttribute('aria-label')).toBe('Editor controls');
 
     const titleEl = shadow?.querySelector('.editor-title');
     expect(titleEl?.textContent).toBe('Test Editor');
@@ -29,6 +33,7 @@ describe('EditorToolbar component', () => {
     expect(foldBtn).not.toBeNull();
     expect(unfoldBtn).not.toBeNull();
     expect(copyBtn).not.toBeNull();
+    expect(copyBtn?.getAttribute('aria-live')).toBe('polite');
   });
 
   it('dispatches fold-all event when Fold All button is clicked', async () => {
@@ -71,5 +76,6 @@ describe('EditorToolbar component', () => {
     expect(copyBtn?.textContent).toContain('Copied!');
     expect(copyBtn?.getAttribute('title')).toBe('Copied!');
     expect(copyBtn?.getAttribute('aria-label')).toBe('Content copied to clipboard');
+    expect(copyBtn?.classList.contains('copied')).toBe(true);
   });
 });

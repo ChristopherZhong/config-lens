@@ -67,6 +67,12 @@ export class EditorToolbar extends LitElement {
       outline: 2px solid var(--accent, #007acc);
       outline-offset: 2px;
     }
+
+    .btn-secondary.copied {
+      color: var(--success, #22c55e);
+      border-color: var(--success, #22c55e);
+      background: rgba(34, 197, 94, 0.1);
+    }
   `;
 
   private handleFoldAll() {
@@ -90,7 +96,7 @@ export class EditorToolbar extends LitElement {
 
   render() {
     return html`
-      <div class="editor-toolbar">
+      <div class="editor-toolbar" role="toolbar" aria-label="Editor controls">
         <div class="editor-title">${this.title}</div>
         <div class="toolbar-actions">
           <button
@@ -110,9 +116,10 @@ export class EditorToolbar extends LitElement {
             <span aria-hidden="true">▸</span> Expand All
           </button>
           <button
-            class="btn-secondary"
+            class="btn-secondary ${this.copied ? 'copied' : ''}"
             @click="${this.handleCopy}"
             aria-label="${this.copied ? 'Content copied to clipboard' : 'Copy code to clipboard'}"
+            aria-live="polite"
             title="${this.copied ? 'Copied!' : 'Copy code to clipboard'}"
           >
             <span aria-hidden="true">${this.copied ? '✓' : '📋'}</span> ${this.copied ? 'Copied!' : 'Copy'}
