@@ -17,3 +17,7 @@
 ## 2026-06-18 - Pre-parsed AST Reuse for Batch Diagnostic Position Mapping
 **Learning:** During schema linting (`validateContent`), mapping multiple AJV validation errors to document character positions via `findPositionForPath` caused redundant full Lezer syntax tree parses (`parser.parse(documentText)`) for every error diagnostic.
 **Action:** Pre-parse the Lezer syntax tree once before batch position lookups and pass the pre-parsed `Tree` into mapping functions to avoid O(N) AST re-parsing overhead.
+
+## 2026-06-18 - Fast Substring Pre-check for Schema URL Extraction
+**Learning:** High-frequency CodeMirror extensions like `hoverTooltip` call `extractSchemaUrl` on every mouse hover. Without a fast substring guard (`!documentText.includes('$schema')`), documents without schema directives still trigger full Lezer syntax tree parsing and fallback `JSON.parse` or `jsYaml.load` executions, causing UI micro-jank on hover.
+**Action:** Always perform an O(1) substring check for required schema markers (`$schema` / `schema`) before triggering document AST parsing or deserialization.
