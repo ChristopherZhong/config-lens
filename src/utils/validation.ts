@@ -33,19 +33,23 @@ function isValidHttpUrl(urlString: string): boolean {
       return false;
     }
     const hostname = parsed.hostname.toLowerCase();
+    const cleanHost = hostname.replace(/^\[|\]$/g, '');
     if (
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname === '0.0.0.0' ||
-      hostname === '[::1]' ||
-      hostname === '::1' ||
-      hostname.endsWith('.local') ||
-      hostname.endsWith('.internal') ||
-      hostname.endsWith('.localhost') ||
-      hostname.startsWith('169.254.') ||
-      hostname.startsWith('10.') ||
-      hostname.startsWith('192.168.') ||
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+      cleanHost === 'localhost' ||
+      cleanHost.endsWith('.local') ||
+      cleanHost.endsWith('.internal') ||
+      cleanHost.endsWith('.localhost') ||
+      cleanHost.startsWith('0.') ||
+      cleanHost.startsWith('127.') ||
+      cleanHost.startsWith('10.') ||
+      cleanHost.startsWith('169.254.') ||
+      cleanHost.startsWith('192.168.') ||
+      cleanHost.startsWith('::ffff:') ||
+      cleanHost.includes('::ffff:') ||
+      cleanHost === '::1' ||
+      cleanHost === '0:0:0:0:0:0:0:1' ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(cleanHost) ||
+      /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(cleanHost)
     ) {
       return false;
     }
