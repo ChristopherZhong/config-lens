@@ -50,7 +50,7 @@ export function computeAnnotations(
       from,
       to,
       enter: (node) => {
-        const nodeKey = `${node.name}:${node.from}:${node.to}`;
+        const nodeKey = `${node.type.id}:${node.from}:${node.to}`;
         if (visitedNodes.has(nodeKey)) {
           return;
         }

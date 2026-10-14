@@ -5,7 +5,9 @@ import { DocumentParserStrategy } from '../document-parser-strategy';
 export const jsonParserStrategy: DocumentParserStrategy = {
   mode: 'json',
   extractSchemaUrl(documentText: string): string | null {
-    if (!documentText) return null;
+    // Optimization: Fast substring check (~0.0001ms) skips full Lezer AST parsing and JSON.parse
+    // when document does not contain a $schema property directive.
+    if (!documentText || !documentText.includes('$schema')) return null;
 
     // Optimization: Inspect direct root AST properties using jsonLanguage parser (~0.005ms)
     // without full document object graph creation or false positives from nested strings/properties.
