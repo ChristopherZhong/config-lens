@@ -34,11 +34,17 @@ function isValidHttpUrl(urlString: string): boolean {
     }
     const hostname = parsed.hostname.toLowerCase();
     const cleanHost = hostname.replace(/^\[|\]$/g, '');
+    // Prevent SSRF and Private Network Access via loopback, local/internal domains,
+    // wildcard DNS services (.nip.io, .sslip.io, etc.), private IP ranges, and integer IP formats.
     if (
       cleanHost === 'localhost' ||
       cleanHost.endsWith('.local') ||
       cleanHost.endsWith('.internal') ||
       cleanHost.endsWith('.localhost') ||
+      cleanHost.endsWith('.localdomain') ||
+      cleanHost.endsWith('.nip.io') ||
+      cleanHost.endsWith('.sslip.io') ||
+      cleanHost.endsWith('.xip.io') ||
       cleanHost.startsWith('0.') ||
       cleanHost.startsWith('127.') ||
       cleanHost.startsWith('10.') ||
@@ -49,7 +55,9 @@ function isValidHttpUrl(urlString: string): boolean {
       cleanHost === '::1' ||
       cleanHost === '0:0:0:0:0:0:0:1' ||
       /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(cleanHost) ||
-      /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(cleanHost)
+      /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(cleanHost) ||
+      /^(0x[0-9a-f]+|\d+)$/i.test(cleanHost) ||
+      /^(0x[0-9a-f]+\.){1,3}(0x[0-9a-f]+)$/i.test(cleanHost)
     ) {
       return false;
     }
