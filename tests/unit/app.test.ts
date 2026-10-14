@@ -102,12 +102,24 @@ describe('ConfigLensApp component', () => {
     const formatBtn = headerShadow?.querySelector<HTMLButtonElement>('button[aria-label="Format content"]');
     expect(formatBtn).not.toBeNull();
 
+    expect(formatBtn?.getAttribute('title')).toBe('Format document (Alt+Shift+F)');
+
     // Valid JSON format feedback
     formatBtn?.click();
     await element.updateComplete;
     await appHeader?.updateComplete;
 
     let feedback = headerShadow?.querySelector('.format-feedback');
+    expect(feedback).not.toBeNull();
+    expect(feedback?.textContent?.trim()).toBe('Formatted!');
+    expect(feedback?.classList.contains('success')).toBe(true);
+
+    // Keyboard shortcut (Alt+Shift+F) format feedback
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'F', altKey: true, shiftKey: true, bubbles: true }));
+    await element.updateComplete;
+    await appHeader?.updateComplete;
+
+    feedback = headerShadow?.querySelector('.format-feedback');
     expect(feedback).not.toBeNull();
     expect(feedback?.textContent?.trim()).toBe('Formatted!');
     expect(feedback?.classList.contains('success')).toBe(true);

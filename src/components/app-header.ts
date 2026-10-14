@@ -217,6 +217,23 @@ export class AppHeader extends LitElement {
     }));
   }
 
+  private handleGlobalKeyDown = (e: KeyboardEvent) => {
+    if (e.altKey && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+      e.preventDefault();
+      this.handleFormat();
+    }
+  };
+
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener('keydown', this.handleGlobalKeyDown);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('keydown', this.handleGlobalKeyDown);
+  }
+
   private handleFormat() {
     this.dispatchEvent(new CustomEvent('format-click', {
       bubbles: true,
@@ -280,7 +297,7 @@ export class AppHeader extends LitElement {
             <button
               @click="${this.handleFormat}"
               aria-label="Format content"
-              title="Format document (re-indent code)"
+              title="Format document (Alt+Shift+F)"
             >
               Format
             </button>
