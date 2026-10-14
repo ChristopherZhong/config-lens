@@ -7,7 +7,7 @@ import {
   createHoverTooltipElement,
   documentParserRegistry,
   getSchemaUrlForDoc
-} from '../../src/utils/schema-hover';
+} from './schema-hover';
 
 describe('schema-hover', () => {
   const sampleSchema = {
