@@ -176,6 +176,11 @@ describe('validation logic', () => {
       'http://172.16.0.1/schema.json',
       'http://service.local/schema.json',
       'http://internal.service.internal/schema.json',
+      'http://2130706433/schema.json',
+      'http://0x7f000001/schema.json',
+      'http://127.0.0.1.nip.io/schema.json',
+      'http://10.0.0.1.sslip.io/schema.json',
+      'http://service.localdomain/schema.json',
     ];
 
     for (const url of ssrfUrls) {
