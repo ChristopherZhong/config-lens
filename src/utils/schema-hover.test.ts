@@ -1,11 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
+import { Text } from '@codemirror/state';
 import {
   resolveSchemaRef,
   dereferenceSchema,
   getSchemaForPath,
   createHoverTooltipElement,
-  documentParserRegistry
-} from '../../src/utils/schema-hover';
+  documentParserRegistry,
+  getSchemaUrlForDoc
+} from './schema-hover';
 
 describe('schema-hover', () => {
   const sampleSchema = {
@@ -127,5 +129,31 @@ describe('schema-hover', () => {
     expect(getSchemaForPath(sampleSchema, ['constructor'])).toBeNull();
     expect(getSchemaForPath(sampleSchema, ['toString'])).toBeNull();
     expect(getSchemaForPath(sampleSchema, ['server', 'constructor'])).toBeNull();
+  });
+
+  it('caches schema URL extraction per Text instance in getSchemaUrlForDoc', () => {
+    const doc1Text = '{"$schema": "https://example.com/schema-v1.json", "name": "app"}';
+    const doc1 = Text.of(doc1Text.split('\n'));
+
+    const extractSpy = vi.spyOn(documentParserRegistry, 'extractSchemaUrl');
+
+    // First call extracts schema URL
+    const url1 = getSchemaUrlForDoc(doc1, 'json');
+    expect(url1).toBe('https://example.com/schema-v1.json');
+    expect(extractSpy).toHaveBeenCalledTimes(1);
+
+    // Second call on the SAME Text instance reuses cached result without calling extractSchemaUrl
+    const url2 = getSchemaUrlForDoc(doc1, 'json');
+    expect(url2).toBe('https://example.com/schema-v1.json');
+    expect(extractSpy).toHaveBeenCalledTimes(1);
+
+    // Call with a NEW Text instance invokes extractSchemaUrl again
+    const doc2Text = '{"$schema": "https://example.com/schema-v2.json", "name": "app2"}';
+    const doc2 = Text.of(doc2Text.split('\n'));
+    const url3 = getSchemaUrlForDoc(doc2, 'json');
+    expect(url3).toBe('https://example.com/schema-v2.json');
+    expect(extractSpy).toHaveBeenCalledTimes(2);
+
+    extractSpy.mockRestore();
   });
 });
