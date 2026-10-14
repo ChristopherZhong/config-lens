@@ -21,3 +21,7 @@
 ## 2026-06-18 - Fast Substring Pre-check for Schema URL Extraction
 **Learning:** High-frequency CodeMirror extensions like `hoverTooltip` call `extractSchemaUrl` on every mouse hover. Without a fast substring guard (`!documentText.includes('$schema')`), documents without schema directives still trigger full Lezer syntax tree parsing and fallback `JSON.parse` or `jsYaml.load` executions, causing UI micro-jank on hover.
 **Action:** Always perform an O(1) substring check for required schema markers (`$schema` / `schema`) before triggering document AST parsing or deserialization.
+
+## 2026-06-18 - Immutable Document WeakMap Caching for High-Frequency Hover Handlers
+**Learning:** In CodeMirror 6, `view.state.doc` is an immutable `Text` instance that remains identical across non-editing user interactions like mouse movements. High-frequency extensions like `hoverTooltip` previously executed `view.state.doc.toString()` and re-extracted `$schema` URLs on every hover over document properties. Caching extracted metadata in a `WeakMap<Text, Map<mode, url>>` eliminates redundant string allocations and parsing runs during continuous hovering, automatically invalidating when document edits produce a new `Text` instance.
+**Action:** Use a `WeakMap` keyed on CodeMirror's immutable `Text` (`view.state.doc`) to cache expensive document-level extractions across high-frequency view interactions like hover tooltips or line decorations.

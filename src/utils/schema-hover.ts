@@ -1,9 +1,34 @@
 import { hoverTooltip, Tooltip, EditorView } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 import { SyntaxNode } from '@lezer/common';
+import { Text } from '@codemirror/state';
 import { fetchSchema, getValidator } from './validation';
 import { getKeyNodeFromProperty } from './schema-position';
 import { documentParserRegistry } from './document-parser-registry';
+
+// Optimization: WeakMap caches extracted schema URLs per immutable CodeMirror Text document instance,
+// preventing full document string conversions and re-parsing on continuous hover events.
+const docSchemaUrlCache = new WeakMap<Text, Map<string, string | null>>();
+
+/**
+ * Retrieves the schema URL for a document, caching results per immutable Text document instance.
+ */
+export function getSchemaUrlForDoc(doc: Text, mode: string): string | null {
+  let modeMap = docSchemaUrlCache.get(doc);
+  if (!modeMap) {
+    modeMap = new Map<string, string | null>();
+    docSchemaUrlCache.set(doc, modeMap);
+  }
+
+  if (modeMap.has(mode)) {
+    return modeMap.get(mode)!;
+  }
+
+  const documentText = doc.toString();
+  const schemaUrl = documentParserRegistry.extractSchemaUrl(mode, documentText);
+  modeMap.set(mode, schemaUrl);
+  return schemaUrl;
+}
 
 export interface HoverSchemaInfo {
   path: string[];
@@ -357,8 +382,10 @@ export function schemaHoverExtension(mode: string) {
     const pathInfo = getPathAtPosition(view, position);
     if (!pathInfo || pathInfo.path.length === 0) return null;
 
-    const documentText = view.state.doc.toString();
-    const schemaUrl = documentParserRegistry.extractSchemaUrl(mode, documentText);
+    // Optimization: Use WeakMap-cached schema URL extraction keyed on the immutable
+    // view.state.doc Text instance to avoid redundant doc.toString() string allocations
+    // and re-parsing during continuous mouse movement over editor properties.
+    const schemaUrl = getSchemaUrlForDoc(view.state.doc, mode);
     if (!schemaUrl) return null;
 
     const validator = await getValidator(schemaUrl);
