@@ -55,7 +55,7 @@ export class AppFooter extends LitElement {
   render() {
     return html`
       <footer>
-        <div>${this.status}</div>
+        <div role="status">${this.status}</div>
         <div class="footer-right">
           <a
             href="./storybook/"

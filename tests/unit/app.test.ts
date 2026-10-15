@@ -32,6 +32,9 @@ describe('ConfigLensApp component', () => {
     expect(header).not.toBeNull();
     const logo = headerShadow?.querySelector('.logo');
     expect(logo).not.toBeNull();
+    const logoImg = logo?.querySelector('img');
+    expect(logoImg?.getAttribute('aria-hidden')).toBe('true');
+    expect(logoImg?.getAttribute('alt')).toBe('');
     const tabs = headerShadow?.querySelector('.tabs');
     expect(tabs).not.toBeNull();
     const controls = headerShadow?.querySelector('.controls');
@@ -44,6 +47,10 @@ describe('ConfigLensApp component', () => {
 
     const appFooter = shadow?.querySelector<AppFooter>('app-footer');
     expect(appFooter).not.toBeNull();
+
+    const statusDiv = appFooter?.shadowRoot?.querySelector('div[role="status"]');
+    expect(statusDiv).not.toBeNull();
+    expect(statusDiv?.textContent?.trim()).toBe('Ready');
 
     const storybookLink = appFooter?.shadowRoot?.querySelector('a[href="./storybook/"]');
     expect(storybookLink).not.toBeNull();
