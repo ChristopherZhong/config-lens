@@ -190,4 +190,30 @@ describe('validation logic', () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
+
+  it('gracefully handles timeout during schema fetch', async () => {
+    globalThis.fetch = vi.fn().mockImplementation(() => {
+      const error = new Error('The operation timed out.');
+      error.name = 'TimeoutError';
+      return Promise.reject(error);
+    }) as any;
+
+    const result = await fetchSchema('http://example.com/slow-schema.json');
+    expect(result).toBeNull();
+  });
+
+  it('rejects invalid or non-object schema JSON payloads', async () => {
+    const invalidPayloads = ['string response', 12345, true, [1, 2, 3], null];
+
+    for (const payload of invalidPayloads) {
+      clearCaches();
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => payload,
+      }) as any;
+
+      const result = await fetchSchema('http://example.com/invalid-payload.json');
+      expect(result).toBeNull();
+    }
+  });
 });
