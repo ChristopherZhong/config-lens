@@ -75,6 +75,8 @@ export function computeAnnotations(
             child = child.nextSibling;
           }
 
+          // Optimization: Perform state.doc.lineAt lookup after counting children and use it
+          // directly for line position mapping, preventing redundant calls.
           const line = state.doc.lineAt(node.from);
           const label = count === 1 ? '1 item' : `${count} items`;
           const list = lineAnnotationsMap.get(line.to) || [];
