@@ -39,7 +39,9 @@ export function computeAnnotations(
   visibleRanges?: readonly { from: number; to: number }[]
 ): DecorationSet {
   const lineAnnotationsMap = new Map<number, string[]>();
-  const visitedNodes = new Set<string>();
+  // Optimization: Use BigInt bitwise-packed 64-bit keys in a single Set<bigint> instead of string templates
+  // to eliminate garbage-collection string allocations and floating-point precision limits during syntax tree traversals.
+  const visitedNodes = new Set<bigint>();
   const tree = syntaxTree(state);
   const ranges = visibleRanges && visibleRanges.length > 0
     ? visibleRanges
@@ -50,7 +52,7 @@ export function computeAnnotations(
       from,
       to,
       enter: (node) => {
-        const nodeKey = `${node.type.id}:${node.from}:${node.to}`;
+        const nodeKey = (BigInt(node.type.id) << 48n) | (BigInt(node.from) << 24n) | BigInt(node.to);
         if (visitedNodes.has(nodeKey)) {
           return;
         }
