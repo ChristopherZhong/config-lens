@@ -88,9 +88,15 @@ export async function fetchSchema(rawUrl: string): Promise<any> {
 
   const fetchPromise = (async () => {
     try {
-      const response = await fetch(url);
+      // Security: Enforce a 5-second timeout via AbortSignal to prevent hanging network requests
+      // and resource exhaustion when schema endpoints are slow or unresponsive.
+      const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
       if (!response.ok) throw new Error('Schema fetch failed');
       const schema = await response.json();
+      // Security: Ensure schema response is a valid, non-null JSON object before caching or compiling.
+      if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+        return null;
+      }
       schemaCache.set(url, schema);
       return schema;
     } catch (e) {
