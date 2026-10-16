@@ -68,7 +68,8 @@ export class AppFooter extends LitElement {
             href="https://github.com/ChristopherZhong/config-lens/releases/tag/v${this.version}"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Version v${this.version}"
+            aria-label="Version v${this.version} (opens in new tab)"
+            title="View release notes on GitHub (opens in new tab)"
           >v${this.version}</a>
         </div>
       </footer>

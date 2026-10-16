@@ -22,7 +22,7 @@ describe('AppHeader component', () => {
     expect(logoImg?.getAttribute('alt')).toBe('');
   });
 
-  it('renders format button with type="button" and handles format-click event', async () => {
+  it('renders format button with type="button", aria-keyshortcuts, and handles format-click event', async () => {
     let formatClicked = false;
     element.addEventListener('format-click', () => {
       formatClicked = true;
@@ -32,6 +32,7 @@ describe('AppHeader component', () => {
     const formatBtn = shadow?.querySelector<HTMLButtonElement>('button[aria-label="Format content"]');
     expect(formatBtn).not.toBeNull();
     expect(formatBtn?.getAttribute('type')).toBe('button');
+    expect(formatBtn?.getAttribute('aria-keyshortcuts')).toBe('Alt+Shift+F');
 
     formatBtn?.click();
     expect(formatClicked).toBe(true);

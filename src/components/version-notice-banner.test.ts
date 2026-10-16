@@ -33,6 +33,7 @@ describe('VersionNoticeBanner component', () => {
 
     expect(dismissBtn).not.toBeNull();
     expect(dismissBtn?.getAttribute('type')).toBe('button');
+    expect(dismissBtn?.getAttribute('title')).toBe('Dismiss notice');
 
     refreshBtn?.click();
     expect(refreshFired).toBe(true);

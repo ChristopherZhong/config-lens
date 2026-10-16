@@ -20,4 +20,14 @@ describe('AppFooter component', () => {
     expect(statusDiv).not.toBeNull();
     expect(statusDiv?.textContent?.trim()).toBe('Ready');
   });
+
+  it('renders external release link with open in new tab accessible context', () => {
+    const shadow = element.shadowRoot;
+    expect(shadow).not.toBeNull();
+
+    const releaseLink = shadow?.querySelector<HTMLAnchorElement>('a[target="_blank"]');
+    expect(releaseLink).not.toBeNull();
+    expect(releaseLink?.getAttribute('aria-label')).toContain('opens in new tab');
+    expect(releaseLink?.getAttribute('title')).toContain('opens in new tab');
+  });
 });

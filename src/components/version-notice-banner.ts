@@ -96,7 +96,7 @@ export class VersionNoticeBanner extends LitElement {
         </div>
         <div class="version-notice-actions">
           <button type="button" class="btn-refresh" @click="${this.handleRefresh}" aria-label="Refresh page to update">Refresh</button>
-          <button type="button" class="btn-dismiss" @click="${this.handleDismiss}" aria-label="Dismiss notice">✕</button>
+          <button type="button" class="btn-dismiss" @click="${this.handleDismiss}" aria-label="Dismiss notice" title="Dismiss notice">✕</button>
         </div>
       </div>
     `;
