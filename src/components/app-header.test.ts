@@ -21,4 +21,19 @@ describe('AppHeader component', () => {
     expect(logoImg?.getAttribute('aria-hidden')).toBe('true');
     expect(logoImg?.getAttribute('alt')).toBe('');
   });
+
+  it('renders format button with type="button" and handles format-click event', async () => {
+    let formatClicked = false;
+    element.addEventListener('format-click', () => {
+      formatClicked = true;
+    });
+
+    const shadow = element.shadowRoot;
+    const formatBtn = shadow?.querySelector<HTMLButtonElement>('button[aria-label="Format content"]');
+    expect(formatBtn).not.toBeNull();
+    expect(formatBtn?.getAttribute('type')).toBe('button');
+
+    formatBtn?.click();
+    expect(formatClicked).toBe(true);
+  });
 });

@@ -31,8 +31,11 @@ describe('EditorToolbar component', () => {
     const copyBtn = shadow?.querySelector('button[title="Copy code to clipboard"]');
 
     expect(foldBtn).not.toBeNull();
+    expect(foldBtn?.getAttribute('type')).toBe('button');
     expect(unfoldBtn).not.toBeNull();
+    expect(unfoldBtn?.getAttribute('type')).toBe('button');
     expect(copyBtn).not.toBeNull();
+    expect(copyBtn?.getAttribute('type')).toBe('button');
     expect(copyBtn?.getAttribute('aria-live')).toBe('polite');
   });
 
