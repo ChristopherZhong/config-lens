@@ -143,6 +143,10 @@ export class AppHeader extends LitElement {
       background: var(--accent-hover, #005999);
     }
 
+    button:active {
+      transform: scale(0.98);
+    }
+
     .format-feedback {
       font-size: 11px;
       font-weight: 600;
@@ -246,7 +250,7 @@ export class AppHeader extends LitElement {
       <header>
         <div class="header-left">
           <div class="logo">
-            <img src="${this.logoSrc}" alt="ConfigLens Logo" class="logo-icon" />
+            <img src="${this.logoSrc}" alt="" aria-hidden="true" class="logo-icon" />
             <span>ConfigLens</span>
           </div>
         </div>
@@ -295,6 +299,7 @@ export class AppHeader extends LitElement {
               <option value="yaml">YAML</option>
             </select>
             <button
+              type="button"
               @click="${this.handleFormat}"
               aria-label="Format content"
               title="Format document (Alt+Shift+F)"

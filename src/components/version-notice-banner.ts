@@ -95,8 +95,8 @@ export class VersionNoticeBanner extends LitElement {
           <span>🚀 A new version of ConfigLens ${this.latestVersion ? `(v${this.latestVersion})` : ''} is available!</span>
         </div>
         <div class="version-notice-actions">
-          <button class="btn-refresh" @click="${this.handleRefresh}" aria-label="Refresh page to update">Refresh</button>
-          <button class="btn-dismiss" @click="${this.handleDismiss}" aria-label="Dismiss notice">✕</button>
+          <button type="button" class="btn-refresh" @click="${this.handleRefresh}" aria-label="Refresh page to update">Refresh</button>
+          <button type="button" class="btn-dismiss" @click="${this.handleDismiss}" aria-label="Dismiss notice">✕</button>
         </div>
       </div>
     `;

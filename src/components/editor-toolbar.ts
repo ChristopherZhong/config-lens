@@ -63,6 +63,10 @@ export class EditorToolbar extends LitElement {
       border-color: var(--accent, #007acc);
     }
 
+    .btn-secondary:active {
+      transform: scale(0.97);
+    }
+
     .btn-secondary:focus-visible {
       outline: 2px solid var(--accent, #007acc);
       outline-offset: 2px;
@@ -100,6 +104,7 @@ export class EditorToolbar extends LitElement {
         <div class="editor-title">${this.title}</div>
         <div class="toolbar-actions">
           <button
+            type="button"
             class="btn-secondary"
             @click="${this.handleFoldAll}"
             aria-label="Fold All"
@@ -108,6 +113,7 @@ export class EditorToolbar extends LitElement {
             <span aria-hidden="true">▾</span> Fold All
           </button>
           <button
+            type="button"
             class="btn-secondary"
             @click="${this.handleUnfoldAll}"
             aria-label="Expand All"
@@ -116,6 +122,7 @@ export class EditorToolbar extends LitElement {
             <span aria-hidden="true">▸</span> Expand All
           </button>
           <button
+            type="button"
             class="btn-secondary ${this.copied ? 'copied' : ''}"
             @click="${this.handleCopy}"
             aria-label="${this.copied ? 'Content copied to clipboard' : 'Copy code to clipboard'}"
