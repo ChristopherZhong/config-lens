@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { validateContent, fetchSchema, clearCaches } from '../../src/utils/validation';
+import { validateContent, fetchSchema, clearCaches } from './validation';
 
 describe('validation logic', () => {
   beforeEach(() => {
