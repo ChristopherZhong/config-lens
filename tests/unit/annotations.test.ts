@@ -190,4 +190,29 @@ user:
     // Line 2 ("bad": [) should only be "// 4 items", not "// 4 items, 4 items..."
     expect(result[1]).toBe('// 4 items');
   });
+
+  it('correctly tracks visited nodes using 64-bit BigInt packed numeric keys on large documents', () => {
+    const items = Array.from({ length: 50 }, (_, i) => ({ id: i, name: `item ${i}` }));
+    const jsonContent = JSON.stringify({ items, total: 50 }, null, 2);
+    const state = EditorState.create({
+      doc: jsonContent,
+      extensions: [json()],
+    });
+
+    const visibleRanges = [
+      { from: 0, to: jsonContent.length },
+      { from: 0, to: jsonContent.length }
+    ];
+
+    const decorations = computeAnnotations(state, visibleRanges);
+    const result: string[] = [];
+    const iter = decorations.iter();
+    while (iter.value) {
+      result.push((iter.value.spec.widget as any).text);
+      iter.next();
+    }
+
+    expect(result).toContain('// 2 keys');
+    expect(result).toContain('// 50 items');
+  });
 });
