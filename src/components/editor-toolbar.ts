@@ -77,6 +77,18 @@ export class EditorToolbar extends LitElement {
       border-color: var(--success, #22c55e);
       background: rgba(34, 197, 94, 0.1);
     }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   `;
 
   private handleFoldAll() {
@@ -126,11 +138,13 @@ export class EditorToolbar extends LitElement {
             class="btn-secondary ${this.copied ? 'copied' : ''}"
             @click="${this.handleCopy}"
             aria-label="${this.copied ? 'Content copied to clipboard' : 'Copy code to clipboard'}"
-            aria-live="polite"
             title="${this.copied ? 'Copied!' : 'Copy code to clipboard'}"
           >
             <span aria-hidden="true">${this.copied ? '✓' : '📋'}</span> ${this.copied ? 'Copied!' : 'Copy'}
           </button>
+          <span class="sr-only" role="status" aria-live="polite">
+            ${this.copied ? 'Content copied to clipboard' : ''}
+          </span>
         </div>
       </div>
     `;

@@ -36,7 +36,9 @@ describe('EditorToolbar component', () => {
     expect(unfoldBtn?.getAttribute('type')).toBe('button');
     expect(copyBtn).not.toBeNull();
     expect(copyBtn?.getAttribute('type')).toBe('button');
-    expect(copyBtn?.getAttribute('aria-live')).toBe('polite');
+
+    const statusLiveRegion = shadow?.querySelector('[role="status"][aria-live="polite"]');
+    expect(statusLiveRegion).not.toBeNull();
   });
 
   it('dispatches fold-all event when Fold All button is clicked', async () => {
@@ -80,5 +82,8 @@ describe('EditorToolbar component', () => {
     expect(copyBtn?.getAttribute('title')).toBe('Copied!');
     expect(copyBtn?.getAttribute('aria-label')).toBe('Content copied to clipboard');
     expect(copyBtn?.classList.contains('copied')).toBe(true);
+
+    const statusEl = element.shadowRoot?.querySelector('[role="status"]');
+    expect(statusEl?.textContent?.trim()).toBe('Content copied to clipboard');
   });
 });
