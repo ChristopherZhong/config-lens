@@ -54,10 +54,13 @@ export async function checkLatestRelease(
   fetchFn: typeof fetch = fetch
 ): Promise<VersionCheckResult> {
   try {
+    // Security: Enforce a 5-second timeout via AbortSignal to prevent hanging network requests
+    // and resource exhaustion during periodic version checks against external API endpoints.
     const response = await fetchFn(GITHUB_RELEASES_URL, {
       headers: {
         Accept: 'application/vnd.github.v3+json',
       },
+      signal: AbortSignal.timeout(5000),
     });
 
     if (!response.ok) {

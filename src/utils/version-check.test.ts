@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { parseVersion, isNewerVersion, checkLatestRelease } from '~src/utils/version-check';
+import { parseVersion, isNewerVersion, checkLatestRelease } from './version-check';
 
 describe('version-check utility', () => {
   describe('parseVersion', () => {
@@ -76,6 +76,24 @@ describe('version-check utility', () => {
       const result = await checkLatestRelease('1.0.0', mockFetch);
       expect(result.newVersionAvailable).toBe(false);
       expect(result.latestVersion).toBeNull();
+    });
+
+    it('handles timeout error gracefully and passes AbortSignal to fetch', async () => {
+      const mockFetch = vi.fn().mockImplementation((_url, options) => {
+        expect(options?.signal).toBeInstanceOf(AbortSignal);
+        return Promise.reject(new DOMException('The operation was aborted due to timeout', 'TimeoutError'));
+      });
+
+      const result = await checkLatestRelease('1.0.0', mockFetch);
+      expect(result.newVersionAvailable).toBe(false);
+      expect(result.latestVersion).toBeNull();
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.github.com/repos/ChristopherZhong/config-lens/releases/latest',
+        expect.objectContaining({
+          headers: { Accept: 'application/vnd.github.v3+json' },
+          signal: expect.any(AbortSignal),
+        })
+      );
     });
   });
 });
