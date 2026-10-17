@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { parseVersion, isNewerVersion, checkLatestRelease } from '~src/utils/version-check';
+import { parseVersion, isNewerVersion, checkLatestRelease } from './version-check';
 
 describe('version-check utility', () => {
   describe('parseVersion', () => {
