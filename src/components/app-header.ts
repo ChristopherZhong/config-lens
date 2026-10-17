@@ -302,6 +302,7 @@ export class AppHeader extends LitElement {
               type="button"
               @click="${this.handleFormat}"
               aria-label="Format content"
+              aria-keyshortcuts="Alt+Shift+F"
               title="Format document (Alt+Shift+F)"
             >
               Format
