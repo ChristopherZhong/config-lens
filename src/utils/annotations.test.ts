@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { EditorState } from '@codemirror/state';
 import { json } from '@codemirror/lang-json';
 import { yaml } from '@codemirror/lang-yaml';
-import { computeAnnotations, PropertyInfoWidget, propertyAnnotationsPlugin, annotationTheme } from '../../src/utils/annotations';
+import { computeAnnotations, PropertyInfoWidget, propertyAnnotationsPlugin, annotationTheme } from './annotations';
 import { MergeView } from '@codemirror/merge';
 
 describe('propertyAnnotations', () => {
