@@ -52,6 +52,11 @@ function isValidHttpUrl(urlString: string): boolean {
       cleanHost.startsWith('192.168.') ||
       cleanHost.startsWith('::ffff:') ||
       cleanHost.includes('::ffff:') ||
+      cleanHost === '::' ||
+      cleanHost === '0:0:0:0:0:0:0:0' ||
+      cleanHost.startsWith('fe80:') ||
+      /^fe[89ab][0-9a-f]:/i.test(cleanHost) ||
+      /^f[cd][0-9a-f]{2}:/i.test(cleanHost) ||
       cleanHost === '::1' ||
       cleanHost === '0:0:0:0:0:0:0:1' ||
       /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(cleanHost) ||
