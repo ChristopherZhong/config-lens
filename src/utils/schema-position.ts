@@ -16,8 +16,14 @@ export interface DocumentRange {
 export function parseJsonPointer(pointer: string): string[] {
   if (!pointer || pointer === '/') return [];
   const normalized = pointer.startsWith('/') ? pointer.slice(1) : pointer;
-  return normalized.split('/').map((seg) =>
-    seg.replace(/~1/g, '/').replace(/~0/g, '~')
+  const segments = normalized.split('/');
+  // Optimization: Fast path returns split segments directly when pointer contains no ~ escapes,
+  // avoiding regex replacements on every segment during batch diagnostic position resolution.
+  if (!pointer.includes('~')) {
+    return segments;
+  }
+  return segments.map((seg) =>
+    seg.includes('~') ? seg.replace(/~1/g, '/').replace(/~0/g, '~') : seg
   );
 }
 
