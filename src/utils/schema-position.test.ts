@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { jsonLanguage } from '@codemirror/lang-json';
-import { findPositionForPath, parseJsonPointer } from '../../src/utils/schema-position';
+import { findPositionForPath, parseJsonPointer } from './schema-position';
 
 describe('schema-position', () => {
   it('parses json pointer correctly with fast-path for non-escaped strings and unescaping for tildes', () => {
