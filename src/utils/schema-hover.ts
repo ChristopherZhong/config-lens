@@ -74,7 +74,14 @@ export function resolveSchemaRef(rootSchema: unknown, reference: string): Record
 export function dereferenceSchema(rootSchema: unknown, subSchema: unknown): Record<string, unknown> | null {
   if (!subSchema || typeof subSchema !== 'object') return null;
 
-  let result: Record<string, unknown> = { ...(subSchema as Record<string, unknown>) };
+  const schemaObj = subSchema as Record<string, unknown>;
+  // Optimization: Fast path returns subSchema immediately when no $ref property exists,
+  // preventing shallow object cloning allocations on every schema node traversal.
+  if (typeof schemaObj.$ref !== 'string') {
+    return schemaObj;
+  }
+
+  let result: Record<string, unknown> = { ...schemaObj };
   let attempts = 0;
 
   while (typeof result.$ref === 'string' && attempts < 10) {
@@ -149,7 +156,8 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
       }
     }
     // Check allOf / oneOf / anyOf
-    if (!nextSchema) {
+    // Optimization: Guard composition keyword check to avoid allocating candidates arrays when none exist
+    if (!nextSchema && (current.allOf || current.oneOf || current.anyOf)) {
       const allOf = Array.isArray(current.allOf) ? current.allOf : [];
       const oneOf = Array.isArray(current.oneOf) ? current.oneOf : [];
       const anyOf = Array.isArray(current.anyOf) ? current.anyOf : [];
@@ -220,25 +228,18 @@ export function getPathAtPosition(view: EditorView, position: number): { path: s
       let child = current.firstChild;
       let matchedIndex = -1;
       while (child) {
-        if (child.from <= position && position <= child.to) {
-          if (
-            child.name !== '[' &&
-            child.name !== ']' &&
-            child.name !== ',' &&
-            child.name !== '-' &&
-            child.name !== 'Comment'
-          ) {
-            matchedIndex = count;
-            break;
-          }
-        }
-        if (
+        const isChildElement =
           child.name !== '[' &&
           child.name !== ']' &&
           child.name !== ',' &&
           child.name !== '-' &&
-          child.name !== 'Comment'
-        ) {
+          child.name !== 'Comment';
+
+        if (isChildElement) {
+          if (child.from <= position && position <= child.to) {
+            matchedIndex = count;
+            break;
+          }
           count++;
         }
         child = child.nextSibling;

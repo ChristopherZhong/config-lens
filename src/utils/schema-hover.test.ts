@@ -76,12 +76,35 @@ describe('schema-hover', () => {
     expect(props?.port).toBeDefined();
   });
 
-  it('dereferences schema correctly', () => {
-    const subSchema = { $ref: '#/$defs/ServerConfig' };
-    const derefed = dereferenceSchema(sampleSchema, subSchema);
+  it('dereferences schema correctly and returns original reference on fast path when $ref is absent', () => {
+    const subSchemaWithRef = { $ref: '#/$defs/ServerConfig' };
+    const derefed = dereferenceSchema(sampleSchema, subSchemaWithRef);
     expect(derefed?.type).toBe('object');
     const props = derefed?.properties as Record<string, Record<string, unknown>>;
     expect(props?.port?.type).toBe('integer');
+
+    // Fast path: when $ref is absent, returns same object reference without cloning
+    const subSchemaWithoutRef = { type: 'string', title: 'Name' };
+    const derefedFast = dereferenceSchema(sampleSchema, subSchemaWithoutRef);
+    expect(derefedFast).toBe(subSchemaWithoutRef);
+  });
+
+  it('navigates composition schema keywords (allOf/oneOf/anyOf) in getSchemaForPath', () => {
+    const compositionSchema = {
+      type: 'object',
+      properties: {
+        item: {
+          oneOf: [
+            { properties: { typeA: { type: 'string' } } },
+            { properties: { typeB: { type: 'number' } } }
+          ]
+        }
+      }
+    };
+
+    const infoA = getSchemaForPath(compositionSchema, ['item', 'typeA']);
+    expect(infoA?.propertyName).toBe('typeA');
+    expect(infoA?.schema.type).toBe('string');
   });
 
   it('navigates schema for nested path /server/port', () => {

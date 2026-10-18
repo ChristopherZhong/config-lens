@@ -1,14 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { jsonLanguage } from '@codemirror/lang-json';
-import { findPositionForPath, parseJsonPointer } from '../../src/utils/schema-position';
+import { findPositionForPath, parseJsonPointer } from './schema-position';
 
 describe('schema-position', () => {
-  it('parses json pointer correctly', () => {
+  it('parses json pointer correctly with fast-path for non-escaped strings and unescaping for tildes', () => {
     expect(parseJsonPointer('')).toEqual([]);
     expect(parseJsonPointer('/')).toEqual([]);
     expect(parseJsonPointer('/server/port')).toEqual(['server', 'port']);
     expect(parseJsonPointer('/items/0/name')).toEqual(['items', '0', 'name']);
+    // Test escape sequence fast-path fallback when ~ is present
     expect(parseJsonPointer('/escaped~1slash/tilde~0')).toEqual(['escaped/slash', 'tilde~']);
+    expect(parseJsonPointer('/unescaped/path/segments')).toEqual(['unescaped', 'path', 'segments']);
   });
 
   it('locates position in JSON document', () => {
