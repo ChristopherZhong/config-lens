@@ -48,7 +48,8 @@ describe('ConfigLensApp component', () => {
     const storybookLink = appFooter?.shadowRoot?.querySelector('a[href="./storybook/"]');
     expect(storybookLink).not.toBeNull();
     expect(storybookLink?.textContent?.trim()).toBe('Storybook');
-    expect(storybookLink?.getAttribute('target')).toBeNull();
+    expect(storybookLink?.getAttribute('target')).toBe('_blank');
+    expect(storybookLink?.getAttribute('rel')).toBe('noopener noreferrer');
 
     const versionLink = appFooter?.shadowRoot?.querySelector('a[href*="releases/tag/v"]');
     expect(versionLink).not.toBeNull();

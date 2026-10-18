@@ -59,7 +59,10 @@ export class AppFooter extends LitElement {
         <div class="footer-right">
           <a
             href="./storybook/"
-            aria-label="Storybook component library"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Storybook component library (opens in new tab)"
+            title="View Storybook component library (opens in new tab)"
           >Storybook</a>
           <span>•</span>
           <div>${this.encoding}</div>
