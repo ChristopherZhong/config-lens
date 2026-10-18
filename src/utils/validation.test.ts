@@ -181,6 +181,12 @@ describe('validation logic', () => {
       'http://127.0.0.1.nip.io/schema.json',
       'http://10.0.0.1.sslip.io/schema.json',
       'http://service.localdomain/schema.json',
+      'http://[::]/schema.json',
+      'http://[0:0:0:0:0:0:0:0]/schema.json',
+      'http://[fe80::1]/schema.json',
+      'http://[fe90::abc]/schema.json',
+      'http://[fc00::1]/schema.json',
+      'http://[fd00::1]/schema.json',
     ];
 
     for (const url of ssrfUrls) {
