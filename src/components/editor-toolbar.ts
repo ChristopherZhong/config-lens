@@ -5,6 +5,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 export class EditorToolbar extends LitElement {
   @property({ type: String }) title = 'Editor';
   @state() private copied = false;
+  @state() private focusedIndex = 0;
 
   private copyTimeout?: number;
 
@@ -110,14 +111,47 @@ export class EditorToolbar extends LitElement {
     }, 2000);
   }
 
+  private handleKeyDown(e: KeyboardEvent) {
+    const buttonCount = 3;
+    let newIndex = -1;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      newIndex = (this.focusedIndex + 1) % buttonCount;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      newIndex = (this.focusedIndex - 1 + buttonCount) % buttonCount;
+    } else if (e.key === 'Home') {
+      newIndex = 0;
+    } else if (e.key === 'End') {
+      newIndex = buttonCount - 1;
+    }
+
+    if (newIndex !== -1) {
+      e.preventDefault();
+      this.focusedIndex = newIndex;
+      this.updateComplete.then(() => {
+        const buttonIds = ['btn-fold-all', 'btn-unfold-all', 'btn-copy'];
+        const button = this.shadowRoot?.querySelector<HTMLButtonElement>(`#${buttonIds[newIndex]}`);
+        button?.focus();
+      });
+    }
+  }
+
   render() {
     return html`
-      <div class="editor-toolbar" role="toolbar" aria-label="Editor controls">
+      <div
+        class="editor-toolbar"
+        role="toolbar"
+        aria-label="Editor controls"
+        @keydown="${this.handleKeyDown}"
+      >
         <div class="editor-title">${this.title}</div>
         <div class="toolbar-actions">
           <button
+            id="btn-fold-all"
             type="button"
             class="btn-secondary"
+            tabindex="${this.focusedIndex === 0 ? 0 : -1}"
+            @focus="${() => { this.focusedIndex = 0; }}"
             @click="${this.handleFoldAll}"
             aria-label="Fold All"
             title="Fold all code blocks"
@@ -125,8 +159,11 @@ export class EditorToolbar extends LitElement {
             <span aria-hidden="true">▾</span> Fold All
           </button>
           <button
+            id="btn-unfold-all"
             type="button"
             class="btn-secondary"
+            tabindex="${this.focusedIndex === 1 ? 0 : -1}"
+            @focus="${() => { this.focusedIndex = 1; }}"
             @click="${this.handleUnfoldAll}"
             aria-label="Expand All"
             title="Expand all code blocks"
@@ -134,8 +171,11 @@ export class EditorToolbar extends LitElement {
             <span aria-hidden="true">▸</span> Expand All
           </button>
           <button
+            id="btn-copy"
             type="button"
             class="btn-secondary ${this.copied ? 'copied' : ''}"
+            tabindex="${this.focusedIndex === 2 ? 0 : -1}"
+            @focus="${() => { this.focusedIndex = 2; }}"
             @click="${this.handleCopy}"
             aria-label="${this.copied ? 'Content copied to clipboard' : 'Copy code to clipboard'}"
             title="${this.copied ? 'Copied!' : 'Copy code to clipboard'}"

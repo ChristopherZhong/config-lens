@@ -86,4 +86,56 @@ describe('EditorToolbar component', () => {
     const statusEl = element.shadowRoot?.querySelector('[role="status"]');
     expect(statusEl?.textContent?.trim()).toBe('Content copied to clipboard');
   });
+
+  it('supports roving tabindex and keyboard arrow key navigation', async () => {
+    const shadow = element.shadowRoot;
+    const toolbar = shadow?.querySelector<HTMLDivElement>('.editor-toolbar');
+    const foldBtn = shadow?.querySelector<HTMLButtonElement>('#btn-fold-all');
+    const unfoldBtn = shadow?.querySelector<HTMLButtonElement>('#btn-unfold-all');
+    const copyBtn = shadow?.querySelector<HTMLButtonElement>('#btn-copy');
+
+    expect(foldBtn?.getAttribute('tabindex')).toBe('0');
+    expect(unfoldBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(copyBtn?.getAttribute('tabindex')).toBe('-1');
+
+    // ArrowRight: fold -> unfold
+    toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    await element.updateComplete;
+
+    expect(foldBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(unfoldBtn?.getAttribute('tabindex')).toBe('0');
+    expect(copyBtn?.getAttribute('tabindex')).toBe('-1');
+
+    // ArrowRight: unfold -> copy
+    toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    await element.updateComplete;
+
+    expect(foldBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(unfoldBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(copyBtn?.getAttribute('tabindex')).toBe('0');
+
+    // ArrowRight (wraps): copy -> fold
+    toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    await element.updateComplete;
+
+    expect(foldBtn?.getAttribute('tabindex')).toBe('0');
+
+    // ArrowLeft (wraps): fold -> copy
+    toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    await element.updateComplete;
+
+    expect(copyBtn?.getAttribute('tabindex')).toBe('0');
+
+    // Home: -> fold
+    toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    await element.updateComplete;
+
+    expect(foldBtn?.getAttribute('tabindex')).toBe('0');
+
+    // End: -> copy
+    toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    await element.updateComplete;
+
+    expect(copyBtn?.getAttribute('tabindex')).toBe('0');
+  });
 });
