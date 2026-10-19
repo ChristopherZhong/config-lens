@@ -56,7 +56,8 @@ export function resolveSchemaRef(rootSchema: unknown, reference: string): Record
   let current: unknown = rootSchema;
   for (const part of parts) {
     if (!current || typeof current !== 'object' || Array.isArray(current)) return null;
-    const decoded = part.replace(/~1/g, '/').replace(/~0/g, '~');
+    // Optimization: Fast path skips regex replacement when pointer segment contains no ~ escapes
+    const decoded = part.includes('~') ? part.replace(/~1/g, '/').replace(/~0/g, '~') : part;
     if (decoded === '__proto__' || decoded === 'constructor' || decoded === 'prototype') {
       return null;
     }
@@ -378,16 +379,15 @@ export function schemaHoverExtension(mode: string) {
   return hoverTooltip(async (view: EditorView, position: number): Promise<Tooltip | null> => {
     if (view.state.doc.length === 0) return null;
 
-    // Optimization: Check if position maps to a valid property path segment before
-    // extracting schema or allocating document string.
-    const pathInfo = getPathAtPosition(view, position);
-    if (!pathInfo || pathInfo.path.length === 0) return null;
-
-    // Optimization: Use WeakMap-cached schema URL extraction keyed on the immutable
-    // view.state.doc Text instance to avoid redundant doc.toString() string allocations
-    // and re-parsing during continuous mouse movement over editor properties.
+    // Optimization: Reordered schema URL check prior to syntax tree path resolution.
+    // Checking WeakMap-cached schema URL first (O(1)) allows returning immediately when
+    // document has no schema directive, skipping syntax tree traversal, string slicing,
+    // and AST node mapping on mouse hover events.
     const schemaUrl = getSchemaUrlForDoc(view.state.doc, mode);
     if (!schemaUrl) return null;
+
+    const pathInfo = getPathAtPosition(view, position);
+    if (!pathInfo || pathInfo.path.length === 0) return null;
 
     const validator = await getValidator(schemaUrl);
     const schema = validator?.schema || (await fetchSchema(schemaUrl));

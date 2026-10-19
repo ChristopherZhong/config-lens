@@ -33,3 +33,7 @@
 ## 2026-06-18 - Fast-Path Zero-Allocation Schema Dereferencing & JSON Pointer Parsing
 **Learning:** Traversing JSON schemas and mapping validation errors to character positions previously created shallow object clones `{ ...subSchema }` and executed regex `.replace()` mappings on every segment for non-$ref schemas and standard pointers. Checking for `$ref` presence in `dereferenceSchema` and checking `!pointer.includes('~')` in `parseJsonPointer` provides zero-allocation fast paths for >95% of schema nodes and pointers.
 **Action:** Always add presence fast-paths before object cloning or regex replacements in high-frequency schema traversal and pointer resolution helpers.
+
+## 2026-06-18 - Early Schema URL Bailout in CodeMirror Hover Tooltip Handler
+**Learning:** In CodeMirror `hoverTooltip` callbacks, resolving cursor positions to JSON pointer path segments via `getPathAtPosition` involves resolving AST syntax nodes (`tree.resolveInner`), traversing parent nodes, extracting key nodes, and slicing text from `EditorState`. Executing `getPathAtPosition` before checking for a valid `$schema` URL caused unnecessary AST traversals on every mouse movement over non-schema documents.
+**Action:** Always check lightweight O(1) preconditions (like cached schema presence) before performing AST traversals or document text slicing in high-frequency CodeMirror event handlers like `hoverTooltip`.
