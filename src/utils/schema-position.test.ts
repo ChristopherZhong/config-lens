@@ -107,4 +107,15 @@ items:
     const posProtoSegment = findPositionForPath(jsonDoc, 'json', '/server/prototype/host');
     expect(posProtoSegment).toEqual({ from: 0, to: 1 });
   });
+
+  it('correctly extracts key node from Property and Pair syntax nodes in getKeyNodeFromProperty', () => {
+    const jsonDoc = '{"server": {"port": 8080}}';
+    const jsonTree = jsonLanguage.parser.parse(jsonDoc);
+    const posPort = findPositionForPath(jsonDoc, 'json', '/server/port', undefined, undefined, jsonTree);
+    expect(jsonDoc.slice(posPort.from, posPort.to)).toBe('8080');
+
+    const yamlDoc = 'server:\n  port: 8080';
+    const posYamlPort = findPositionForPath(yamlDoc, 'yaml', '/server/port');
+    expect(yamlDoc.slice(posYamlPort.from, posYamlPort.to).trim()).toBe('8080');
+  });
 });

@@ -36,14 +36,14 @@ export function getNodeText(node: SyntaxNode, documentText: string): string {
 }
 
 export function getKeyNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
-  const strategy = schemaPositionRegistry.get('json') || schemaPositionRegistry.get('yaml');
+  // Optimization: Direct node name check avoids redundant Map registry lookups on every call.
   if (propertyNode.name === 'Property') {
     return schemaPositionRegistry.get('json')?.getKeyNodeFromProperty(propertyNode) || null;
   }
   if (propertyNode.name === 'Pair') {
     return schemaPositionRegistry.get('yaml')?.getKeyNodeFromProperty(propertyNode) || null;
   }
-  return strategy ? strategy.getKeyNodeFromProperty(propertyNode) : null;
+  return null;
 }
 
 export function getValueNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
