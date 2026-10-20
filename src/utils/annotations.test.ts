@@ -191,7 +191,7 @@ user:
     expect(result[1]).toBe('// 4 items');
   });
 
-  it('correctly tracks visited nodes using 64-bit BigInt packed numeric keys on large documents', () => {
+  it('correctly tracks visited container nodes using safe integer primitive keys on large documents', () => {
     const items = Array.from({ length: 50 }, (_, i) => ({ id: i, name: `item ${i}` }));
     const jsonContent = JSON.stringify({ items, total: 50 }, null, 2);
     const state = EditorState.create({
