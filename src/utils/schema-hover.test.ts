@@ -154,6 +154,29 @@ describe('schema-hover', () => {
     expect(getSchemaForPath(sampleSchema, ['server', 'constructor'])).toBeNull();
   });
 
+  it('safely handles patternProperties matching without throwing on invalid, oversized, or long segments', () => {
+    const letter = 'a';
+    const patternSchema = {
+      type: 'object',
+      patternProperties: {
+        '^S_': { type: 'string' },
+        '[': { type: 'boolean' }, // Invalid regex syntax
+        [letter.repeat(300)]: { type: 'number' } // Regex pattern exceeding length limit (250)
+      }
+    };
+
+    // Normal matching
+    const match = getSchemaForPath(patternSchema, ['S_key']);
+    expect(match?.schema.type).toBe('string');
+
+    // Invalid regex pattern is handled safely via try/catch
+    expect(getSchemaForPath(patternSchema, ['['])).toBeNull();
+
+    // Segment exceeding length limit (1000) returns null without evaluating regexes
+    const longSegment = 'S_' + letter.repeat(1050);
+    expect(getSchemaForPath(patternSchema, [longSegment])).toBeNull();
+  });
+
   it('caches schema URL extraction per Text instance in getSchemaUrlForDoc', () => {
     const doc1Text = '{"$schema": "https://example.com/schema-v1.json", "name": "app"}';
     const doc1 = Text.of(doc1Text.split('\n'));

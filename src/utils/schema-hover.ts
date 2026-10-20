@@ -133,14 +133,17 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
     // Check patternProperties
     else if (current.patternProperties && typeof current.patternProperties === 'object' && !Array.isArray(current.patternProperties)) {
       const patternProperties = current.patternProperties as Record<string, unknown>;
-      for (const pattern of Object.keys(patternProperties)) {
-        if (Object.prototype.hasOwnProperty.call(patternProperties, pattern)) {
-          try {
-            if (new RegExp(pattern).test(segment)) {
-              nextSchema = patternProperties[pattern];
-              break;
-            }
-          } catch {}
+      // Security: Limit segment and pattern lengths to prevent ReDoS / CPU exhaustion when matching dynamic regexes
+      if (segment.length <= 1000) {
+        for (const pattern of Object.keys(patternProperties)) {
+          if (Object.prototype.hasOwnProperty.call(patternProperties, pattern) && pattern.length <= 250) {
+            try {
+              if (new RegExp(pattern).test(segment)) {
+                nextSchema = patternProperties[pattern];
+                break;
+              }
+            } catch {}
+          }
         }
       }
     }
