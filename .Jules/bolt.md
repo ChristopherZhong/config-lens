@@ -37,3 +37,7 @@
 ## 2026-06-18 - Early Schema URL Bailout in CodeMirror Hover Tooltip Handler
 **Learning:** In CodeMirror `hoverTooltip` callbacks, resolving cursor positions to JSON pointer path segments via `getPathAtPosition` involves resolving AST syntax nodes (`tree.resolveInner`), traversing parent nodes, extracting key nodes, and slicing text from `EditorState`. Executing `getPathAtPosition` before checking for a valid `$schema` URL caused unnecessary AST traversals on every mouse movement over non-schema documents.
 **Action:** Always check lightweight O(1) preconditions (like cached schema presence) before performing AST traversals or document text slicing in high-frequency CodeMirror event handlers like `hoverTooltip`.
+
+## 2026-06-18 - Early Node Name Short-Circuiting in Syntax Tree Iteration
+**Learning:** In CodeMirror AST iteration (`tree.iterate`), computing BigInt/packed keys and performing `visitedNodes` Set lookups for every visited node adds unnecessary overhead for non-target node types (which make up ~95% of AST nodes like strings, numbers, colons, commas).
+**Action:** Always short-circuit `node.name` checks BEFORE computing composite keys or performing `Set` lookups in AST traversal callbacks.
