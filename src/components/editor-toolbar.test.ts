@@ -29,6 +29,7 @@ describe('EditorToolbar component', () => {
     const foldBtn = shadow?.querySelector('button[aria-label="Fold All"]');
     const unfoldBtn = shadow?.querySelector('button[aria-label="Expand All"]');
     const copyBtn = shadow?.querySelector('button[title="Copy code to clipboard"]');
+    const clearBtn = shadow?.querySelector('button[aria-label="Clear content"]');
 
     expect(foldBtn).not.toBeNull();
     expect(foldBtn?.getAttribute('type')).toBe('button');
@@ -36,6 +37,8 @@ describe('EditorToolbar component', () => {
     expect(unfoldBtn?.getAttribute('type')).toBe('button');
     expect(copyBtn).not.toBeNull();
     expect(copyBtn?.getAttribute('type')).toBe('button');
+    expect(clearBtn).not.toBeNull();
+    expect(clearBtn?.getAttribute('type')).toBe('button');
 
     const statusLiveRegion = shadow?.querySelector('[role="status"][aria-live="polite"]');
     expect(statusLiveRegion).not.toBeNull();
@@ -63,6 +66,18 @@ describe('EditorToolbar component', () => {
     unfoldBtn?.click();
 
     expect(unfoldFired).toBe(true);
+  });
+
+  it('dispatches clear-content event when Clear button is clicked', async () => {
+    let clearFired = false;
+    element.addEventListener('clear-content', () => {
+      clearFired = true;
+    });
+
+    const clearBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('button[aria-label="Clear content"]');
+    clearBtn?.click();
+
+    expect(clearFired).toBe(true);
   });
 
   it('dispatches copy-content event and shows Copied! feedback when Copy button is clicked', async () => {
@@ -93,10 +108,12 @@ describe('EditorToolbar component', () => {
     const foldBtn = shadow?.querySelector<HTMLButtonElement>('#btn-fold-all');
     const unfoldBtn = shadow?.querySelector<HTMLButtonElement>('#btn-unfold-all');
     const copyBtn = shadow?.querySelector<HTMLButtonElement>('#btn-copy');
+    const clearBtn = shadow?.querySelector<HTMLButtonElement>('#btn-clear');
 
     expect(foldBtn?.getAttribute('tabindex')).toBe('0');
     expect(unfoldBtn?.getAttribute('tabindex')).toBe('-1');
     expect(copyBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(clearBtn?.getAttribute('tabindex')).toBe('-1');
 
     // ArrowRight: fold -> unfold
     toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
@@ -105,6 +122,7 @@ describe('EditorToolbar component', () => {
     expect(foldBtn?.getAttribute('tabindex')).toBe('-1');
     expect(unfoldBtn?.getAttribute('tabindex')).toBe('0');
     expect(copyBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(clearBtn?.getAttribute('tabindex')).toBe('-1');
 
     // ArrowRight: unfold -> copy
     toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
@@ -113,18 +131,28 @@ describe('EditorToolbar component', () => {
     expect(foldBtn?.getAttribute('tabindex')).toBe('-1');
     expect(unfoldBtn?.getAttribute('tabindex')).toBe('-1');
     expect(copyBtn?.getAttribute('tabindex')).toBe('0');
+    expect(clearBtn?.getAttribute('tabindex')).toBe('-1');
 
-    // ArrowRight (wraps): copy -> fold
+    // ArrowRight: copy -> clear
+    toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    await element.updateComplete;
+
+    expect(foldBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(unfoldBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(copyBtn?.getAttribute('tabindex')).toBe('-1');
+    expect(clearBtn?.getAttribute('tabindex')).toBe('0');
+
+    // ArrowRight (wraps): clear -> fold
     toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
     await element.updateComplete;
 
     expect(foldBtn?.getAttribute('tabindex')).toBe('0');
 
-    // ArrowLeft (wraps): fold -> copy
+    // ArrowLeft (wraps): fold -> clear
     toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
     await element.updateComplete;
 
-    expect(copyBtn?.getAttribute('tabindex')).toBe('0');
+    expect(clearBtn?.getAttribute('tabindex')).toBe('0');
 
     // Home: -> fold
     toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
@@ -132,10 +160,10 @@ describe('EditorToolbar component', () => {
 
     expect(foldBtn?.getAttribute('tabindex')).toBe('0');
 
-    // End: -> copy
+    // End: -> clear
     toolbar?.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
     await element.updateComplete;
 
-    expect(copyBtn?.getAttribute('tabindex')).toBe('0');
+    expect(clearBtn?.getAttribute('tabindex')).toBe('0');
   });
 });

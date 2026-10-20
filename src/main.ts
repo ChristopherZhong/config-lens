@@ -272,6 +272,11 @@ export class ConfigLensApp extends LitElement {
     }
   }
 
+  private handleClearContent() {
+    this.content = '';
+    safeStorageSetItem(`config-lens-content-${this.mode}`, '');
+  }
+
   render() {
     const resolvedTheme = this.getResolvedTheme();
 
@@ -311,6 +316,7 @@ export class ConfigLensApp extends LitElement {
                   @fold-all="${this.handleFoldAll}"
                   @unfold-all="${this.handleUnfoldAll}"
                   @copy-content="${this.handleCopyContent}"
+                  @clear-content="${this.handleClearContent}"
                 ></editor-toolbar>
                 <editor-component
                   .mode="${this.mode}"
@@ -332,6 +338,7 @@ export class ConfigLensApp extends LitElement {
                   @fold-all="${this.handleFoldAll}"
                   @unfold-all="${this.handleUnfoldAll}"
                   @copy-content="${this.handleCopyContent}"
+                  @clear-content="${this.handleClearContent}"
                 ></editor-toolbar>
                 <diff-component
                   .mode="${this.mode}"

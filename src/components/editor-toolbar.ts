@@ -111,8 +111,12 @@ export class EditorToolbar extends LitElement {
     }, 2000);
   }
 
+  private handleClear() {
+    this.dispatchEvent(new CustomEvent('clear-content', { bubbles: true, composed: true }));
+  }
+
   private handleKeyDown(e: KeyboardEvent) {
-    const buttonCount = 3;
+    const buttonCount = 4;
     let newIndex = -1;
 
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -129,7 +133,7 @@ export class EditorToolbar extends LitElement {
       e.preventDefault();
       this.focusedIndex = newIndex;
       this.updateComplete.then(() => {
-        const buttonIds = ['btn-fold-all', 'btn-unfold-all', 'btn-copy'];
+        const buttonIds = ['btn-fold-all', 'btn-unfold-all', 'btn-copy', 'btn-clear'];
         const button = this.shadowRoot?.querySelector<HTMLButtonElement>(`#${buttonIds[newIndex]}`);
         button?.focus();
       });
@@ -181,6 +185,18 @@ export class EditorToolbar extends LitElement {
             title="${this.copied ? 'Copied!' : 'Copy code to clipboard'}"
           >
             <span aria-hidden="true">${this.copied ? '✓' : '📋'}</span> ${this.copied ? 'Copied!' : 'Copy'}
+          </button>
+          <button
+            id="btn-clear"
+            type="button"
+            class="btn-secondary"
+            tabindex="${this.focusedIndex === 3 ? 0 : -1}"
+            @focus="${() => { this.focusedIndex = 3; }}"
+            @click="${this.handleClear}"
+            aria-label="Clear content"
+            title="Clear document content"
+          >
+            <span aria-hidden="true">🗑️</span> Clear
           </button>
           <span class="sr-only" role="status" aria-live="polite">
             ${this.copied ? 'Content copied to clipboard' : ''}
