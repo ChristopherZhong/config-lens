@@ -245,4 +245,20 @@ describe('ConfigLensApp component', () => {
     expect(copiedText).toBe((element as unknown as { content: string }).content);
     expect(copyButton?.textContent).toContain('Copied!');
   });
+
+  it('clears content and updates localStorage when Clear button is clicked in toolbar', async () => {
+    const shadow = element.shadowRoot;
+    const toolbar = shadow?.querySelector<EditorToolbar>('editor-toolbar');
+    expect(toolbar).not.toBeNull();
+
+    const toolbarShadow = toolbar?.shadowRoot;
+    const clearButton = toolbarShadow?.querySelector<HTMLButtonElement>('button[aria-label="Clear content"]');
+    expect(clearButton).not.toBeNull();
+
+    clearButton?.click();
+    await element.updateComplete;
+
+    expect((element as unknown as { content: string }).content).toBe('');
+    expect(safeStorageGetItem('config-lens-content-json')).toBe('');
+  });
 });
