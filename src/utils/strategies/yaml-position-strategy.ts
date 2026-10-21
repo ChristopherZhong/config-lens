@@ -15,11 +15,12 @@ export const yamlPositionStrategy: SchemaPositionStrategy = {
 
   getKeyNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
     if (propertyNode.name === 'Pair') {
-      const keyNode = propertyNode.getChild('Key');
-      if (keyNode) {
-        return keyNode.firstChild || keyNode;
+      // Optimization: In YAML Lezer AST, the first child of a Pair node is either Key or the raw key element.
+      // Checking propertyNode.firstChild directly avoids O(children) getChild child-traversal iterations.
+      const first = propertyNode.firstChild;
+      if (first) {
+        return first.name === 'Key' ? (first.firstChild || first) : first;
       }
-      return propertyNode.firstChild;
     }
     return null;
   },
