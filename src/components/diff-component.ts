@@ -148,6 +148,27 @@ export class DiffComponent extends LitElement {
         display: block;
     }
 
+    /* Pane headers */
+    .diff-headers {
+      display: flex;
+      background: var(--bg-sidebar, #1e1e1e);
+      border-bottom: 1px solid var(--border, #333);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted, #888);
+      flex-shrink: 0;
+    }
+    .diff-pane-title {
+      flex: 1;
+      padding: 6px 16px;
+      box-sizing: border-box;
+    }
+    .diff-pane-title:first-child {
+      border-right: 1px solid var(--border, #333);
+    }
+
     /* Dark theme adjustments */
     :host([theme="dark"]) .cm-merge-a .cm-changedLine,
     :host([theme="dark"]) .cm-deletedChunk {
@@ -220,6 +241,7 @@ export class DiffComponent extends LitElement {
         doc: this.original,
         extensions: [
             ...extensions,
+            EditorView.editorAttributes.of({ 'aria-label': 'Original document content' }),
             EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
                     const newContent = update.state.doc.toString();
@@ -237,6 +259,7 @@ export class DiffComponent extends LitElement {
         doc: this.modified,
         extensions: [
             ...extensions,
+            EditorView.editorAttributes.of({ 'aria-label': 'Modified document content' }),
             EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
                     const newContent = update.state.doc.toString();
@@ -317,6 +340,12 @@ export class DiffComponent extends LitElement {
   }
 
   render() {
-    return html`<div id="diff-container"></div>`;
+    return html`
+      <div class="diff-headers">
+        <div class="diff-pane-title">Original</div>
+        <div class="diff-pane-title">Modified</div>
+      </div>
+      <div id="diff-container"></div>
+    `;
   }
 }
