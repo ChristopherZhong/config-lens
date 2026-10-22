@@ -41,3 +41,7 @@
 ## 2026-06-18 - Early Node Name Short-Circuiting in Syntax Tree Iteration
 **Learning:** In CodeMirror AST iteration (`tree.iterate`), computing BigInt/packed keys and performing `visitedNodes` Set lookups for every visited node adds unnecessary overhead for non-target node types (which make up ~95% of AST nodes like strings, numbers, colons, commas).
 **Action:** Always short-circuit `node.name` checks BEFORE computing composite keys or performing `Set` lookups in AST traversal callbacks.
+
+## 2026-06-18 - O(1) AST Key Node Access & Push-Reverse Cursor Path Resolution
+**Learning:** In CodeMirror Lezer syntax trees, `Property` and `Pair` nodes have their key node positioned as `firstChild`. Using `getChild('PropertyName')` or `getChild('Key')` performed full $O(\text{children})$ scans on every property during error position mapping and hover path traversal. Furthermore, building cursor JSON pointer paths from child to root using `unshift()` executed $O(K^2)$ memory-shifting operations per hover event.
+**Action:** Direct `firstChild` key node access eliminates $O(\text{children})$ tree scans, and using `push()` followed by a single `.reverse()` converts hover path extraction to $O(K)$ time complexity without temporary array allocations.

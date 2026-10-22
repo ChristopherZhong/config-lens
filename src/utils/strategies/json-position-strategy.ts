@@ -15,10 +15,8 @@ export const jsonPositionStrategy: SchemaPositionStrategy = {
 
   getKeyNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
     if (propertyNode.name === 'Property') {
-      const propNameNode = propertyNode.getChild('PropertyName');
-      if (propNameNode) return propNameNode;
-      const stringNode = propertyNode.getChild('String');
-      if (stringNode) return stringNode;
+      // Optimization: In JSON Lezer AST, the first child of a Property node is always the key node.
+      // Returning firstChild directly avoids O(children) getChild child-traversal iterations.
       return propertyNode.firstChild;
     }
     return null;

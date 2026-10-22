@@ -160,24 +160,27 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
       }
     }
     // Check allOf / oneOf / anyOf
-    // Optimization: Guard composition keyword check to avoid allocating candidates arrays when none exist
-    if (!nextSchema && (current.allOf || current.oneOf || current.anyOf)) {
-      const allOf = Array.isArray(current.allOf) ? current.allOf : [];
-      const oneOf = Array.isArray(current.oneOf) ? current.oneOf : [];
-      const anyOf = Array.isArray(current.anyOf) ? current.anyOf : [];
-      const candidates = [...allOf, ...oneOf, ...anyOf];
-
-      for (const candidate of candidates) {
-        const resolvedCandidate = dereferenceSchema(rootSchema, candidate);
-        const candidateProperties = resolvedCandidate?.properties;
-        if (
-          candidateProperties &&
-          typeof candidateProperties === 'object' &&
-          !Array.isArray(candidateProperties) &&
-          Object.prototype.hasOwnProperty.call(candidateProperties, segment)
-        ) {
-          nextSchema = (candidateProperties as Record<string, unknown>)[segment];
-          break;
+    // Optimization: Direct combinator array traversal avoids creating temporary arrays
+    // and spreading ([...allOf, ...oneOf, ...anyOf]) on every path segment.
+    if (!nextSchema) {
+      const combinators = [current.allOf, current.oneOf, current.anyOf];
+      for (let c = 0; c < 3; c++) {
+        const combinator = combinators[c];
+        if (Array.isArray(combinator)) {
+          for (let k = 0; k < combinator.length; k++) {
+            const resolvedCandidate = dereferenceSchema(rootSchema, combinator[k]);
+            const candidateProperties = resolvedCandidate?.properties;
+            if (
+              candidateProperties &&
+              typeof candidateProperties === 'object' &&
+              !Array.isArray(candidateProperties) &&
+              Object.prototype.hasOwnProperty.call(candidateProperties, segment)
+            ) {
+              nextSchema = (candidateProperties as Record<string, unknown>)[segment];
+              break;
+            }
+          }
+          if (nextSchema) break;
         }
       }
     }
@@ -224,7 +227,8 @@ export function getPathAtPosition(view: EditorView, position: number): { path: s
           ? raw.slice(1, -1)
           : raw;
         if (keyText) {
-          pathSegments.unshift(keyText);
+          // Optimization: Push to array and reverse at end to avoid O(K²) element shifts from unshift
+          pathSegments.push(keyText);
         }
       }
     } else if (current.name === 'Array' || current.name === 'BlockSequence' || current.name === 'Sequence') {
@@ -249,11 +253,14 @@ export function getPathAtPosition(view: EditorView, position: number): { path: s
         child = child.nextSibling;
       }
       if (matchedIndex >= 0) {
-        pathSegments.unshift(String(matchedIndex));
+        pathSegments.push(String(matchedIndex));
       }
     }
     current = current.parent;
   }
+
+  // Reverse path segments to convert child-to-root traversal into root-to-child path order
+  pathSegments.reverse();
 
   return { path: pathSegments, targetNode };
 }
