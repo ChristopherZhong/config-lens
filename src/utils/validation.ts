@@ -33,7 +33,7 @@ function isValidHttpUrl(urlString: string): boolean {
       return false;
     }
     const hostname = parsed.hostname.toLowerCase();
-    const cleanHost = hostname.replace(/^\[|\]$/g, '');
+    const cleanHost = hostname.replace(/^\[|\]$/g, '').replace(/\.$/, '');
     // Prevent SSRF and Private Network Access via loopback, local/internal domains,
     // wildcard DNS services (.nip.io, .sslip.io, etc.), private IP ranges, and integer IP formats.
     if (
