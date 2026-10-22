@@ -5,14 +5,19 @@ import { customElement, property, state } from 'lit/decorators.js';
 export class EditorToolbar extends LitElement {
   @property({ type: String }) title = 'Editor';
   @state() private copied = false;
+  @state() private cleared = false;
   @state() private focusedIndex = 0;
 
   private copyTimeout?: number;
+  private clearTimeout?: number;
 
   disconnectedCallback() {
     super.disconnectedCallback();
     if (this.copyTimeout) {
       clearTimeout(this.copyTimeout);
+    }
+    if (this.clearTimeout) {
+      clearTimeout(this.clearTimeout);
     }
   }
 
@@ -79,6 +84,12 @@ export class EditorToolbar extends LitElement {
       background: rgba(34, 197, 94, 0.1);
     }
 
+    .btn-secondary.cleared {
+      color: var(--error, #ef4444);
+      border-color: var(--error, #ef4444);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
     .sr-only {
       position: absolute;
       width: 1px;
@@ -113,6 +124,13 @@ export class EditorToolbar extends LitElement {
 
   private handleClear() {
     this.dispatchEvent(new CustomEvent('clear-content', { bubbles: true, composed: true }));
+    this.cleared = true;
+    if (this.clearTimeout) {
+      clearTimeout(this.clearTimeout);
+    }
+    this.clearTimeout = window.setTimeout(() => {
+      this.cleared = false;
+    }, 2000);
   }
 
   private handleKeyDown(e: KeyboardEvent) {
@@ -189,17 +207,17 @@ export class EditorToolbar extends LitElement {
           <button
             id="btn-clear"
             type="button"
-            class="btn-secondary"
+            class="btn-secondary ${this.cleared ? 'cleared' : ''}"
             tabindex="${this.focusedIndex === 3 ? 0 : -1}"
             @focus="${() => { this.focusedIndex = 3; }}"
             @click="${this.handleClear}"
-            aria-label="Clear content"
-            title="Clear document content"
+            aria-label="${this.cleared ? 'Document content cleared' : 'Clear content'}"
+            title="${this.cleared ? 'Cleared!' : 'Clear document content'}"
           >
-            <span aria-hidden="true">🗑️</span> Clear
+            <span aria-hidden="true">${this.cleared ? '✓' : '🗑️'}</span> ${this.cleared ? 'Cleared!' : 'Clear'}
           </button>
           <span class="sr-only" role="status" aria-live="polite">
-            ${this.copied ? 'Content copied to clipboard' : ''}
+            ${this.copied ? 'Content copied to clipboard' : this.cleared ? 'Document content cleared' : ''}
           </span>
         </div>
       </div>

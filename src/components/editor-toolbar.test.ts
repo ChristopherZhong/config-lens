@@ -68,16 +68,26 @@ describe('EditorToolbar component', () => {
     expect(unfoldFired).toBe(true);
   });
 
-  it('dispatches clear-content event when Clear button is clicked', async () => {
+  it('dispatches clear-content event and shows Cleared! feedback when Clear button is clicked', async () => {
     let clearFired = false;
     element.addEventListener('clear-content', () => {
       clearFired = true;
     });
 
-    const clearBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('button[aria-label="Clear content"]');
+    const clearBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-clear');
+    expect(clearBtn).not.toBeNull();
+
     clearBtn?.click();
+    await element.updateComplete;
 
     expect(clearFired).toBe(true);
+    expect(clearBtn?.textContent).toContain('Cleared!');
+    expect(clearBtn?.getAttribute('title')).toBe('Cleared!');
+    expect(clearBtn?.getAttribute('aria-label')).toBe('Document content cleared');
+    expect(clearBtn?.classList.contains('cleared')).toBe(true);
+
+    const statusEl = element.shadowRoot?.querySelector('[role="status"]');
+    expect(statusEl?.textContent?.trim()).toBe('Document content cleared');
   });
 
   it('dispatches copy-content event and shows Copied! feedback when Copy button is clicked', async () => {
