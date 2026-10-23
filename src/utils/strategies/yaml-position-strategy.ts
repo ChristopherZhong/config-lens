@@ -27,22 +27,27 @@ export const yamlPositionStrategy: SchemaPositionStrategy = {
 
   getValueNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
     if (propertyNode.name === 'Pair') {
-      const valNode = propertyNode.getChild('Value');
-      if (valNode) {
-        return valNode.firstChild || valNode;
-      }
+      // Optimization: Single-pass child traversal checks for 'Value' node and direct value nodes simultaneously,
+      // avoiding redundant O(children) getChild('Value') scans prior to fallback child iteration.
       let child = propertyNode.firstChild;
       let pastKey = false;
+      let lastNonCommentChild: SyntaxNode | null = null;
       while (child) {
+        if (child.name === 'Value') {
+          return child.firstChild || child;
+        }
         if (pastKey && child.name !== ':' && child.name !== 'Comment') {
           return child;
         }
         if (child.name === 'Key' || child.name === ':') {
           pastKey = true;
         }
+        if (child.name !== 'Comment') {
+          lastNonCommentChild = child;
+        }
         child = child.nextSibling;
       }
-      return propertyNode.lastChild;
+      return lastNonCommentChild || propertyNode.lastChild;
     }
     return null;
   },
