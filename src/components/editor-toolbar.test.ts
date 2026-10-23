@@ -112,6 +112,22 @@ describe('EditorToolbar component', () => {
     expect(statusEl?.textContent?.trim()).toBe('Content copied to clipboard');
   });
 
+  it('disables Copy and Clear buttons when isEmpty is true and updates title tooltips and ARIA labels', async () => {
+    element.isEmpty = true;
+    await element.updateComplete;
+
+    const copyBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-copy');
+    const clearBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-clear');
+
+    expect(copyBtn?.hasAttribute('disabled')).toBe(true);
+    expect(copyBtn?.getAttribute('title')).toBe('No content to copy');
+    expect(copyBtn?.getAttribute('aria-label')).toBe('No content to copy');
+
+    expect(clearBtn?.hasAttribute('disabled')).toBe(true);
+    expect(clearBtn?.getAttribute('title')).toBe('Document is empty');
+    expect(clearBtn?.getAttribute('aria-label')).toBe('Document is empty');
+  });
+
   it('supports roving tabindex and keyboard arrow key navigation', async () => {
     const shadow = element.shadowRoot;
     const toolbar = shadow?.querySelector<HTMLDivElement>('.editor-toolbar');

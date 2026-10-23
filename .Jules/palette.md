@@ -5,3 +5,7 @@
 ## 2025-05-15 - [Keyboard Navigation and Roving Tabindex for Custom Radiogroups in Shadow DOM]
 **Learning:** Custom segmented controls/radiogroups (`role="radiogroup"` with `role="radio"` buttons) inside Shadow DOM roots require explicit roving `tabindex` management (`0` on active, `-1` on inactive options) and `@keydown` arrow key handling. Otherwise, keyboard users are forced to tab through every radio item individually instead of navigating with standard arrow/Home/End keys.
 **Action:** Ensure custom Lit component segmented controls and radiogroups dynamically update button `tabindex` attributes based on selected state and catch `ArrowLeft`/`ArrowRight`/`Home`/`End` keydown events to programmatically transfer focus to the target radio option.
+
+## 2025-05-16 - [Disabled Action Button Accessibility and Tooltips for Empty Document States]
+**Learning:** Icon/text action buttons in Lit toolbars (like Copy and Clear) should visually disable and dynamically update `aria-label` and `title` tooltips when there is no content to act upon (e.g. "No content to copy", "Document is empty"). This prevents destructive or useless actions and informs assistive technologies clearly.
+**Action:** Always derive document `isEmpty` state from content (`!content || !content.trim()`), pass it down to action toolbars, and apply standard disabled styles along with dynamic accessible labels/tooltips.
