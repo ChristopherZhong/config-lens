@@ -4,6 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 @customElement('editor-toolbar')
 export class EditorToolbar extends LitElement {
   @property({ type: String }) title = 'Editor';
+  @property({ type: Boolean }) isEmpty = false;
   @state() private copied = false;
   @state() private cleared = false;
   @state() private focusedIndex = 0;
@@ -76,6 +77,13 @@ export class EditorToolbar extends LitElement {
     .btn-secondary:focus-visible {
       outline: 2px solid var(--accent, #007acc);
       outline-offset: 2px;
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      border-color: var(--border, #333);
+      background: var(--bg-main, #121212);
     }
 
     .btn-secondary.copied {
@@ -196,11 +204,12 @@ export class EditorToolbar extends LitElement {
             id="btn-copy"
             type="button"
             class="btn-secondary ${this.copied ? 'copied' : ''}"
+            ?disabled="${this.isEmpty}"
             tabindex="${this.focusedIndex === 2 ? 0 : -1}"
             @focus="${() => { this.focusedIndex = 2; }}"
             @click="${this.handleCopy}"
-            aria-label="${this.copied ? 'Content copied to clipboard' : 'Copy code to clipboard'}"
-            title="${this.copied ? 'Copied!' : 'Copy code to clipboard'}"
+            aria-label="${this.copied ? 'Content copied to clipboard' : this.isEmpty ? 'No content to copy' : 'Copy code to clipboard'}"
+            title="${this.copied ? 'Copied!' : this.isEmpty ? 'No content to copy' : 'Copy code to clipboard'}"
           >
             <span aria-hidden="true">${this.copied ? '✓' : '📋'}</span> ${this.copied ? 'Copied!' : 'Copy'}
           </button>
@@ -208,11 +217,12 @@ export class EditorToolbar extends LitElement {
             id="btn-clear"
             type="button"
             class="btn-secondary ${this.cleared ? 'cleared' : ''}"
+            ?disabled="${this.isEmpty}"
             tabindex="${this.focusedIndex === 3 ? 0 : -1}"
             @focus="${() => { this.focusedIndex = 3; }}"
             @click="${this.handleClear}"
-            aria-label="${this.cleared ? 'Document content cleared' : 'Clear content'}"
-            title="${this.cleared ? 'Cleared!' : 'Clear document content'}"
+            aria-label="${this.cleared ? 'Document content cleared' : this.isEmpty ? 'Document is empty' : 'Clear content'}"
+            title="${this.cleared ? 'Cleared!' : this.isEmpty ? 'Document is empty' : 'Clear document content'}"
           >
             <span aria-hidden="true">${this.cleared ? '✓' : '🗑️'}</span> ${this.cleared ? 'Cleared!' : 'Clear'}
           </button>

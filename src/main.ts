@@ -313,6 +313,7 @@ export class ConfigLensApp extends LitElement {
               >
                 <editor-toolbar
                   title="Editor"
+                  ?isEmpty="${!this.content || !this.content.trim()}"
                   @fold-all="${this.handleFoldAll}"
                   @unfold-all="${this.handleUnfoldAll}"
                   @copy-content="${this.handleCopyContent}"
@@ -335,6 +336,7 @@ export class ConfigLensApp extends LitElement {
               >
                 <editor-toolbar
                   title="Compare (Original vs Modified)"
+                  ?isEmpty="${!this.content || !this.content.trim()}"
                   @fold-all="${this.handleFoldAll}"
                   @unfold-all="${this.handleUnfoldAll}"
                   @copy-content="${this.handleCopyContent}"
