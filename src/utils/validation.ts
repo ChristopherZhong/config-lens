@@ -63,9 +63,9 @@ function isValidHttpUrl(urlString: string): boolean {
       /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(cleanHost) ||
       /^(0x[0-9a-f]+|\d+)$/i.test(cleanHost) ||
       /^(0x[0-9a-f]+\.){1,3}(0x[0-9a-f]+)$/i.test(cleanHost) ||
-      // Security: Check for IPv4-mapped/compatible IPv6 representations in hex format normalized by URL constructor
-      // (e.g. ::ffff:7f00:1 or ::7f00:1 for 127.0.0.1, ::a00:1 for 10.0.0.1, ::c0a8:101 for 192.168.1.1)
-      /^::(ffff:)?(0|7f[0-9a-f]{2}|a[0-9a-f]{2}|a9fe|c0a8|ac1[0-9a-f]|64:ff9b|64[4-7][0-9a-f]|100):/i.test(cleanHost)
+      // Security: Check for IPv4-mapped/compatible, NAT64, and 6to4 IPv6 representations in hex format normalized by URL constructor
+      // (e.g. ::ffff:7f00:1, 64:ff9b::7f00:1, or 2002:7f00:1:: for 127.0.0.1, ::a00:1 or 2002:a00:1:: for 10.0.0.1, ::c0a8:101 for 192.168.1.1)
+      /^(::(ffff:)?|64:ff9b::|2002:)(0|7f[0-9a-f]{2}|a[0-9a-f]{2}|a9fe|c0a8|ac1[0-9a-f]|64[4-7][0-9a-f]|100):/i.test(cleanHost)
     ) {
       return false;
     }
