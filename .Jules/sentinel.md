@@ -17,3 +17,8 @@
 **Vulnerability:** Fully Qualified Domain Names (FQDNs) ending with a trailing dot (e.g., `http://localhost./schema.json`, `http://service.local./schema.json`, `http://127.0.0.1.nip.io./schema.json`) bypassed `isValidHttpUrl` SSRF filters because `parsed.hostname` retained the trailing dot (`localhost.`), causing `.endsWith('.local')` or `=== 'localhost'` checks to fail.
 **Learning:** Standard WHATWG `URL` parsers preserve trailing dots in FQDN hostnames, but network resolvers strip the trailing dot when querying DNS or making HTTP requests.
 **Prevention:** Always normalize hostnames by stripping trailing dots (`.replace(/\.$/, '')`) before validating against restricted domain suffixes and loopback identifiers.
+
+## 2026-10-23 - NAT64 and 6to4 IPv6 Transition Address SSRF Bypass Fix
+**Vulnerability:** External `$schema` URLs using NAT64 (`64:ff9b::/96`) or 6to4 (`2002::/16`) transition prefixes (e.g. `http://[64:ff9b::7f00:1]` or `http://[2002:7f00:1::]` for loopback `127.0.0.1`, `http://[64:ff9b::a9fe:a9fe]` for AWS metadata `169.254.169.254`) bypassed `isValidHttpUrl` SSRF filters because the prefix regex was restricted to IPv4-mapped/compatible IPv6 prefixes (`^::(ffff:)?`).
+**Learning:** IPv6 transition technologies like NAT64 (`64:ff9b::/96`) and 6to4 (`2002::/16`) embed IPv4 addresses in hexadecimal within distinct 16-bit prefix blocks that differ from standard IPv4-mapped IPv6 notation (`::ffff:`).
+**Prevention:** Include all active IPv6 transition mechanism prefixes (`64:ff9b::`, `2002:`) alongside `::` and `::ffff:` when matching hexadecimal representations of restricted IPv4 ranges.
