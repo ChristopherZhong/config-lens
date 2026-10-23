@@ -194,19 +194,23 @@ export class DiffComponent extends LitElement {
     }
 
     if (changedProperties.has('original') && this.mergeView) {
-        const currentOriginal = this.mergeView.a.state.doc.toString();
-        if (this.original !== currentOriginal) {
+        // Optimization: Fast O(1) length check skips doc.toString() rope allocations when content lengths differ,
+        // and reuses doc.length directly when replacing view document content.
+        const docALength = this.mergeView.a.state.doc.length;
+        if (this.original.length !== docALength || this.original !== this.mergeView.a.state.doc.toString()) {
             this.mergeView.a.dispatch({
-                changes: { from: 0, to: currentOriginal.length, insert: this.original }
+                changes: { from: 0, to: docALength, insert: this.original }
             });
         }
     }
 
     if (changedProperties.has('modified') && this.mergeView) {
-        const currentModified = this.mergeView.b.state.doc.toString();
-        if (this.modified !== currentModified) {
+        // Optimization: Fast O(1) length check skips doc.toString() rope allocations when content lengths differ,
+        // and reuses doc.length directly when replacing view document content.
+        const docBLength = this.mergeView.b.state.doc.length;
+        if (this.modified.length !== docBLength || this.modified !== this.mergeView.b.state.doc.toString()) {
             this.mergeView.b.dispatch({
-                changes: { from: 0, to: currentModified.length, insert: this.modified }
+                changes: { from: 0, to: docBLength, insert: this.modified }
             });
         }
     }

@@ -103,16 +103,18 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
   if (!rootSchema || typeof rootSchema !== 'object') return null;
 
   let current = dereferenceSchema(rootSchema, rootSchema);
-  let parentSchema = current;
   let isRequired = false;
 
   for (let i = 0; i < path.length; i++) {
     const segment = path[i];
     if (!current || typeof current !== 'object') return null;
 
-    parentSchema = current;
-    const requiredArray = parentSchema.required;
-    isRequired = Array.isArray(requiredArray) && requiredArray.includes(segment);
+    // Optimization: Defer isRequired check to execute ONLY for the target property (last segment),
+    // skipping redundant Array.isArray and .includes() path scans on intermediate ancestor schema nodes.
+    if (i === path.length - 1) {
+      const requiredArray = current.required;
+      isRequired = Array.isArray(requiredArray) && requiredArray.includes(segment);
+    }
 
     let nextSchema: unknown = null;
 

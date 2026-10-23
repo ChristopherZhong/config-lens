@@ -71,10 +71,12 @@ export class EditorComponent extends LitElement {
       });
     }
     if (changedProperties.has('content') && this.view) {
-        const currentContent = this.view.state.doc.toString();
-        if (this.content !== currentContent) {
+        // Optimization: Fast O(1) length check skips doc.toString() rope allocations when content lengths differ,
+        // and reuses doc.length directly when replacing view document content.
+        const docLength = this.view.state.doc.length;
+        if (this.content.length !== docLength || this.content !== this.view.state.doc.toString()) {
             this.view.dispatch({
-                changes: { from: 0, to: currentContent.length, insert: this.content }
+                changes: { from: 0, to: docLength, insert: this.content }
             });
         }
     }
