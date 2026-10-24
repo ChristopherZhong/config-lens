@@ -22,3 +22,8 @@
 **Vulnerability:** External `$schema` URLs using NAT64 (`64:ff9b::/96`) or 6to4 (`2002::/16`) transition prefixes (e.g. `http://[64:ff9b::7f00:1]` or `http://[2002:7f00:1::]` for loopback `127.0.0.1`, `http://[64:ff9b::a9fe:a9fe]` for AWS metadata `169.254.169.254`) bypassed `isValidHttpUrl` SSRF filters because the prefix regex was restricted to IPv4-mapped/compatible IPv6 prefixes (`^::(ffff:)?`).
 **Learning:** IPv6 transition technologies like NAT64 (`64:ff9b::/96`) and 6to4 (`2002::/16`) embed IPv4 addresses in hexadecimal within distinct 16-bit prefix blocks that differ from standard IPv4-mapped IPv6 notation (`::ffff:`).
 **Prevention:** Include all active IPv6 transition mechanism prefixes (`64:ff9b::`, `2002:`) alongside `::` and `::ffff:` when matching hexadecimal representations of restricted IPv4 ranges.
+
+## 2026-10-24 - IPv6 Site-Local, Multicast, and IPv4 Multicast SSRF Bypass Fix
+**Vulnerability:** External `$schema` URLs targeting IPv6 site-local (`fec0::/10`), IPv6 multicast (`ff00::/8`), IPv4 multicast (`224.0.0.0/4`), or reserved/broadcast (`240.0.0.0/4`, `255.255.255.255`) IP ranges bypassed `isValidHttpUrl` SSRF filters.
+**Learning:** SSRF filters that check IPv6 link-local (`fe80::/10`) and private IPv4 ranges often omit IPv6 site-local (`fec0::/10`), multicast (`ff00::/8`), and IPv4 multicast/reserved ranges, allowing requests to non-public network endpoints.
+**Prevention:** Extend hostname filters in `isValidHttpUrl` to block IPv6 site-local, multicast, and IPv4 multicast/reserved ranges alongside loopback and private unicast IP ranges.
