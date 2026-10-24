@@ -55,13 +55,18 @@ export const jsonPositionStrategy: SchemaPositionStrategy = {
 
     if (containerName === 'Object') {
       let child = targetContainer.firstChild;
+      const segmentLength = segment.length;
       while (child) {
         if (child.name === 'Property') {
           const keyNode = jsonPositionStrategy.getKeyNodeFromProperty(child);
           if (keyNode) {
-            const keyText = getNodeText(keyNode, documentText);
-            if (keyText === segment) {
-              return child;
+            // Optimization: Skip getNodeText string slice and trim allocations if key node length
+            // is strictly less than segment length (as key text length <= key node character span).
+            if (keyNode.to - keyNode.from >= segmentLength) {
+              const keyText = getNodeText(keyNode, documentText);
+              if (keyText === segment) {
+                return child;
+              }
             }
           }
         }

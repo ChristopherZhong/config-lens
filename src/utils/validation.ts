@@ -175,6 +175,16 @@ export async function validateContent(text: string, mode: 'json' | 'yaml'): Prom
     return diagnostics;
   }
 
+  // Optimization: Fast-path substring check skips schema property extraction and validator compilation
+  // if document text contains no $schema directive ($schema / schema for YAML).
+  const hasSchemaMarker = mode === 'json'
+    ? text.includes('$schema')
+    : (text.includes('$schema') || text.includes('schema'));
+
+  if (!hasSchemaMarker) {
+    return diagnostics;
+  }
+
   const data: any = parseResult.data;
 
   if (

@@ -84,13 +84,18 @@ export const yamlPositionStrategy: SchemaPositionStrategy = {
 
     if (containerName === 'BlockMapping' || containerName === 'Mapping') {
       let child = targetContainer.firstChild;
+      const segmentLength = segment.length;
       while (child) {
         if (child.name === 'Pair') {
           const keyNode = yamlPositionStrategy.getKeyNodeFromProperty(child);
           if (keyNode) {
-            const keyText = getNodeText(keyNode, documentText);
-            if (keyText === segment) {
-              return child;
+            // Optimization: Skip getNodeText string slice and trim allocations if key node length
+            // is strictly less than segment length (as key text length <= key node character span).
+            if (keyNode.to - keyNode.from >= segmentLength) {
+              const keyText = getNodeText(keyNode, documentText);
+              if (keyText === segment) {
+                return child;
+              }
             }
           }
         }
