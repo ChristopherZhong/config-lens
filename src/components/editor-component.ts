@@ -90,6 +90,7 @@ export class EditorComponent extends LitElement {
     const extensions: Extension[] = [
       basicSetup,
       EditorView.lineWrapping,
+      EditorView.editorAttributes.of({ 'aria-label': `${this.mode.toUpperCase()} document content editor` }),
       this.mode === 'json' ? json() : yaml(),
       propertyAnnotationsPlugin,
       annotationTheme,

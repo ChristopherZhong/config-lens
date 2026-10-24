@@ -37,4 +37,15 @@ describe('AppHeader component', () => {
     formatBtn?.click();
     expect(formatClicked).toBe(true);
   });
+
+  it('disables format button and updates aria-label and title when isEmpty is true', async () => {
+    element.isEmpty = true;
+    await element.updateComplete;
+
+    const shadow = element.shadowRoot;
+    const formatBtn = shadow?.querySelector<HTMLButtonElement>('button[aria-label="No content to format"]');
+    expect(formatBtn).not.toBeNull();
+    expect(formatBtn?.disabled).toBe(true);
+    expect(formatBtn?.getAttribute('title')).toBe('No content to format');
+  });
 });

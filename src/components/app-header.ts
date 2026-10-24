@@ -7,6 +7,7 @@ export class AppHeader extends LitElement {
   @property({ type: String }) activeTab: 'lint' | 'compare' = 'lint';
   @property({ type: String }) mode: 'json' | 'yaml' = 'json';
   @property({ type: String }) theme: 'light' | 'dark' | 'system' = 'system';
+  @property({ type: Boolean }) isEmpty = false;
   @property({ type: Object }) formatFeedback: { type: 'success' | 'error'; message: string } | null = null;
   @property({ type: String }) logoSrc = './favicon.svg';
 
@@ -145,6 +146,12 @@ export class AppHeader extends LitElement {
 
     button:active {
       transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--accent, #007acc);
     }
 
     .format-feedback {
@@ -300,10 +307,11 @@ export class AppHeader extends LitElement {
             </select>
             <button
               type="button"
+              ?disabled="${this.isEmpty}"
               @click="${this.handleFormat}"
-              aria-label="Format content"
+              aria-label="${this.isEmpty ? 'No content to format' : 'Format content'}"
               aria-keyshortcuts="Alt+Shift+F"
-              title="Format document (Alt+Shift+F)"
+              title="${this.isEmpty ? 'No content to format' : 'Format document (Alt+Shift+F)'}"
             >
               Format
             </button>

@@ -286,6 +286,7 @@ export class ConfigLensApp extends LitElement {
         .mode="${this.mode}"
         .theme="${this.theme}"
         .formatFeedback="${this.formatFeedback}"
+        ?isEmpty="${!this.content || !this.content.trim()}"
         @tab-change="${this.handleTabChange}"
         @mode-change="${this.handleModeChange}"
         @theme-change="${this.handleThemeChange}"
