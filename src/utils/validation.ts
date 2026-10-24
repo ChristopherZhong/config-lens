@@ -55,12 +55,14 @@ function isValidHttpUrl(urlString: string): boolean {
       cleanHost === '::' ||
       cleanHost === '0:0:0:0:0:0:0:0' ||
       cleanHost.startsWith('fe80:') ||
-      /^fe[89ab][0-9a-f]:/i.test(cleanHost) ||
+      /^f[ef][0-9a-f]{2}:/i.test(cleanHost) ||
       /^f[cd][0-9a-f]{2}:/i.test(cleanHost) ||
       cleanHost === '::1' ||
       cleanHost === '0:0:0:0:0:0:0:1' ||
       /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(cleanHost) ||
       /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(cleanHost) ||
+      /^(22[4-9]|2[3-5][0-9])\./.test(cleanHost) ||
+      cleanHost === '255.255.255.255' ||
       /^(0x[0-9a-f]+|\d+)$/i.test(cleanHost) ||
       /^(0x[0-9a-f]+\.){1,3}(0x[0-9a-f]+)$/i.test(cleanHost) ||
       // Security: Check for IPv4-mapped/compatible, NAT64, and 6to4 IPv6 representations in hex format normalized by URL constructor
