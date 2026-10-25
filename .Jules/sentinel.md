@@ -27,3 +27,8 @@
 **Vulnerability:** External `$schema` URLs targeting IPv6 site-local (`fec0::/10`), IPv6 multicast (`ff00::/8`), IPv4 multicast (`224.0.0.0/4`), or reserved/broadcast (`240.0.0.0/4`, `255.255.255.255`) IP ranges bypassed `isValidHttpUrl` SSRF filters.
 **Learning:** SSRF filters that check IPv6 link-local (`fe80::/10`) and private IPv4 ranges often omit IPv6 site-local (`fec0::/10`), multicast (`ff00::/8`), and IPv4 multicast/reserved ranges, allowing requests to non-public network endpoints.
 **Prevention:** Extend hostname filters in `isValidHttpUrl` to block IPv6 site-local, multicast, and IPv4 multicast/reserved ranges alongside loopback and private unicast IP ranges.
+
+## 2026-10-25 - Benchmarking Range (198.18.0.0/15) SSRF Bypass Fix
+**Vulnerability:** External `$schema` URLs targeting RFC 2544 / RFC 6890 inter-network benchmarking IP subnets (`198.18.0.0/15`, i.e., `198.18.0.0` - `198.19.255.255`) bypassed `isValidHttpUrl` SSRF filters in standard IPv4 notation and IPv6 transition address formats (`::ffff:`, `64:ff9b::`, `2002:` in hex `c612` / `c613`).
+**Learning:** SSRF filters commonly miss benchmarking and inter-network testing IP ranges (RFC 2544 / RFC 6890) which are reserved non-routable subnets.
+**Prevention:** Include `/^198\.(1[89])\./` and corresponding IPv6 transition hex patterns (`c61[23]`) in SSRF URL filtering logic alongside private and loopback IP ranges.
