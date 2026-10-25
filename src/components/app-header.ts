@@ -138,6 +138,20 @@ export class AppHeader extends LitElement {
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shortcut-hint {
+      display: inline-block;
+      font-size: 10px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: 500;
+      line-height: 1.2;
     }
 
     button:hover {
@@ -313,7 +327,7 @@ export class AppHeader extends LitElement {
               aria-keyshortcuts="Alt+Shift+F"
               title="${this.isEmpty ? 'No content to format' : 'Format document (Alt+Shift+F)'}"
             >
-              Format
+              Format <kbd class="shortcut-hint" aria-hidden="true">Alt+Shift+F</kbd>
             </button>
 
             <theme-toggle
