@@ -180,11 +180,12 @@ export class EditorToolbar extends LitElement {
             id="btn-fold-all"
             type="button"
             class="btn-secondary"
+            ?disabled="${this.isEmpty}"
             tabindex="${this.focusedIndex === 0 ? 0 : -1}"
             @focus="${() => { this.focusedIndex = 0; }}"
             @click="${this.handleFoldAll}"
-            aria-label="Fold All"
-            title="Fold all code blocks"
+            aria-label="${this.isEmpty ? 'No code to fold' : 'Fold All'}"
+            title="${this.isEmpty ? 'No code to fold' : 'Fold all code blocks'}"
           >
             <span aria-hidden="true">▾</span> Fold All
           </button>
@@ -192,11 +193,12 @@ export class EditorToolbar extends LitElement {
             id="btn-unfold-all"
             type="button"
             class="btn-secondary"
+            ?disabled="${this.isEmpty}"
             tabindex="${this.focusedIndex === 1 ? 0 : -1}"
             @focus="${() => { this.focusedIndex = 1; }}"
             @click="${this.handleUnfoldAll}"
-            aria-label="Expand All"
-            title="Expand all code blocks"
+            aria-label="${this.isEmpty ? 'No code to expand' : 'Expand All'}"
+            title="${this.isEmpty ? 'No code to expand' : 'Expand all code blocks'}"
           >
             <span aria-hidden="true">▸</span> Expand All
           </button>
