@@ -112,12 +112,22 @@ describe('EditorToolbar component', () => {
     expect(statusEl?.textContent?.trim()).toBe('Content copied to clipboard');
   });
 
-  it('disables Copy and Clear buttons when isEmpty is true and updates title tooltips and ARIA labels', async () => {
+  it('disables all action buttons when isEmpty is true and updates title tooltips and ARIA labels', async () => {
     element.isEmpty = true;
     await element.updateComplete;
 
+    const foldBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-fold-all');
+    const unfoldBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-unfold-all');
     const copyBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-copy');
     const clearBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-clear');
+
+    expect(foldBtn?.hasAttribute('disabled')).toBe(true);
+    expect(foldBtn?.getAttribute('title')).toBe('No code to fold');
+    expect(foldBtn?.getAttribute('aria-label')).toBe('No code to fold');
+
+    expect(unfoldBtn?.hasAttribute('disabled')).toBe(true);
+    expect(unfoldBtn?.getAttribute('title')).toBe('No code to expand');
+    expect(unfoldBtn?.getAttribute('aria-label')).toBe('No code to expand');
 
     expect(copyBtn?.hasAttribute('disabled')).toBe(true);
     expect(copyBtn?.getAttribute('title')).toBe('No content to copy');
