@@ -10,6 +10,35 @@ function getNodeText(node: SyntaxNode, documentText: string): string {
   return raw;
 }
 
+function isKeyNodeMatch(keyNode: SyntaxNode, segment: string, documentText: string): boolean {
+  const from = keyNode.from;
+  const to = keyNode.to;
+  const span = to - from;
+  const segmentLength = segment.length;
+
+  if (span < segmentLength) {
+    return false;
+  }
+
+  const firstChar = documentText.charCodeAt(from);
+  const lastChar = documentText.charCodeAt(to - 1);
+  const isQuoted = (firstChar === 34 && lastChar === 34) || (firstChar === 39 && lastChar === 39);
+
+  const maxKeyLength = isQuoted ? span - 2 : span;
+  if (maxKeyLength < segmentLength) {
+    return false;
+  }
+
+  if (maxKeyLength === segmentLength) {
+    if (isQuoted) {
+      return documentText.slice(from + 1, to - 1) === segment;
+    }
+    return documentText.slice(from, to).trim() === segment;
+  }
+
+  return getNodeText(keyNode, documentText) === segment;
+}
+
 export const yamlPositionStrategy: SchemaPositionStrategy = {
   mode: 'yaml',
 
@@ -84,19 +113,11 @@ export const yamlPositionStrategy: SchemaPositionStrategy = {
 
     if (containerName === 'BlockMapping' || containerName === 'Mapping') {
       let child = targetContainer.firstChild;
-      const segmentLength = segment.length;
       while (child) {
         if (child.name === 'Pair') {
           const keyNode = yamlPositionStrategy.getKeyNodeFromProperty(child);
-          if (keyNode) {
-            // Optimization: Skip getNodeText string slice and trim allocations if key node length
-            // is strictly less than segment length (as key text length <= key node character span).
-            if (keyNode.to - keyNode.from >= segmentLength) {
-              const keyText = getNodeText(keyNode, documentText);
-              if (keyText === segment) {
-                return child;
-              }
-            }
+          if (keyNode && isKeyNodeMatch(keyNode, segment, documentText)) {
+            return child;
           }
         }
         child = child.nextSibling;

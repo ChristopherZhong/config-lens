@@ -36,12 +36,15 @@ export function getNodeText(node: SyntaxNode, documentText: string): string {
 }
 
 export function getKeyNodeFromProperty(propertyNode: SyntaxNode): SyntaxNode | null {
-  // Optimization: Direct node name check avoids redundant Map registry lookups on every call.
+  // Optimization: Direct child node access avoids Map registry lookups on every property traversal.
   if (propertyNode.name === 'Property') {
-    return schemaPositionRegistry.get('json')?.getKeyNodeFromProperty(propertyNode) || null;
+    return propertyNode.firstChild;
   }
   if (propertyNode.name === 'Pair') {
-    return schemaPositionRegistry.get('yaml')?.getKeyNodeFromProperty(propertyNode) || null;
+    const first = propertyNode.firstChild;
+    if (first) {
+      return first.name === 'Key' ? (first.firstChild || first) : first;
+    }
   }
   return null;
 }
