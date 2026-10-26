@@ -162,9 +162,9 @@ export function getSchemaForPath(rootSchema: unknown, path: string[]): HoverSche
       }
     }
     // Check allOf / oneOf / anyOf
-    // Optimization: Direct combinator array traversal avoids creating temporary arrays
-    // and spreading ([...allOf, ...oneOf, ...anyOf]) on every path segment.
-    if (!nextSchema) {
+    // Optimization: Fast-path presence check avoids temporary array allocations
+    // on schema nodes without combinators (majority of standard schema properties).
+    if (!nextSchema && (current.allOf || current.oneOf || current.anyOf)) {
       const combinators = [current.allOf, current.oneOf, current.anyOf];
       for (let c = 0; c < 3; c++) {
         const combinator = combinators[c];
