@@ -223,6 +223,11 @@ describe('validation logic', () => {
       'http://[2002:c0a8:101::]/schema.json',
       'http://[2002:ac10:1::]/schema.json',
       'http://[2002:a9fe:a9fe::]/schema.json',
+      'http://198.18.0.1/schema.json',
+      'http://198.19.255.254/schema.json',
+      'http://[::ffff:198.18.0.1]/schema.json',
+      'http://[64:ff9b::c612:1]/schema.json',
+      'http://[2002:c612:1::]/schema.json',
     ];
 
     for (const url of ssrfUrls) {
