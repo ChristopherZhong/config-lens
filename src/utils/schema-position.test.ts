@@ -118,4 +118,40 @@ items:
     const posYamlPort = findPositionForPath(yamlDoc, 'yaml', '/server/port');
     expect(yamlDoc.slice(posYamlPort.from, posYamlPort.to).trim()).toBe('8080');
   });
+
+  it('correctly matches key nodes across varying lengths, quotes, and positions in JSON and YAML', () => {
+    // Test JSON document with multiple keys of different lengths (shorter, matching, longer, single & double quotes)
+    const jsonDoc = JSON.stringify(
+      {
+        a: 1, // key shorter than segment 'server'
+        description: 'long key', // key longer than segment 'server'
+        server: {
+          short: 123,
+          port: 8080,
+          longerPropertyName: 'val'
+        }
+      },
+      null,
+      2
+    );
+
+    const posServerPort = findPositionForPath(jsonDoc, 'json', '/server/port');
+    expect(jsonDoc.slice(posServerPort.from, posServerPort.to)).toBe('8080');
+
+    // Test YAML document with quoted and unquoted keys of varying lengths
+    const yamlDoc = `
+a: 1
+'description': long key
+"server":
+  'short': 123
+  "port": 8080
+  longerPropertyName: val
+`.trim();
+
+    const posYamlPort = findPositionForPath(yamlDoc, 'yaml', '/server/port');
+    expect(yamlDoc.slice(posYamlPort.from, posYamlPort.to).trim()).toBe('8080');
+
+    const posYamlShort = findPositionForPath(yamlDoc, 'yaml', '/server/short');
+    expect(yamlDoc.slice(posYamlShort.from, posYamlShort.to).trim()).toBe('123');
+  });
 });
