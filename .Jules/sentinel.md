@@ -32,3 +32,8 @@
 **Vulnerability:** External `$schema` URLs targeting RFC 2544 / RFC 6890 inter-network benchmarking IP subnets (`198.18.0.0/15`, i.e., `198.18.0.0` - `198.19.255.255`) bypassed `isValidHttpUrl` SSRF filters in standard IPv4 notation and IPv6 transition address formats (`::ffff:`, `64:ff9b::`, `2002:` in hex `c612` / `c613`).
 **Learning:** SSRF filters commonly miss benchmarking and inter-network testing IP ranges (RFC 2544 / RFC 6890) which are reserved non-routable subnets.
 **Prevention:** Include `/^198\.(1[89])\./` and corresponding IPv6 transition hex patterns (`c61[23]`) in SSRF URL filtering logic alongside private and loopback IP ranges.
+
+## 2026-10-26 - Documentation and 6to4 Anycast Relay Subnets SSRF Bypass Fix
+**Vulnerability:** External `$schema` URLs targeting documentation test subnets (TEST-NET-1 `192.0.2.0/24`, TEST-NET-2 `198.51.100.0/24`, TEST-NET-3 `203.0.113.0/24`) and 6to4 Anycast Relay subnets (`192.88.99.0/24`) bypassed `isValidHttpUrl` SSRF filters in standard IPv4, IPv4-mapped, NAT64, and 6to4 IPv6 transition formats.
+**Learning:** SSRF filters often omit reserved RFC 5737 documentation subnets and RFC 3068 6to4 Relay Anycast ranges which should not be requested as remote schema endpoints.
+**Prevention:** Include regex checks for `192.0.2.x`, `198.51.100.x`, `203.0.113.x`, `192.88.99.x` and their IPv6 transition hex prefixes (`c000`, `c633`, `cb00`, `c058`) in SSRF hostname validation routines.
