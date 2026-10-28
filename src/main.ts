@@ -7,7 +7,6 @@ import './components/version-notice-banner';
 import './components/editor-toolbar';
 import './components/app-header';
 import './components/app-footer';
-import type { EditorComponent } from './components/editor-component';
 import type { DiffComponent } from './components/diff-component';
 import { checkLatestRelease } from './utils/version-check';
 import { safeStorageGetItem, safeStorageSetItem } from './utils/storage';
@@ -21,7 +20,7 @@ const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
 @customElement('config-lens-app')
 export class ConfigLensApp extends LitElement {
-  @state() private activeTab: 'lint' | 'compare' = 'lint';
+  @state() private compareExpanded = false;
   @state() private mode: 'json' | 'yaml' = 'json';
   @state() private theme: 'light' | 'dark' | 'system' = 'system';
   @state() private content = DEFAULT_JSON;
@@ -58,12 +57,16 @@ export class ConfigLensApp extends LitElement {
       display: flex;
       overflow: hidden;
       padding: 20px;
-      gap: 20px;
+      gap: 0px;
       min-height: 0;
       min-width: 0;
       max-width: 100%;
       box-sizing: border-box;
       width: 100%;
+    }
+
+    main.has-compare {
+      gap: 20px;
     }
 
     .editor-wrapper {
@@ -80,6 +83,32 @@ export class ConfigLensApp extends LitElement {
       height: 100%;
       width: 100%;
       box-sizing: border-box;
+    }
+
+    .compare-panel {
+      flex: 1 1 0%;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 0;
+      min-width: 0;
+      height: 100%;
+      box-sizing: border-box;
+      max-width: 0;
+      opacity: 0;
+      border-width: 0;
+      transition: flex 0.3s ease, max-width 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+      pointer-events: none;
+    }
+
+    .compare-panel.expanded {
+      max-width: 100%;
+      opacity: 1;
+      border-width: 1px;
+      pointer-events: auto;
     }
 
     editor-component,
@@ -110,6 +139,11 @@ export class ConfigLensApp extends LitElement {
 
     const savedModified = safeStorageGetItem(`config-lens-modified-${this.mode}`);
     this.modifiedContent = savedModified !== null ? savedModified : defaultContent;
+
+    const savedCompare = safeStorageGetItem('config-lens-compare-expanded');
+    if (savedCompare !== null) {
+      this.compareExpanded = savedCompare === 'true';
+    }
 
     const savedTheme = safeStorageGetItem('config-lens-theme');
     if (savedTheme) {
@@ -180,11 +214,6 @@ export class ConfigLensApp extends LitElement {
     this.applyTheme();
   }
 
-  private handleContentChange(e: CustomEvent) {
-    this.content = e.detail.content;
-    safeStorageSetItem(`config-lens-content-${this.mode}`, this.content);
-  }
-
   private handleOriginalChange(e: CustomEvent) {
     this.content = e.detail.content;
     safeStorageSetItem(`config-lens-content-${this.mode}`, this.content);
@@ -214,8 +243,9 @@ export class ConfigLensApp extends LitElement {
     this.modifiedContent = savedModified !== null ? savedModified : defaultContent;
   }
 
-  private handleTabChange(e: CustomEvent) {
-    this.activeTab = e.detail.tab;
+  private toggleComparePanel() {
+    this.compareExpanded = !this.compareExpanded;
+    safeStorageSetItem('config-lens-compare-expanded', String(this.compareExpanded));
   }
 
   private handleThemeChange(e: CustomEvent) {
@@ -244,23 +274,13 @@ export class ConfigLensApp extends LitElement {
   }
 
   private handleFoldAll() {
-    if (this.activeTab === 'lint') {
-      const editor = this.shadowRoot?.querySelector<EditorComponent>('editor-component');
-      editor?.foldAll();
-    } else {
-      const diff = this.shadowRoot?.querySelector<DiffComponent>('diff-component');
-      diff?.foldAll();
-    }
+    const diff = this.shadowRoot?.querySelector<DiffComponent>('diff-component');
+    diff?.foldAll();
   }
 
   private handleUnfoldAll() {
-    if (this.activeTab === 'lint') {
-      const editor = this.shadowRoot?.querySelector<EditorComponent>('editor-component');
-      editor?.unfoldAll();
-    } else {
-      const diff = this.shadowRoot?.querySelector<DiffComponent>('diff-component');
-      diff?.unfoldAll();
-    }
+    const diff = this.shadowRoot?.querySelector<DiffComponent>('diff-component');
+    diff?.unfoldAll();
   }
 
   private handleCopyContent() {
@@ -282,12 +302,10 @@ export class ConfigLensApp extends LitElement {
 
     return html`
       <app-header
-        .activeTab="${this.activeTab}"
         .mode="${this.mode}"
         .theme="${this.theme}"
         .formatFeedback="${this.formatFeedback}"
         ?isEmpty="${!this.content || !this.content.trim()}"
-        @tab-change="${this.handleTabChange}"
         @mode-change="${this.handleModeChange}"
         @theme-change="${this.handleThemeChange}"
         @format-click="${this.formatContent}"
@@ -304,55 +322,27 @@ export class ConfigLensApp extends LitElement {
         : ''}
 
       <main>
-        ${this.activeTab === 'lint'
-          ? html`
-              <div
-                id="panel-lint"
-                class="editor-wrapper"
-                role="tabpanel"
-                aria-labelledby="tab-lint"
-              >
-                <editor-toolbar
-                  title="Editor"
-                  ?isEmpty="${!this.content || !this.content.trim()}"
-                  @fold-all="${this.handleFoldAll}"
-                  @unfold-all="${this.handleUnfoldAll}"
-                  @copy-content="${this.handleCopyContent}"
-                  @clear-content="${this.handleClearContent}"
-                ></editor-toolbar>
-                <editor-component
-                  .mode="${this.mode}"
-                  .theme="${resolvedTheme}"
-                  .content="${this.content}"
-                  @content-changed="${this.handleContentChange}"
-                ></editor-component>
-              </div>
-            `
-          : html`
-              <div
-                id="panel-compare"
-                class="editor-wrapper"
-                role="tabpanel"
-                aria-labelledby="tab-compare"
-              >
-                <editor-toolbar
-                  title="Compare (Original vs Modified)"
-                  ?isEmpty="${!this.content || !this.content.trim()}"
-                  @fold-all="${this.handleFoldAll}"
-                  @unfold-all="${this.handleUnfoldAll}"
-                  @copy-content="${this.handleCopyContent}"
-                  @clear-content="${this.handleClearContent}"
-                ></editor-toolbar>
-                <diff-component
-                  .mode="${this.mode}"
-                  .theme="${resolvedTheme}"
-                  .original="${this.content}"
-                  .modified="${this.modifiedContent}"
-                  @original-changed="${this.handleOriginalChange}"
-                  @modified-changed="${this.handleModifiedChange}"
-                ></diff-component>
-              </div>
-            `}
+        <div class="editor-wrapper">
+          <editor-toolbar
+            title="${this.compareExpanded ? 'Compare (Original vs Modified)' : 'Editor'}"
+            ?showCompareToggle="${false}"
+            ?isEmpty="${!this.content || !this.content.trim()}"
+            @fold-all="${this.handleFoldAll}"
+            @unfold-all="${this.handleUnfoldAll}"
+            @copy-content="${this.handleCopyContent}"
+            @clear-content="${this.handleClearContent}"
+          ></editor-toolbar>
+          <diff-component
+            .mode="${this.mode}"
+            .theme="${resolvedTheme}"
+            .original="${this.content}"
+            .modified="${this.modifiedContent}"
+            .compareExpanded="${this.compareExpanded}"
+            @original-changed="${this.handleOriginalChange}"
+            @modified-changed="${this.handleModifiedChange}"
+            @toggle-compare="${this.toggleComparePanel}"
+          ></diff-component>
+        </div>
       </main>
 
       <app-footer

@@ -18,6 +18,7 @@ export class DiffComponent extends LitElement {
   @property({ type: String }) theme: 'light' | 'dark' = 'light';
   @property({ type: String }) original = '';
   @property({ type: String }) modified = '';
+  @property({ type: Boolean, reflect: true }) compareExpanded = false;
   @query('#diff-container') container!: HTMLElement;
 
   private mergeView?: MergeView;
@@ -160,13 +161,122 @@ export class DiffComponent extends LitElement {
       color: var(--text-muted, #888);
       flex-shrink: 0;
     }
+    .diff-headers {
+      display: flex;
+      background: var(--bg-sidebar, #1e1e1e);
+      border-bottom: 1px solid var(--border, #333);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted, #888);
+      flex-shrink: 0;
+      position: relative;
+      align-items: center;
+      min-height: 29px;
+    }
+
     .diff-pane-title {
       flex: 1;
       padding: 6px 16px;
       box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      min-width: 0;
     }
+
     .diff-pane-title:first-child {
       border-right: 1px solid var(--border, #333);
+    }
+
+    .toggle-compare-btn {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      background: var(--bg-card, #252526);
+      color: var(--text-muted, #888);
+      border: 1px solid var(--border, #333);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+      transition: left 0.3s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    :host(:not([compareexpanded])) .toggle-compare-btn {
+      left: calc(100% - 16px);
+    }
+
+    :host([compareexpanded]) .toggle-compare-btn {
+      left: 50%;
+    }
+
+    .toggle-compare-btn:hover {
+      background: var(--border, #333);
+      color: var(--text-main, #fff);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .toggle-compare-btn:focus-visible {
+      outline: 2px solid var(--accent, #007acc);
+      outline-offset: 1px;
+    }
+
+    /* Transition animation for side-by-side compare panel */
+    .cm-mergeViewSpacer,
+    .cm-mergeViewEditor:nth-child(2) {
+      transition: max-width 0.3s ease, flex 0.3s ease, opacity 0.3s ease;
+    }
+
+    :host(:not([compareexpanded])) .cm-mergeViewSpacer,
+    :host(:not([compareexpanded])) .cm-mergeViewEditor:nth-child(2) {
+      max-width: 0 !important;
+      flex: 0 0 0% !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      overflow: hidden !important;
+      border: none !important;
+    }
+
+    :host([compareexpanded]) .cm-mergeViewSpacer {
+      width: 2px !important;
+    }
+
+    :host([compareexpanded]) .cm-mergeViewEditor:nth-child(2) {
+      max-width: 50% !important;
+      flex: 1 1 0% !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .diff-pane-title.modified-title {
+      transition: max-width 0.3s ease, flex 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+      overflow: hidden;
+      white-space: nowrap;
+      justify-content: flex-start;
+    }
+
+    :host(:not([compareexpanded])) .diff-pane-title.modified-title {
+      max-width: 0 !important;
+      flex: 0 0 0% !important;
+      opacity: 0 !important;
+      padding: 0 !important;
+      pointer-events: none !important;
+      border: none !important;
+    }
+
+    :host([compareexpanded]) .diff-pane-title.modified-title {
+      max-width: 50% !important;
+      flex: 1 1 0% !important;
+      opacity: 1 !important;
+      padding: 6px 16px !important;
     }
 
     /* Dark theme adjustments */
@@ -188,6 +298,12 @@ export class DiffComponent extends LitElement {
   `;
 
   updated(changedProperties: Map<string, any>) {
+    if (changedProperties.has('compareExpanded')) {
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 320);
+    }
+
     if ((changedProperties.has('mode') || changedProperties.has('theme')) && this.mergeView) {
       this.initDiff();
       return;
@@ -343,11 +459,25 @@ export class DiffComponent extends LitElement {
     };
   }
 
+  private handleToggleCompare() {
+    this.dispatchEvent(new CustomEvent('toggle-compare', {
+      bubbles: true,
+      composed: true
+    }));
+  }
+
   render() {
     return html`
       <div class="diff-headers">
         <div class="diff-pane-title">Original</div>
-        <div class="diff-pane-title">Modified</div>
+        <div class="diff-pane-title modified-title">Modified</div>
+        <button
+          type="button"
+          class="toggle-compare-btn"
+          @click="${this.handleToggleCompare}"
+          title="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
+          aria-label="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
+        >${this.compareExpanded ? '<<' : '>>'}</button>
       </div>
       <div id="diff-container"></div>
     `;

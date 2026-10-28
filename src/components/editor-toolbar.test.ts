@@ -202,4 +202,30 @@ describe('EditorToolbar component', () => {
 
     expect(clearBtn?.getAttribute('tabindex')).toBe('0');
   });
+
+  it('renders compare toggle button when showCompareToggle is true and dispatches toggle-compare event on click', async () => {
+    element.showCompareToggle = true;
+    element.compareExpanded = false;
+    await element.updateComplete;
+
+    const shadow = element.shadowRoot;
+    const toggleBtn = shadow?.querySelector<HTMLButtonElement>('#btn-toggle-compare');
+
+    expect(toggleBtn).not.toBeNull();
+    expect(toggleBtn?.textContent?.trim()).toBe('>>');
+    expect(toggleBtn?.getAttribute('aria-label')).toBe('Expand compare panel');
+
+    element.compareExpanded = true;
+    await element.updateComplete;
+    expect(toggleBtn?.textContent?.trim()).toBe('<<');
+    expect(toggleBtn?.getAttribute('aria-label')).toBe('Collapse compare panel');
+
+    let toggleFired = false;
+    element.addEventListener('toggle-compare', () => {
+      toggleFired = true;
+    });
+
+    toggleBtn?.click();
+    expect(toggleFired).toBe(true);
+  });
 });
