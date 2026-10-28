@@ -120,33 +120,46 @@ export class DiffComponent extends LitElement {
         white-space: pre-wrap !important;
     }
 
-    /* Diff highlights */
-    .cm-merge-a .cm-changedLine,
-    .cm-deletedChunk {
+    /* Diff highlights (only active when compare panel is expanded) */
+    :host([compareexpanded]) .cm-merge-a .cm-changedLine,
+    :host([compareexpanded]) .cm-deletedChunk {
         background-color: rgba(239, 68, 68, 0.15) !important;
     }
-    .cm-merge-b .cm-changedLine,
-    .cm-inlineChangedLine {
+    :host([compareexpanded]) .cm-merge-b .cm-changedLine,
+    :host([compareexpanded]) .cm-inlineChangedLine {
         background-color: rgba(34, 197, 94, 0.15) !important;
     }
 
-    .cm-merge-a .cm-changedText,
-    .cm-deletedText {
+    :host([compareexpanded]) .cm-merge-a .cm-changedText,
+    :host([compareexpanded]) .cm-deletedText {
         background-color: rgba(239, 68, 68, 0.3) !important;
         text-decoration: line-through;
     }
-    .cm-merge-b .cm-changedText {
+    :host([compareexpanded]) .cm-merge-b .cm-changedText {
         background-color: rgba(34, 197, 94, 0.3) !important;
     }
 
     /* Line-based highlights (fallback/explicit) */
-    .cm-deletedLine {
+    :host([compareexpanded]) .cm-deletedLine {
         background-color: rgba(239, 68, 68, 0.15) !important;
         display: block;
     }
-    .cm-insertedLine {
+    :host([compareexpanded]) .cm-insertedLine {
         background-color: rgba(34, 197, 94, 0.15) !important;
         display: block;
+    }
+
+    /* Completely hide any CodeMirror default diff line/text highlight background/decorations when compare panel is collapsed */
+    :host(:not([compareexpanded])) .cm-changedLine,
+    :host(:not([compareexpanded])) .cm-deletedChunk,
+    :host(:not([compareexpanded])) .cm-inlineChangedLine,
+    :host(:not([compareexpanded])) .cm-changedText,
+    :host(:not([compareexpanded])) .cm-deletedText,
+    :host(:not([compareexpanded])) .cm-deletedLine,
+    :host(:not([compareexpanded])) .cm-insertedLine {
+        background-color: transparent !important;
+        background: transparent !important;
+        text-decoration: none !important;
     }
 
     /* Pane headers */
@@ -287,19 +300,19 @@ export class DiffComponent extends LitElement {
     }
 
     /* Dark theme adjustments */
-    :host([theme="dark"]) .cm-merge-a .cm-changedLine,
-    :host([theme="dark"]) .cm-deletedChunk {
+    :host([compareexpanded][theme="dark"]) .cm-merge-a .cm-changedLine,
+    :host([compareexpanded][theme="dark"]) .cm-deletedChunk {
         background-color: rgba(248, 113, 113, 0.2) !important;
     }
-    :host([theme="dark"]) .cm-merge-b .cm-changedLine,
-    :host([theme="dark"]) .cm-inlineChangedLine {
+    :host([compareexpanded][theme="dark"]) .cm-merge-b .cm-changedLine,
+    :host([compareexpanded][theme="dark"]) .cm-inlineChangedLine {
         background-color: rgba(74, 222, 128, 0.2) !important;
     }
-    :host([theme="dark"]) .cm-merge-a .cm-changedText,
-    :host([theme="dark"]) .cm-deletedText {
+    :host([compareexpanded][theme="dark"]) .cm-merge-a .cm-changedText,
+    :host([compareexpanded][theme="dark"]) .cm-deletedText {
         background-color: rgba(248, 113, 113, 0.4) !important;
     }
-    :host([theme="dark"]) .cm-merge-b .cm-changedText {
+    :host([compareexpanded][theme="dark"]) .cm-merge-b .cm-changedText {
         background-color: rgba(74, 222, 128, 0.4) !important;
     }
   `;
