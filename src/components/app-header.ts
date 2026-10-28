@@ -175,6 +175,7 @@ export class AppHeader extends LitElement {
   private handleGlobalKeyDown = (e: KeyboardEvent) => {
     if (e.altKey && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
       e.preventDefault();
+      if (this.isEmpty) return;
       this.handleFormat();
     }
   };
