@@ -18,6 +18,7 @@ export class DiffComponent extends LitElement {
   @property({ type: String }) theme: 'light' | 'dark' = 'light';
   @property({ type: String }) original = '';
   @property({ type: String }) modified = '';
+  @property({ type: Boolean, reflect: true }) compareExpanded = false;
   @query('#diff-container') container!: HTMLElement;
 
   private mergeView?: MergeView;
@@ -164,9 +165,92 @@ export class DiffComponent extends LitElement {
       flex: 1;
       padding: 6px 16px;
       box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
     }
+
+    .toggle-compare-btn {
+      background: var(--bg-card, #252526);
+      color: var(--text-muted, #888);
+      border: 1px solid var(--border, #333);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.15s ease, color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toggle-compare-btn:hover {
+      background: var(--border, #333);
+      color: var(--text-main, #fff);
+    }
+
+    .toggle-compare-btn:focus-visible {
+      outline: 2px solid var(--accent, #007acc);
+      outline-offset: 1px;
+    }
+
     .diff-pane-title:first-child {
       border-right: 1px solid var(--border, #333);
+    }
+
+    /* Transition animation for side-by-side compare panel */
+    .cm-mergeViewSpacer,
+    .cm-mergeViewEditor:nth-child(2) {
+      transition: max-width 0.3s ease, flex 0.3s ease, opacity 0.3s ease;
+    }
+
+    :host(:not([compareexpanded])) .cm-mergeViewSpacer,
+    :host(:not([compareexpanded])) .cm-mergeViewEditor:nth-child(2) {
+      max-width: 0 !important;
+      flex: 0 0 0% !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      overflow: hidden !important;
+      border: none !important;
+    }
+
+    :host([compareexpanded]) .cm-mergeViewSpacer {
+      width: 2px !important;
+    }
+
+    :host([compareexpanded]) .cm-mergeViewEditor:nth-child(2) {
+      max-width: 50% !important;
+      flex: 1 1 0% !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .diff-pane-title.modified-title {
+      transition: max-width 0.3s ease, flex 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+      overflow: hidden;
+      white-space: nowrap;
+      justify-content: flex-start;
+    }
+
+    :host(:not([compareexpanded])) .diff-pane-title.modified-title {
+      max-width: 0 !important;
+      flex: 0 0 0% !important;
+      opacity: 0 !important;
+      padding: 0 !important;
+      pointer-events: none !important;
+      border: none !important;
+    }
+
+    :host([compareexpanded]) .diff-pane-title.modified-title {
+      max-width: 50% !important;
+      flex: 1 1 0% !important;
+      opacity: 1 !important;
+      padding: 6px 16px !important;
     }
 
     /* Dark theme adjustments */
@@ -188,6 +272,12 @@ export class DiffComponent extends LitElement {
   `;
 
   updated(changedProperties: Map<string, any>) {
+    if (changedProperties.has('compareExpanded')) {
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 320);
+    }
+
     if ((changedProperties.has('mode') || changedProperties.has('theme')) && this.mergeView) {
       this.initDiff();
       return;
@@ -343,11 +433,40 @@ export class DiffComponent extends LitElement {
     };
   }
 
+  private handleToggleCompare() {
+    this.dispatchEvent(new CustomEvent('toggle-compare', {
+      bubbles: true,
+      composed: true
+    }));
+  }
+
   render() {
     return html`
       <div class="diff-headers">
-        <div class="diff-pane-title">Original</div>
-        <div class="diff-pane-title">Modified</div>
+        <div class="diff-pane-title">
+          <span>Original</span>
+          ${!this.compareExpanded
+            ? html`
+                <button
+                  type="button"
+                  class="toggle-compare-btn"
+                  @click="${this.handleToggleCompare}"
+                  title="Expand compare panel"
+                  aria-label="Expand compare panel"
+                >&gt;&gt;</button>
+              `
+            : ''}
+        </div>
+        <div class="diff-pane-title modified-title">
+          <button
+            type="button"
+            class="toggle-compare-btn"
+            @click="${this.handleToggleCompare}"
+            title="Collapse compare panel"
+            aria-label="Collapse compare panel"
+          >&lt;&lt;</button>
+          <span>Modified</span>
+        </div>
       </div>
       <div id="diff-container"></div>
     `;

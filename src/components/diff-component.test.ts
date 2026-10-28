@@ -14,7 +14,7 @@ describe('DiffComponent', () => {
     await element.updateComplete;
   });
 
-  it('renders visual pane headers for Original and Modified documents', () => {
+  it('renders visual pane headers for Original and Modified documents with toggle button', () => {
     const shadow = element.shadowRoot;
     expect(shadow).not.toBeNull();
 
@@ -23,8 +23,23 @@ describe('DiffComponent', () => {
 
     const titles = shadow?.querySelectorAll('.diff-pane-title');
     expect(titles?.length).toBe(2);
-    expect(titles?.[0].textContent?.trim()).toBe('Original');
-    expect(titles?.[1].textContent?.trim()).toBe('Modified');
+    expect(titles?.[0].textContent?.trim()).toContain('Original');
+    expect(titles?.[1].textContent?.trim()).toContain('Modified');
+
+    const toggleBtn = shadow?.querySelector('.toggle-compare-btn');
+    expect(toggleBtn).not.toBeNull();
+  });
+
+  it('dispatches toggle-compare event when collapse button is clicked', async () => {
+    let toggled = false;
+    element.addEventListener('toggle-compare', () => {
+      toggled = true;
+    });
+
+    const toggleBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('.toggle-compare-btn');
+    toggleBtn?.click();
+
+    expect(toggled).toBe(true);
   });
 
   it('configures aria-label attributes on Original and Modified editors', () => {

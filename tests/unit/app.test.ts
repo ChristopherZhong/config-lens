@@ -32,8 +32,6 @@ describe('ConfigLensApp component', () => {
     expect(header).not.toBeNull();
     const logo = headerShadow?.querySelector('.logo');
     expect(logo).not.toBeNull();
-    const tabs = headerShadow?.querySelector('.tabs');
-    expect(tabs).not.toBeNull();
     const controls = headerShadow?.querySelector('.controls');
     expect(controls).not.toBeNull();
   });
@@ -137,42 +135,6 @@ describe('ConfigLensApp component', () => {
     expect(feedback?.classList.contains('error')).toBe(true);
   });
 
-  it('supports roving tabindex and arrow key navigation on view tabs', async () => {
-    const shadow = element.shadowRoot;
-    const appHeader = shadow?.querySelector<AppHeader>('app-header');
-    expect(appHeader).not.toBeNull();
-
-    const headerShadow = appHeader?.shadowRoot;
-    const tabLint = headerShadow?.querySelector<HTMLButtonElement>('#tab-lint');
-    const tabCompare = headerShadow?.querySelector<HTMLButtonElement>('#tab-compare');
-    const tabsContainer = headerShadow?.querySelector<HTMLDivElement>('.tabs');
-
-    expect(tabLint).not.toBeNull();
-    expect(tabCompare).not.toBeNull();
-    expect(tabsContainer).not.toBeNull();
-
-    // Active tab (Lint) has tabindex 0, inactive tab (Compare) has tabindex -1
-    expect(tabLint?.getAttribute('tabindex')).toBe('0');
-    expect(tabCompare?.getAttribute('tabindex')).toBe('-1');
-
-    // Press ArrowRight on tabs container to move to Compare tab
-    tabsContainer?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-    await element.updateComplete;
-    await appHeader?.updateComplete;
-
-    expect(tabLint?.getAttribute('tabindex')).toBe('-1');
-    expect(tabCompare?.getAttribute('tabindex')).toBe('0');
-    expect(tabCompare?.getAttribute('aria-selected')).toBe('true');
-
-    // Press ArrowLeft to return to Lint tab
-    tabsContainer?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
-    await element.updateComplete;
-    await appHeader?.updateComplete;
-
-    expect(tabLint?.getAttribute('tabindex')).toBe('0');
-    expect(tabCompare?.getAttribute('tabindex')).toBe('-1');
-    expect(tabLint?.getAttribute('aria-selected')).toBe('true');
-  });
 
   it('maintains separate localStorage content and modified content for JSON and YAML modes', async () => {
     const appHeader = element.shadowRoot?.querySelector<AppHeader>('app-header');
@@ -181,8 +143,8 @@ describe('ConfigLensApp component', () => {
     // Set JSON content
     const jsonContent = '{"mode": "json-test"}';
     const jsonModified = '{"mode": "json-modified-test"}';
-    (element as unknown as { handleContentChange: (e: CustomEvent) => void }).handleContentChange(
-      new CustomEvent('content-changed', { detail: { content: jsonContent } })
+    (element as unknown as { handleOriginalChange: (e: CustomEvent) => void }).handleOriginalChange(
+      new CustomEvent('original-changed', { detail: { content: jsonContent } })
     );
     (element as unknown as { handleModifiedChange: (e: CustomEvent) => void }).handleModifiedChange(
       new CustomEvent('modified-changed', { detail: { content: jsonModified } })
@@ -201,8 +163,8 @@ describe('ConfigLensApp component', () => {
     // Set YAML content
     const yamlContent = 'mode: yaml-test';
     const yamlModified = 'mode: yaml-modified-test';
-    (element as unknown as { handleContentChange: (e: CustomEvent) => void }).handleContentChange(
-      new CustomEvent('content-changed', { detail: { content: yamlContent } })
+    (element as unknown as { handleOriginalChange: (e: CustomEvent) => void }).handleOriginalChange(
+      new CustomEvent('original-changed', { detail: { content: yamlContent } })
     );
     (element as unknown as { handleModifiedChange: (e: CustomEvent) => void }).handleModifiedChange(
       new CustomEvent('modified-changed', { detail: { content: yamlModified } })

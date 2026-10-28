@@ -21,8 +21,8 @@ export class AppHeader extends LitElement {
       min-height: 56px;
       height: auto;
       border-bottom: 1px solid var(--border, #333);
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
       padding: 8px 24px;
       background-color: var(--bg-sidebar, #1e1e1e);
@@ -57,16 +57,6 @@ export class AppHeader extends LitElement {
       object-fit: contain;
     }
 
-    .tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--bg-main, #121212);
-      padding: 4px;
-      border-radius: 8px;
-      border: 1px solid var(--border, #333);
-      justify-self: center;
-    }
-
     .header-right {
       display: flex;
       align-items: center;
@@ -75,26 +65,6 @@ export class AppHeader extends LitElement {
       min-width: 0;
     }
 
-    .tab {
-      padding: 6px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-muted, #888);
-      border: none;
-      background: transparent;
-      font-family: inherit;
-    }
-
-    .tab.active {
-      background: var(--bg-card, #252526);
-      color: var(--text-main, #ccc);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    .tab:focus-visible,
     button:focus-visible,
     select:focus-visible {
       outline: 2px solid var(--accent, #007acc);
@@ -119,13 +89,6 @@ export class AppHeader extends LitElement {
       }
       .controls {
         gap: 8px;
-      }
-      .tabs {
-        padding: 2px;
-      }
-      .tab {
-        padding: 4px 10px;
-        font-size: 12px;
       }
     }
 
@@ -199,39 +162,6 @@ export class AppHeader extends LitElement {
     }
   `;
 
-  private handleTabSelect(tab: 'lint' | 'compare') {
-    this.dispatchEvent(new CustomEvent('tab-change', {
-      detail: { tab },
-      bubbles: true,
-      composed: true
-    }));
-  }
-
-  private handleTabKeyDown(e: KeyboardEvent) {
-    const tabs: ('lint' | 'compare')[] = ['lint', 'compare'];
-    const currentIndex = tabs.indexOf(this.activeTab);
-    let newIndex = -1;
-
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      newIndex = (currentIndex + 1) % tabs.length;
-    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-    } else if (e.key === 'Home') {
-      newIndex = 0;
-    } else if (e.key === 'End') {
-      newIndex = tabs.length - 1;
-    }
-
-    if (newIndex !== -1) {
-      e.preventDefault();
-      const targetTab = tabs[newIndex];
-      this.handleTabSelect(targetTab);
-      this.updateComplete.then(() => {
-        const button = this.shadowRoot?.querySelector<HTMLButtonElement>(`#tab-${targetTab}`);
-        button?.focus();
-      });
-    }
-  }
 
   private handleModeSelect(e: Event) {
     const mode = (e.target as HTMLSelectElement).value as 'json' | 'yaml';
@@ -274,30 +204,6 @@ export class AppHeader extends LitElement {
             <img src="${this.logoSrc}" alt="" aria-hidden="true" class="logo-icon" />
             <span>ConfigLens</span>
           </div>
-        </div>
-        <div class="tabs" role="tablist" aria-label="Editor view options" @keydown="${this.handleTabKeyDown}">
-          <button
-            id="tab-lint"
-            class="tab ${this.activeTab === 'lint' ? 'active' : ''}"
-            role="tab"
-            aria-selected="${this.activeTab === 'lint'}"
-            aria-controls="panel-lint"
-            tabindex="${this.activeTab === 'lint' ? 0 : -1}"
-            @click="${() => this.handleTabSelect('lint')}"
-          >
-            Lint
-          </button>
-          <button
-            id="tab-compare"
-            class="tab ${this.activeTab === 'compare' ? 'active' : ''}"
-            role="tab"
-            aria-selected="${this.activeTab === 'compare'}"
-            aria-controls="panel-compare"
-            tabindex="${this.activeTab === 'compare' ? 0 : -1}"
-            @click="${() => this.handleTabSelect('compare')}"
-          >
-            Compare
-          </button>
         </div>
         <div class="header-right">
           ${this.formatFeedback ? html`

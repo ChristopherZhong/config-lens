@@ -5,6 +5,8 @@ import { customElement, property, state } from 'lit/decorators.js';
 export class EditorToolbar extends LitElement {
   @property({ type: String }) title = 'Editor';
   @property({ type: Boolean }) isEmpty = false;
+  @property({ type: Boolean }) showCompareToggle = false;
+  @property({ type: Boolean }) compareExpanded = false;
   @state() private copied = false;
   @state() private cleared = false;
   @state() private focusedIndex = 0;
@@ -51,6 +53,33 @@ export class EditorToolbar extends LitElement {
     .toolbar-actions {
       display: flex;
       gap: 8px;
+      align-items: center;
+    }
+
+    .btn-toggle-compare {
+      background: var(--bg-main, #121212);
+      color: var(--accent, #007acc);
+      border: 1px solid var(--border, #333);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-toggle-compare:hover {
+      background: var(--bg-card, #252526);
+      border-color: var(--accent, #007acc);
+      color: var(--accent-hover, #005999);
+    }
+
+    .btn-toggle-compare:focus-visible {
+      outline: 2px solid var(--accent, #007acc);
+      outline-offset: 2px;
     }
 
     .btn-secondary {
@@ -141,8 +170,12 @@ export class EditorToolbar extends LitElement {
     }, 2000);
   }
 
+  private handleToggleCompare() {
+    this.dispatchEvent(new CustomEvent('toggle-compare', { bubbles: true, composed: true }));
+  }
+
   private handleKeyDown(e: KeyboardEvent) {
-    const buttonCount = 4;
+    const buttonCount = this.showCompareToggle ? 5 : 4;
     let newIndex = -1;
 
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -160,6 +193,9 @@ export class EditorToolbar extends LitElement {
       this.focusedIndex = newIndex;
       this.updateComplete.then(() => {
         const buttonIds = ['btn-fold-all', 'btn-unfold-all', 'btn-copy', 'btn-clear'];
+        if (this.showCompareToggle) {
+          buttonIds.push('btn-toggle-compare');
+        }
         const button = this.shadowRoot?.querySelector<HTMLButtonElement>(`#${buttonIds[newIndex]}`);
         button?.focus();
       });
@@ -228,6 +264,20 @@ export class EditorToolbar extends LitElement {
           >
             <span aria-hidden="true">${this.cleared ? '✓' : '🗑️'}</span> ${this.cleared ? 'Cleared!' : 'Clear'}
           </button>
+          ${this.showCompareToggle ? html`
+            <button
+              id="btn-toggle-compare"
+              type="button"
+              class="btn-toggle-compare"
+              tabindex="${this.focusedIndex === 4 ? 0 : -1}"
+              @focus="${() => { this.focusedIndex = 4; }}"
+              @click="${this.handleToggleCompare}"
+              aria-label="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
+              title="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
+            >
+              ${this.compareExpanded ? '<<' : '>>'}
+            </button>
+          ` : ''}
           <span class="sr-only" role="status" aria-live="polite">
             ${this.copied ? 'Content copied to clipboard' : this.cleared ? 'Document content cleared' : ''}
           </span>
