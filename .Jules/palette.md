@@ -9,3 +9,7 @@
 ## 2025-05-16 - [Disabled Action Button Accessibility and Tooltips for Empty Document States]
 **Learning:** Icon/text action buttons in Lit toolbars (like Copy and Clear) should visually disable and dynamically update `aria-label` and `title` tooltips when there is no content to act upon (e.g. "No content to copy", "Document is empty"). This prevents destructive or useless actions and informs assistive technologies clearly.
 **Action:** Always derive document `isEmpty` state from content (`!content || !content.trim()`), pass it down to action toolbars, and apply standard disabled styles along with dynamic accessible labels/tooltips.
+
+## 2025-05-17 - [Global Keyboard Shortcut Enforcement for Disabled/Empty UI States]
+**Learning:** Global window-level keyboard listeners (like `Alt+Shift+F` for formatting) can bypass visual component button disabled states (`disabled` or `isEmpty`) if they do not explicitly check element availability before executing actions.
+**Action:** Always guard global keydown handlers in component lifecycle callbacks with state checks (e.g., `if (this.isEmpty) return;`) so keyboard shortcuts honor disabled element states and do not trigger unintended actions on empty documents.

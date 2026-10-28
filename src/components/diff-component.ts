@@ -505,6 +505,7 @@ export class DiffComponent extends LitElement {
           @click="${this.handleToggleCompare}"
           title="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
           aria-label="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
+          aria-expanded="${this.compareExpanded ? 'true' : 'false'}"
         >${this.compareExpanded ? '<<' : '>>'}</button>
       </div>
       <div id="diff-container"></div>

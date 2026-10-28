@@ -48,4 +48,23 @@ describe('AppHeader component', () => {
     expect(formatBtn?.disabled).toBe(true);
     expect(formatBtn?.getAttribute('title')).toBe('No content to format');
   });
+
+  it('ignores global Alt+Shift+F shortcut when isEmpty is true', async () => {
+    let formatClicked = false;
+    element.addEventListener('format-click', () => {
+      formatClicked = true;
+    });
+
+    element.isEmpty = true;
+    await element.updateComplete;
+
+    window.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'F',
+      altKey: true,
+      shiftKey: true,
+      bubbles: true,
+    }));
+
+    expect(formatClicked).toBe(false);
+  });
 });

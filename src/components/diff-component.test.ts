@@ -28,6 +28,19 @@ describe('DiffComponent', () => {
 
     const toggleBtn = shadow?.querySelector('.toggle-compare-btn');
     expect(toggleBtn).not.toBeNull();
+    expect(toggleBtn?.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('updates aria-expanded attribute on toggle button when compareExpanded changes', async () => {
+    const shadow = element.shadowRoot;
+    const toggleBtn = shadow?.querySelector('.toggle-compare-btn');
+
+    expect(toggleBtn?.getAttribute('aria-expanded')).toBe('false');
+
+    element.compareExpanded = true;
+    await element.updateComplete;
+
+    expect(toggleBtn?.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('dispatches toggle-compare event when collapse button is clicked', async () => {
