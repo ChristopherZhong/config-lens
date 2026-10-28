@@ -101,4 +101,18 @@ describe('ThemeToggle component', () => {
 
     expect(selectedTheme).toBe('dark');
   });
+
+  it('announces theme changes via accessible status live region', async () => {
+    const statusRegion = element.shadowRoot?.querySelector('[role="status"]');
+    expect(statusRegion).not.toBeNull();
+    expect(statusRegion?.textContent?.trim()).toBe('System theme selected');
+
+    element.theme = 'light';
+    await element.updateComplete;
+    expect(statusRegion?.textContent?.trim()).toBe('Light theme selected');
+
+    element.theme = 'dark';
+    await element.updateComplete;
+    expect(statusRegion?.textContent?.trim()).toBe('Dark theme selected');
+  });
 });

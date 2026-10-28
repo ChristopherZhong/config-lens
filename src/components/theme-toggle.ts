@@ -76,6 +76,18 @@ export class ThemeToggle extends LitElement {
       outline-offset: 2px;
       border-radius: 4px;
     }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   `;
 
   private selectTheme(newTheme: 'light' | 'dark' | 'system') {
@@ -158,6 +170,9 @@ export class ThemeToggle extends LitElement {
         >
           🌙
         </button>
+        <span class="sr-only" role="status" aria-live="polite">
+          ${this.theme === 'system' ? 'System theme selected' : this.theme === 'light' ? 'Light theme selected' : 'Dark theme selected'}
+        </span>
       </div>
     `;
   }
