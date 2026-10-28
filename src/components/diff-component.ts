@@ -161,18 +161,39 @@ export class DiffComponent extends LitElement {
       color: var(--text-muted, #888);
       flex-shrink: 0;
     }
+    .diff-headers {
+      display: flex;
+      background: var(--bg-sidebar, #1e1e1e);
+      border-bottom: 1px solid var(--border, #333);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted, #888);
+      flex-shrink: 0;
+      position: relative;
+      align-items: center;
+      min-height: 29px;
+    }
+
     .diff-pane-title {
       flex: 1;
       padding: 6px 16px;
       box-sizing: border-box;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
       min-width: 0;
     }
 
+    .diff-pane-title:first-child {
+      border-right: 1px solid var(--border, #333);
+    }
+
     .toggle-compare-btn {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
       background: var(--bg-card, #252526);
       color: var(--text-muted, #888);
       border: 1px solid var(--border, #333);
@@ -182,25 +203,30 @@ export class DiffComponent extends LitElement {
       font-weight: bold;
       cursor: pointer;
       line-height: 1;
-      transition: background 0.15s ease, color 0.15s ease;
+      transition: left 0.3s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    :host(:not([compareexpanded])) .toggle-compare-btn {
+      left: calc(100% - 16px);
+    }
+
+    :host([compareexpanded]) .toggle-compare-btn {
+      left: 50%;
     }
 
     .toggle-compare-btn:hover {
       background: var(--border, #333);
       color: var(--text-main, #fff);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     .toggle-compare-btn:focus-visible {
       outline: 2px solid var(--accent, #007acc);
       outline-offset: 1px;
-    }
-
-    .diff-pane-title:first-child {
-      border-right: 1px solid var(--border, #333);
     }
 
     /* Transition animation for side-by-side compare panel */
@@ -443,30 +469,15 @@ export class DiffComponent extends LitElement {
   render() {
     return html`
       <div class="diff-headers">
-        <div class="diff-pane-title">
-          <span>Original</span>
-          ${!this.compareExpanded
-            ? html`
-                <button
-                  type="button"
-                  class="toggle-compare-btn"
-                  @click="${this.handleToggleCompare}"
-                  title="Expand compare panel"
-                  aria-label="Expand compare panel"
-                >&gt;&gt;</button>
-              `
-            : ''}
-        </div>
-        <div class="diff-pane-title modified-title">
-          <button
-            type="button"
-            class="toggle-compare-btn"
-            @click="${this.handleToggleCompare}"
-            title="Collapse compare panel"
-            aria-label="Collapse compare panel"
-          >&lt;&lt;</button>
-          <span>Modified</span>
-        </div>
+        <div class="diff-pane-title">Original</div>
+        <div class="diff-pane-title modified-title">Modified</div>
+        <button
+          type="button"
+          class="toggle-compare-btn"
+          @click="${this.handleToggleCompare}"
+          title="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
+          aria-label="${this.compareExpanded ? 'Collapse compare panel' : 'Expand compare panel'}"
+        >${this.compareExpanded ? '<<' : '>>'}</button>
       </div>
       <div id="diff-container"></div>
     `;
