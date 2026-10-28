@@ -64,4 +64,20 @@ describe('DiffComponent', () => {
 
     expect(element.compareExpanded).toBe(false);
   });
+
+  it('scopes diff highlight CSS selectors so diff colors/highlights are transparent when compareExpanded is false', async () => {
+    element.compareExpanded = false;
+    await element.updateComplete;
+
+    const shadow = element.shadowRoot;
+    const styleTags = shadow?.querySelectorAll('style');
+    let cssText = '';
+    styleTags?.forEach((style) => {
+      cssText += style.textContent || '';
+    });
+
+    expect(cssText).toContain(':host([compareexpanded]) .cm-merge-a .cm-changedLine');
+    expect(cssText).toContain(':host(:not([compareexpanded])) .cm-changedLine');
+    expect(cssText).toContain('background-color: transparent !important;');
+  });
 });
