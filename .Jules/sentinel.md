@@ -37,3 +37,8 @@
 **Vulnerability:** External `$schema` URLs targeting documentation test subnets (TEST-NET-1 `192.0.2.0/24`, TEST-NET-2 `198.51.100.0/24`, TEST-NET-3 `203.0.113.0/24`) and 6to4 Anycast Relay subnets (`192.88.99.0/24`) bypassed `isValidHttpUrl` SSRF filters in standard IPv4, IPv4-mapped, NAT64, and 6to4 IPv6 transition formats.
 **Learning:** SSRF filters often omit reserved RFC 5737 documentation subnets and RFC 3068 6to4 Relay Anycast ranges which should not be requested as remote schema endpoints.
 **Prevention:** Include regex checks for `192.0.2.x`, `198.51.100.x`, `203.0.113.x`, `192.88.99.x` and their IPv6 transition hex prefixes (`c000`, `c633`, `cb00`, `c058`) in SSRF hostname validation routines.
+
+## 2026-10-27 - IETF Protocol Assignments Subnet and 0.0.0.0/8 IPv6 Transition SSRF Bypass Fix
+**Vulnerability:** External `$schema` URLs targeting RFC 6890 IETF Protocol Assignments (`192.0.0.0/24`) or `0.0.0.0/8` "This host on this network" addresses in NAT64 (`64:ff9b::`) / 6to4 (`2002:`) IPv6 transition formats (e.g. `http://[64:ff9b::0.1.2.3]` or `http://[64:ff9b::1:203]`) bypassed `isValidHttpUrl` SSRF filters.
+**Learning:** In IPv6 transition formats, `0.x.x.x` ranges resolve to 16-bit hex prefixes `0000:` through `00ff:`, which URL parsers normalize as `0:` through `ff:`. Restricting hex checks to literal `0` allowed non-zero `0.x.x.x` subnets like `0.1.2.3` (`1:203`) to pass through.
+**Prevention:** Include `/^192\.0\.0\./` in IPv4 hostname prefix checks and expand IPv6 transition hex matching to `[0-9a-f]{1,2}` (covering hex `0` to `ff`) in SSRF URL filtering routines.
