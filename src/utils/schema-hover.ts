@@ -50,6 +50,11 @@ export { yamlParserStrategy } from './strategies/yaml-parser-strategy';
  */
 export function resolveSchemaRef(rootSchema: unknown, reference: string): Record<string, unknown> | null {
   if (!reference || typeof reference !== 'string') return null;
+  if (reference === '#') {
+    return rootSchema && typeof rootSchema === 'object' && !Array.isArray(rootSchema)
+      ? (rootSchema as Record<string, unknown>)
+      : null;
+  }
   if (!reference.startsWith('#/')) return null;
 
   const parts = reference.slice(2).split('/');

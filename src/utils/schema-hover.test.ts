@@ -76,6 +76,11 @@ describe('schema-hover', () => {
     expect(props?.port).toBeDefined();
   });
 
+  it('resolves root $ref pointer "#" in schema', () => {
+    const resolved = resolveSchemaRef(sampleSchema, '#');
+    expect(resolved).toBe(sampleSchema);
+  });
+
   it('dereferences schema correctly and returns original reference on fast path when $ref is absent', () => {
     const subSchemaWithRef = { $ref: '#/$defs/ServerConfig' };
     const derefed = dereferenceSchema(sampleSchema, subSchemaWithRef);
