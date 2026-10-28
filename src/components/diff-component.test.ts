@@ -50,4 +50,18 @@ describe('DiffComponent', () => {
     expect(originalEditor).not.toBeNull();
     expect(modifiedEditor).not.toBeNull();
   });
+
+  it('updates compareExpanded property and reconfigures diff highlights', async () => {
+    expect(element.compareExpanded).toBe(false);
+
+    element.compareExpanded = true;
+    await element.updateComplete;
+
+    expect(element.compareExpanded).toBe(true);
+
+    element.compareExpanded = false;
+    await element.updateComplete;
+
+    expect(element.compareExpanded).toBe(false);
+  });
 });

@@ -243,6 +243,13 @@ export class DiffComponent extends LitElement {
       pointer-events: none !important;
       overflow: hidden !important;
       border: none !important;
+      display: none !important;
+    }
+
+    /* Hide diff height spacers and diff markers when panel is collapsed */
+    :host(:not([compareexpanded])) .cm-spacer {
+      display: none !important;
+      height: 0 !important;
     }
 
     :host([compareexpanded]) .cm-mergeViewSpacer {
@@ -299,6 +306,12 @@ export class DiffComponent extends LitElement {
 
   updated(changedProperties: Map<string, any>) {
     if (changedProperties.has('compareExpanded')) {
+      if (this.mergeView) {
+        this.mergeView.reconfigure({
+          highlightChanges: this.compareExpanded,
+          gutter: this.compareExpanded
+        });
+      }
       setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
       }, 320);
@@ -393,6 +406,8 @@ export class DiffComponent extends LitElement {
             })
         ]
       },
+      highlightChanges: this.compareExpanded,
+      gutter: this.compareExpanded,
       parent: this.container,
       root: this.renderRoot as ShadowRoot
     });
