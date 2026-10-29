@@ -42,3 +42,8 @@
 **Vulnerability:** External `$schema` URLs targeting RFC 6890 IETF Protocol Assignments (`192.0.0.0/24`) or `0.0.0.0/8` "This host on this network" addresses in NAT64 (`64:ff9b::`) / 6to4 (`2002:`) IPv6 transition formats (e.g. `http://[64:ff9b::0.1.2.3]` or `http://[64:ff9b::1:203]`) bypassed `isValidHttpUrl` SSRF filters.
 **Learning:** In IPv6 transition formats, `0.x.x.x` ranges resolve to 16-bit hex prefixes `0000:` through `00ff:`, which URL parsers normalize as `0:` through `ff:`. Restricting hex checks to literal `0` allowed non-zero `0.x.x.x` subnets like `0.1.2.3` (`1:203`) to pass through.
 **Prevention:** Include `/^192\.0\.0\./` in IPv4 hostname prefix checks and expand IPv6 transition hex matching to `[0-9a-f]{1,2}` (covering hex `0` to `ff`) in SSRF URL filtering routines.
+
+## 2026-10-28 - IPv4 Multicast and Reserved Subnet IPv6 Transition SSRF Bypass Fix
+**Vulnerability:** External `$schema` URLs targeting IPv4 multicast (`224.0.0.0/4`) or reserved/broadcast (`240.0.0.0/4`) ranges in IPv4-mapped (`::ffff:`), NAT64 (`64:ff9b::`), or 6to4 (`2002:`) IPv6 transition address formats (e.g., `http://[::ffff:224.0.0.1]`, `http://[64:ff9b::e000:1]`, or `http://[2002:e000:1::]`) bypassed `isValidHttpUrl` SSRF filters.
+**Learning:** WHATWG URL parsers normalize IPv4 addresses in IPv6 bracket notation into 16-bit hex words (`224.0.0.1` -> `e000:1`, `240.0.0.1` -> `f000:1`). SSRF regex checks that only validate standard IPv4 dotted-decimal representations miss hex-encoded multicast (`e000`–`efff`) and reserved (`f000`–`ffff`) prefixes.
+**Prevention:** Include `e[0-9a-f]{3}` and `f[0-9a-f]{3}` hex block prefixes in IPv6 transition address matching routines in `isValidHttpUrl`.

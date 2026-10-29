@@ -242,6 +242,14 @@ describe('validation logic', () => {
       'http://[2002:c633:6401::]/schema.json',
       'http://[64:ff9b::cb00:7101]/schema.json',
       'http://[2002:c058:6301::]/schema.json',
+      'http://[::ffff:224.0.0.1]/schema.json',
+      'http://[::ffff:239.255.255.250]/schema.json',
+      'http://[::ffff:240.0.0.1]/schema.json',
+      'http://[64:ff9b::224.0.0.1]/schema.json',
+      'http://[64:ff9b::e000:1]/schema.json',
+      'http://[64:ff9b::f000:1]/schema.json',
+      'http://[2002:e000:1::]/schema.json',
+      'http://[2002:f000:1::]/schema.json',
     ];
 
     for (const url of ssrfUrls) {
