@@ -29,18 +29,25 @@ export const yamlParserStrategy: DocumentParserStrategy = {
             if (pair.name === 'Pair') {
               const keyNode = pair.firstChild;
               if (keyNode && keyNode.name === 'Key') {
-                // Optimization: Pre-check numeric character span (keyNode.to - keyNode.from >= 7 for '$schema')
-                // before slicing, trimming, and applying regex replacements on property key nodes.
+                // Optimization: Direct startsWith substring check avoids string slicing, trimming,
+                // and regex replacements for non-schema key nodes during AST property traversals.
                 if (keyNode.to - keyNode.from >= 7) {
-                  const rawKey = documentText.slice(keyNode.from, keyNode.to).trim().replace(/^["']|["']$/g, '');
-                  if (rawKey === '$schema') {
+                  const rawKeyNode = documentText.slice(keyNode.from, keyNode.to).trim();
+                  const unquotedKey = (rawKeyNode.startsWith('"') && rawKeyNode.endsWith('"')) ||
+                    (rawKeyNode.startsWith("'") && rawKeyNode.endsWith("'"))
+                    ? rawKeyNode.slice(1, -1)
+                    : rawKeyNode;
+                  if (unquotedKey === '$schema') {
                     let valNode = keyNode.nextSibling;
                     while (valNode && (valNode.name === ':' || valNode.name === 'Comment')) {
                       valNode = valNode.nextSibling;
                     }
                     if (valNode) {
-                      const rawVal = documentText.slice(valNode.from, valNode.to).trim().replace(/^["']|["']$/g, '');
-                      return rawVal;
+                      const rawValNode = documentText.slice(valNode.from, valNode.to).trim();
+                      return (rawValNode.startsWith('"') && rawValNode.endsWith('"')) ||
+                        (rawValNode.startsWith("'") && rawValNode.endsWith("'"))
+                        ? rawValNode.slice(1, -1)
+                        : rawValNode;
                     }
                   }
                 }

@@ -23,16 +23,12 @@ export const jsonParserStrategy: DocumentParserStrategy = {
           if (child.name === 'Property') {
             const keyNode = child.firstChild;
             if (keyNode && (keyNode.name === 'PropertyName' || keyNode.name === 'String')) {
-              // Optimization: Numeric character span check (keyNode.to - keyNode.from === 9 for '"$schema"')
-              // short-circuits string slicing allocations for non-matching key nodes during AST property traversals.
-              if (keyNode.to - keyNode.from === 9) {
-                const rawKey = documentText.slice(keyNode.from, keyNode.to);
-                if (rawKey === '"$schema"') {
-                  const valNode = child.lastChild;
-                  if (valNode && valNode.name === 'String') {
-                    const rawVal = documentText.slice(valNode.from, valNode.to);
-                    return JSON.parse(rawVal);
-                  }
+              // Optimization: Fast startsWith check avoids string slicing allocations for non-matching key nodes during AST property traversals.
+              if (keyNode.to - keyNode.from === 9 && documentText.startsWith('"$schema"', keyNode.from)) {
+                const valNode = child.lastChild;
+                if (valNode && valNode.name === 'String') {
+                  const rawVal = documentText.slice(valNode.from, valNode.to);
+                  return JSON.parse(rawVal);
                 }
               }
             }
