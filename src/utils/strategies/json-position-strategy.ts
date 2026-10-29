@@ -31,7 +31,14 @@ function isKeyNodeMatch(keyNode: SyntaxNode, segment: string, documentText: stri
 
   if (maxKeyLength === segmentLength) {
     if (isQuoted) {
-      return documentText.slice(from + 1, to - 1) === segment;
+      // Optimization: Direct character code iteration avoids documentText.slice(...) string heap allocations
+      // during AST key node matching in schema position traversals for quoted property keys.
+      for (let i = 0; i < segmentLength; i++) {
+        if (documentText.charCodeAt(from + 1 + i) !== segment.charCodeAt(i)) {
+          return false;
+        }
+      }
+      return true;
     }
     return documentText.slice(from, to).trim() === segment;
   }
