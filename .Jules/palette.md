@@ -13,3 +13,7 @@
 ## 2025-05-17 - [Global Keyboard Shortcut Enforcement for Disabled/Empty UI States]
 **Learning:** Global window-level keyboard listeners (like `Alt+Shift+F` for formatting) can bypass visual component button disabled states (`disabled` or `isEmpty`) if they do not explicitly check element availability before executing actions.
 **Action:** Always guard global keydown handlers in component lifecycle callbacks with state checks (e.g., `if (this.isEmpty) return;`) so keyboard shortcuts honor disabled element states and do not trigger unintended actions on empty documents.
+
+## 2025-05-18 - [CodeMirror Placeholder Extension Integration in Lit Components]
+**Learning:** In CodeMirror 6, `placeholder()` from `@codemirror/view` returns a composite `Extension` array `[ViewPlugin, FacetProvider]`. When configuring extensions in Lit web components, passing `placeholder(...)` directly as an element of an `Extension[]` array allows CodeMirror's `EditorState` and `MergeView` to recursively flatten nested extension arrays natively without array spread operators (`...placeholder()`) which trigger TypeScript strict iterator `TS2488` errors.
+**Action:** Import `placeholder` from `@codemirror/view` and include `placeholder(...)` directly within CodeMirror `Extension[]` arrays in Lit components.
