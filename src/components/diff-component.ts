@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { EditorView, basicSetup } from 'codemirror';
+import { placeholder } from '@codemirror/view';
 import { json } from '@codemirror/lang-json';
 import { foldAll, unfoldAll } from '@codemirror/language';
 import { yaml } from '@codemirror/lang-yaml';
@@ -387,6 +388,7 @@ export class DiffComponent extends LitElement {
         doc: this.original,
         extensions: [
             ...extensions,
+            placeholder(`Type or paste original ${this.mode.toUpperCase()} content here...`),
             EditorView.editorAttributes.of({ 'aria-label': 'Original document content' }),
             EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
@@ -405,6 +407,7 @@ export class DiffComponent extends LitElement {
         doc: this.modified,
         extensions: [
             ...extensions,
+            placeholder(`Type or paste modified ${this.mode.toUpperCase()} content here...`),
             EditorView.editorAttributes.of({ 'aria-label': 'Modified document content' }),
             EditorView.updateListener.of((update) => {
                 if (update.docChanged) {

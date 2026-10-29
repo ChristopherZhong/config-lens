@@ -93,4 +93,15 @@ describe('DiffComponent', () => {
     expect(cssText).toContain(':host(:not([compareexpanded])) .cm-changedLine');
     expect(cssText).toContain('background-color: transparent !important;');
   });
+
+  it('renders placeholder elements when original or modified content is empty', async () => {
+    element.original = '';
+    element.modified = '';
+    await element.updateComplete;
+
+    const shadow = element.shadowRoot;
+    const placeholders = shadow?.querySelectorAll('.cm-placeholder');
+    expect(placeholders?.length).toBeGreaterThanOrEqual(1);
+    expect(placeholders?.[0].textContent).toContain('Type or paste original JSON content here...');
+  });
 });

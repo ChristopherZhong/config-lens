@@ -21,4 +21,14 @@ describe('EditorComponent', () => {
     const editor = shadow?.querySelector('[aria-label="JSON document content editor"]');
     expect(editor).not.toBeNull();
   });
+
+  it('renders placeholder text when document content is empty', async () => {
+    element.content = '';
+    await element.updateComplete;
+
+    const shadow = element.shadowRoot;
+    const placeholderEl = shadow?.querySelector('.cm-placeholder');
+    expect(placeholderEl).not.toBeNull();
+    expect(placeholderEl?.textContent).toContain('Type or paste JSON content here...');
+  });
 });

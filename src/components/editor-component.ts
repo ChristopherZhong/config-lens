@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { EditorView, basicSetup } from 'codemirror';
+import { placeholder } from '@codemirror/view';
 import { json } from '@codemirror/lang-json';
 import { foldAll, unfoldAll } from '@codemirror/language';
 import { yaml } from '@codemirror/lang-yaml';
@@ -90,6 +91,7 @@ export class EditorComponent extends LitElement {
     const extensions: Extension[] = [
       basicSetup,
       EditorView.lineWrapping,
+      placeholder(`Type or paste ${this.mode.toUpperCase()} content here...`),
       EditorView.editorAttributes.of({ 'aria-label': `${this.mode.toUpperCase()} document content editor` }),
       this.mode === 'json' ? json() : yaml(),
       propertyAnnotationsPlugin,
