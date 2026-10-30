@@ -61,3 +61,7 @@
 ## 2026-06-18 - Zero-Allocation Quote-Bounded AST Key Pre-Checking & Direct Child Node Access
 **Learning:** Checking `maxKeyLength` (accounting for quote characters `"` / `'`) against target `segment.length` before slicing string content eliminates `getNodeText` string slicing and trimming allocations for non-matching key nodes during Lezer AST traversals. Furthermore, bypassing `schemaPositionRegistry` Map lookups inside `getKeyNodeFromProperty` in favor of direct child node inspection (`propertyNode.firstChild`) accelerates every AST property lookup.
 **Action:** Always pre-check quote-bounded string length before slicing key node content in AST search loops, and access direct child properties on Lezer nodes instead of performing registry Map lookups.
+
+## 2026-06-18 - Cached Active Line Boundary Range for CodeMirror AST Traversals
+**Learning:** Calling `state.doc.lineAt(node.from)` inside CodeMirror `tree.iterate` syntax tree traversals performs binary searches across document rope chunks in `Text`. When calculating line annotations (`computeAnnotations`), multiple container AST nodes often reside on the same line. Caching the active `Line` range (`currentLine`) and comparing `node.from >= currentLine.from && node.from <= currentLine.to` before invoking `lineAt` avoids redundant rope searches on every container node during scrolling and editing events.
+**Action:** Always cache active line range boundaries (`currentLine.from` / `currentLine.to`) when resolving line metadata inside high-frequency AST traversal loops.
