@@ -137,7 +137,7 @@ describe('validation logic', () => {
     expect(res3.length).toBeGreaterThan(0);
   });
 
-  it('rejects non-HTTP/HTTPS schema URLs and invalid URL strings safely', async () => {
+  it('rejects non-HTTP/HTTPS schema URLs, oversized URLs, and invalid URL strings safely', async () => {
     const fetchSpy = vi.fn();
     global.fetch = fetchSpy;
 
@@ -147,6 +147,7 @@ describe('validation logic', () => {
       'ftp://example.com/schema.json',
       'not a url',
       '',
+      `https://example.com/${'a'.repeat(2050)}.json`,
     ];
 
     for (const url of invalidUrls) {

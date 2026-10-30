@@ -26,7 +26,7 @@ const validatorPromiseCache = new Map<string, Promise<ValidateFunction | null>>(
  * local addresses, loopback endpoints, and private network IP ranges.
  */
 function isValidHttpUrl(urlString: string): boolean {
-  if (!urlString || typeof urlString !== 'string') return false;
+  if (!urlString || typeof urlString !== 'string' || urlString.length > 2048) return false;
   try {
     const parsed = new URL(urlString);
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
