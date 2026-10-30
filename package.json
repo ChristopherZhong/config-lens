@@ -37,7 +37,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
-    "@lezer/common": "^1.5.3",
+    "@lezer/common": "^1.5.5",
     "@playwright/test": "^1.63.0",
     "@semantic-release/exec": "^7.1.0",
     "@storybook/web-components": "^10.6.3",
