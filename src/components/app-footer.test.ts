@@ -21,7 +21,7 @@ describe('AppFooter component', () => {
     expect(statusDiv?.textContent?.trim()).toBe('Ready');
   });
 
-  it('renders footer links with open in new tab accessible context', () => {
+  it('renders footer links with open in new tab accessible context and visual external link icons', () => {
     const shadow = element.shadowRoot;
     expect(shadow).not.toBeNull();
 
@@ -32,6 +32,10 @@ describe('AppFooter component', () => {
       expect(link.getAttribute('rel')).toBe('noopener noreferrer');
       expect(link.getAttribute('aria-label')).toContain('opens in new tab');
       expect(link.getAttribute('title')).toContain('opens in new tab');
+
+      const icon = link.querySelector('svg.external-icon');
+      expect(icon).not.toBeNull();
+      expect(icon?.getAttribute('aria-hidden')).toBe('true');
     });
   });
 });
