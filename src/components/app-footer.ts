@@ -33,6 +33,9 @@ export class AppFooter extends LitElement {
       color: var(--text-muted, #888);
       text-decoration: none;
       transition: color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
     footer a:hover {
@@ -45,6 +48,13 @@ export class AppFooter extends LitElement {
       outline-offset: 2px;
     }
 
+    .external-icon {
+      width: 10px;
+      height: 10px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
     .footer-right {
       display: flex;
       align-items: center;
@@ -53,6 +63,12 @@ export class AppFooter extends LitElement {
   `;
 
   render() {
+    const externalIcon = html`
+      <svg class="external-icon" viewBox="0 0 12 12" aria-hidden="true">
+        <path d="M3.5 2C3.22386 2 3 2.22386 3 2.5C3 2.77614 3.22386 3 3.5 3H8.29289L2.14645 9.14645C1.95118 9.34171 1.95118 9.65829 2.14645 9.85355C2.34171 10.0488 2.65829 10.0488 2.85355 9.85355L9 3.70711V8.5C9 8.77614 9.22386 9 9.5 9C9.77614 9 10 8.77614 10 8.5V2.5C10 2.22386 9.77614 2 9.5 2H3.5Z"/>
+      </svg>
+    `;
+
     return html`
       <footer>
         <div role="status">${this.status}</div>
@@ -63,7 +79,7 @@ export class AppFooter extends LitElement {
             rel="noopener noreferrer"
             aria-label="Storybook component library (opens in new tab)"
             title="View Storybook component library (opens in new tab)"
-          >Storybook</a>
+          >Storybook ${externalIcon}</a>
           <span>•</span>
           <div>${this.encoding}</div>
           <span>•</span>
@@ -73,7 +89,7 @@ export class AppFooter extends LitElement {
             rel="noopener noreferrer"
             aria-label="Version v${this.version} (opens in new tab)"
             title="View release notes on GitHub (opens in new tab)"
-          >v${this.version}</a>
+          >v${this.version} ${externalIcon}</a>
         </div>
       </footer>
     `;
