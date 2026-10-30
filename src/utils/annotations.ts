@@ -48,6 +48,10 @@ export function computeAnnotations(
     : [{ from: 0, to: state.doc.length }];
 
   for (const { from, to } of ranges) {
+    // Optimization: Cache active line range to avoid redundant state.doc.lineAt(node.from) document rope
+    // binary searches when multiple container AST nodes reside on the same line.
+    let currentLine: { from: number; to: number } | null = null;
+
     tree.iterate({
       from,
       to,
@@ -89,11 +93,16 @@ export function computeAnnotations(
             child = child.nextSibling;
           }
 
-          const line = state.doc.lineAt(node.from);
+          if (!currentLine || node.from < currentLine.from || node.from > currentLine.to) {
+            currentLine = state.doc.lineAt(node.from);
+          }
           const label = count === 1 ? '1 item' : `${count} items`;
-          const list = lineAnnotationsMap.get(line.to) || [];
-          list.push(label);
-          lineAnnotationsMap.set(line.to, list);
+          const list = lineAnnotationsMap.get(currentLine.to);
+          if (list) {
+            list.push(label);
+          } else {
+            lineAnnotationsMap.set(currentLine.to, [label]);
+          }
         } else if (isObject) {
           let count = 0;
           let child = node.node.firstChild;
@@ -109,11 +118,16 @@ export function computeAnnotations(
           }
 
           if (count > 0) {
-            const line = state.doc.lineAt(node.from);
+            if (!currentLine || node.from < currentLine.from || node.from > currentLine.to) {
+              currentLine = state.doc.lineAt(node.from);
+            }
             const label = count === 1 ? '1 key' : `${count} keys`;
-            const list = lineAnnotationsMap.get(line.to) || [];
-            list.push(label);
-            lineAnnotationsMap.set(line.to, list);
+            const list = lineAnnotationsMap.get(currentLine.to);
+            if (list) {
+              list.push(label);
+            } else {
+              lineAnnotationsMap.set(currentLine.to, [label]);
+            }
           }
         }
       },
