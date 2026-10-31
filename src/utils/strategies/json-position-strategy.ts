@@ -5,6 +5,11 @@ import { schemaPositionRegistry } from '../schema-position-registry';
 function getNodeText(node: SyntaxNode, documentText: string): string {
   const raw = documentText.slice(node.from, node.to).trim();
   if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+    try {
+      if (raw.includes('\\')) {
+        return JSON.parse(raw);
+      }
+    } catch {}
     return raw.slice(1, -1);
   }
   return raw;
@@ -30,17 +35,32 @@ function isKeyNodeMatch(keyNode: SyntaxNode, segment: string, documentText: stri
   }
 
   if (maxKeyLength === segmentLength) {
-    if (isQuoted) {
-      // Optimization: Direct character code iteration avoids documentText.slice(...) string heap allocations
-      // during AST key node matching in schema position traversals for quoted property keys.
-      for (let i = 0; i < segmentLength; i++) {
-        if (documentText.charCodeAt(from + 1 + i) !== segment.charCodeAt(i)) {
-          return false;
-        }
+    // Optimization: Direct character code iteration avoids documentText.slice(...) string heap allocations
+    // during AST key node matching in schema position traversals for both quoted and unquoted property keys.
+    const offset = isQuoted ? from + 1 : from;
+    for (let i = 0; i < segmentLength; i++) {
+      if (documentText.charCodeAt(offset + i) !== segment.charCodeAt(i)) {
+        return false;
       }
-      return true;
     }
-    return documentText.slice(from, to).trim() === segment;
+    return true;
+  }
+
+  // When maxKeyLength > segmentLength:
+  // For quoted keys, a match is only possible if the key contains escape sequences (e.g. \", \\, \n)
+  // that decode to fewer characters. If no backslash exists, unescaped length is guaranteed
+  // to be maxKeyLength > segmentLength, so it can never match segment.
+  if (isQuoted) {
+    let hasEscape = false;
+    for (let i = from + 1; i < to - 1; i++) {
+      if (documentText.charCodeAt(i) === 92 /* backslash */) {
+        hasEscape = true;
+        break;
+      }
+    }
+    if (!hasEscape) {
+      return false;
+    }
   }
 
   return getNodeText(keyNode, documentText) === segment;
