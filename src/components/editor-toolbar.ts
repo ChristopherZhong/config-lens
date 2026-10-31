@@ -7,15 +7,21 @@ export class EditorToolbar extends LitElement {
   @property({ type: Boolean }) isEmpty = false;
   @property({ type: Boolean }) showCompareToggle = false;
   @property({ type: Boolean }) compareExpanded = false;
+  @state() private folded = false;
+  @state() private unfolded = false;
   @state() private copied = false;
   @state() private cleared = false;
   @state() private focusedIndex = 0;
 
+  private foldTimeout?: number;
+  private unfoldTimeout?: number;
   private copyTimeout?: number;
   private clearTimeout?: number;
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    if (this.foldTimeout) clearTimeout(this.foldTimeout);
+    if (this.unfoldTimeout) clearTimeout(this.unfoldTimeout);
     if (this.copyTimeout) {
       clearTimeout(this.copyTimeout);
     }
@@ -115,10 +121,12 @@ export class EditorToolbar extends LitElement {
       background: var(--bg-main, #121212);
     }
 
-    .btn-secondary.copied {
-      color: var(--success, #22c55e);
-      border-color: var(--success, #22c55e);
-      background: rgba(34, 197, 94, 0.1);
+    .btn-secondary.copied,
+    .btn-secondary.folded,
+    .btn-secondary.unfolded {
+      color: var(--accent, #007acc);
+      border-color: var(--accent, #007acc);
+      background: rgba(0, 122, 204, 0.1);
     }
 
     .btn-secondary.cleared {
@@ -142,10 +150,22 @@ export class EditorToolbar extends LitElement {
 
   private handleFoldAll() {
     this.dispatchEvent(new CustomEvent('fold-all', { bubbles: true, composed: true }));
+    this.folded = true;
+    this.unfolded = false;
+    if (this.foldTimeout) clearTimeout(this.foldTimeout);
+    this.foldTimeout = window.setTimeout(() => {
+      this.folded = false;
+    }, 2000);
   }
 
   private handleUnfoldAll() {
     this.dispatchEvent(new CustomEvent('unfold-all', { bubbles: true, composed: true }));
+    this.unfolded = true;
+    this.folded = false;
+    if (this.unfoldTimeout) clearTimeout(this.unfoldTimeout);
+    this.unfoldTimeout = window.setTimeout(() => {
+      this.unfolded = false;
+    }, 2000);
   }
 
   private handleCopy() {
@@ -215,28 +235,28 @@ export class EditorToolbar extends LitElement {
           <button
             id="btn-fold-all"
             type="button"
-            class="btn-secondary"
+            class="btn-secondary ${this.folded ? 'folded' : ''}"
             ?disabled="${this.isEmpty}"
             tabindex="${this.focusedIndex === 0 ? 0 : -1}"
             @focus="${() => { this.focusedIndex = 0; }}"
             @click="${this.handleFoldAll}"
-            aria-label="${this.isEmpty ? 'No code to fold' : 'Fold All'}"
-            title="${this.isEmpty ? 'No code to fold' : 'Fold all code blocks'}"
+            aria-label="${this.folded ? 'All code blocks folded' : this.isEmpty ? 'No code to fold' : 'Fold All'}"
+            title="${this.folded ? 'Folded!' : this.isEmpty ? 'No code to fold' : 'Fold all code blocks'}"
           >
-            <span aria-hidden="true">▾</span> Fold All
+            <span aria-hidden="true">${this.folded ? '✓' : '▾'}</span> ${this.folded ? 'Folded!' : 'Fold All'}
           </button>
           <button
             id="btn-unfold-all"
             type="button"
-            class="btn-secondary"
+            class="btn-secondary ${this.unfolded ? 'unfolded' : ''}"
             ?disabled="${this.isEmpty}"
             tabindex="${this.focusedIndex === 1 ? 0 : -1}"
             @focus="${() => { this.focusedIndex = 1; }}"
             @click="${this.handleUnfoldAll}"
-            aria-label="${this.isEmpty ? 'No code to expand' : 'Expand All'}"
-            title="${this.isEmpty ? 'No code to expand' : 'Expand all code blocks'}"
+            aria-label="${this.unfolded ? 'All code blocks expanded' : this.isEmpty ? 'No code to expand' : 'Expand All'}"
+            title="${this.unfolded ? 'Expanded!' : this.isEmpty ? 'No code to expand' : 'Expand all code blocks'}"
           >
-            <span aria-hidden="true">▸</span> Expand All
+            <span aria-hidden="true">${this.unfolded ? '✓' : '▸'}</span> ${this.unfolded ? 'Expanded!' : 'Expand All'}
           </button>
           <button
             id="btn-copy"
@@ -279,7 +299,7 @@ export class EditorToolbar extends LitElement {
             </button>
           ` : ''}
           <span class="sr-only" role="status" aria-live="polite">
-            ${this.copied ? 'Content copied to clipboard' : this.cleared ? 'Document content cleared' : ''}
+            ${this.folded ? 'All code blocks folded' : this.unfolded ? 'All code blocks expanded' : this.copied ? 'Content copied to clipboard' : this.cleared ? 'Document content cleared' : ''}
           </span>
         </div>
       </div>
