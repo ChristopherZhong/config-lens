@@ -47,3 +47,8 @@
 **Vulnerability:** External `$schema` URLs targeting IPv4 multicast (`224.0.0.0/4`) or reserved/broadcast (`240.0.0.0/4`) ranges in IPv4-mapped (`::ffff:`), NAT64 (`64:ff9b::`), or 6to4 (`2002:`) IPv6 transition address formats (e.g., `http://[::ffff:224.0.0.1]`, `http://[64:ff9b::e000:1]`, or `http://[2002:e000:1::]`) bypassed `isValidHttpUrl` SSRF filters.
 **Learning:** WHATWG URL parsers normalize IPv4 addresses in IPv6 bracket notation into 16-bit hex words (`224.0.0.1` -> `e000:1`, `240.0.0.1` -> `f000:1`). SSRF regex checks that only validate standard IPv4 dotted-decimal representations miss hex-encoded multicast (`e000`–`efff`) and reserved (`f000`–`ffff`) prefixes.
 **Prevention:** Include `e[0-9a-f]{3}` and `f[0-9a-f]{3}` hex block prefixes in IPv6 transition address matching routines in `isValidHttpUrl`.
+
+## 2026-11-01 - AS112, AMT, and Direct Delegation Subnet SSRF Bypass Fix
+**Vulnerability:** External `$schema` URLs targeting specialized non-host subnets (AS112-v4 `192.31.196.0/24`, AMT `192.52.193.0/24`, and Direct Delegation AS112 `192.175.48.0/24`) bypassed `isValidHttpUrl` SSRF filters in standard IPv4 notation and IPv6 transition formats (`::ffff:`, `64:ff9b::`, and `2002:` in hex `c01f`, `c034`, and `c0af`).
+**Learning:** Specialized IANA/RFC IPv4 subnets outside standard RFC 1918 ranges (such as RFC 7535 AS112, RFC 7450 AMT, and RFC 7534 Direct Delegation) are dedicated to infrastructure operations and should not be queried as remote schema endpoints.
+**Prevention:** Add regex checks for `192.31.196.x`, `192.52.193.x`, `192.175.48.x` and their corresponding IPv6 transition hex prefixes (`c01f`, `c034`, `c0af`) to `isValidHttpUrl`.

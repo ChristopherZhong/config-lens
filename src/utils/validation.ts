@@ -67,13 +67,16 @@ function isValidHttpUrl(urlString: string): boolean {
       /^198\.51\.100\./.test(cleanHost) ||
       /^203\.0\.113\./.test(cleanHost) ||
       /^192\.88\.99\./.test(cleanHost) ||
+      /^192\.31\.196\./.test(cleanHost) ||
+      /^192\.52\.193\./.test(cleanHost) ||
+      /^192\.175\.48\./.test(cleanHost) ||
       /^(22[4-9]|2[3-5][0-9])\./.test(cleanHost) ||
       cleanHost === '255.255.255.255' ||
       /^(0x[0-9a-f]+|\d+)$/i.test(cleanHost) ||
       /^(0x[0-9a-f]+\.){1,3}(0x[0-9a-f]+)$/i.test(cleanHost) ||
       // Security: Check for IPv4-mapped/compatible, NAT64, and 6to4 IPv6 representations in hex format normalized by URL constructor
       // (e.g. ::ffff:7f00:1, 64:ff9b::7f00:1, or 2002:7f00:1:: for 127.0.0.1, ::a00:1 or 2002:a00:1:: for 10.0.0.1, ::c0a8:101 for 192.168.1.1, ::ffff:e000:1 for multicast 224.0.0.1, or ::ffff:f000:1 for reserved 240.0.0.1)
-      /^(::(ffff:)?|64:ff9b::|2002:)([0-9a-f]{1,2}|7f[0-9a-f]{2}|a[0-9a-f]{2}|a9fe|c0a8|ac1[0-9a-f]|64[4-7][0-9a-f]|100|c61[23]|c000|c633|cb00|c058|e[0-9a-f]{3}|f[0-9a-f]{3}):/i.test(cleanHost)
+      /^(::(ffff:)?|64:ff9b::|2002:)([0-9a-f]{1,2}|7f[0-9a-f]{2}|a[0-9a-f]{2}|a9fe|c0a8|ac1[0-9a-f]|64[4-7][0-9a-f]|100|c61[23]|c000|c633|cb00|c058|c01f|c034|c0af|e[0-9a-f]{3}|f[0-9a-f]{3}):/i.test(cleanHost)
     ) {
       return false;
     }
