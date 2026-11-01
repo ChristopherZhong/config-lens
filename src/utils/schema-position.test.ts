@@ -153,5 +153,19 @@ a: 1
 
     const posYamlShort = findPositionForPath(yamlDoc, 'yaml', '/server/short');
     expect(yamlDoc.slice(posYamlShort.from, posYamlShort.to).trim()).toBe('123');
+
+    // Test unquoted key matching longer, matching, and shorter in YAML
+    const posYamlLonger = findPositionForPath(yamlDoc, 'yaml', '/server/longerPropertyName');
+    expect(yamlDoc.slice(posYamlLonger.from, posYamlLonger.to).trim()).toBe('val');
+  });
+
+  it('correctly matches quoted keys containing escape sequences in JSON and YAML', () => {
+    const jsonDoc = '{\n  "with\\"quote": 42,\n  "normal": 99\n}';
+    const posJson = findPositionForPath(jsonDoc, 'json', '/with"quote');
+    expect(jsonDoc.slice(posJson.from, posJson.to)).toBe('42');
+
+    const yamlDoc = 'with"quote: 42\n\'can\'\'t\': 99';
+    const posYamlEscaped = findPositionForPath(yamlDoc, 'yaml', "/can't");
+    expect(yamlDoc.slice(posYamlEscaped.from, posYamlEscaped.to).trim()).toBe('99');
   });
 });
