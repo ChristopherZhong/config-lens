@@ -44,28 +44,48 @@ describe('EditorToolbar component', () => {
     expect(statusLiveRegion).not.toBeNull();
   });
 
-  it('dispatches fold-all event when Fold All button is clicked', async () => {
+  it('dispatches fold-all event and shows Folded! feedback when Fold All button is clicked', async () => {
     let foldFired = false;
     element.addEventListener('fold-all', () => {
       foldFired = true;
     });
 
-    const foldBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('button[aria-label="Fold All"]');
+    const foldBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-fold-all');
+    expect(foldBtn).not.toBeNull();
+
     foldBtn?.click();
+    await element.updateComplete;
 
     expect(foldFired).toBe(true);
+    expect(foldBtn?.textContent).toContain('Folded!');
+    expect(foldBtn?.getAttribute('title')).toBe('Folded!');
+    expect(foldBtn?.getAttribute('aria-label')).toBe('All code blocks folded');
+    expect(foldBtn?.classList.contains('folded')).toBe(true);
+
+    const statusEl = element.shadowRoot?.querySelector('[role="status"]');
+    expect(statusEl?.textContent?.trim()).toBe('All code blocks folded');
   });
 
-  it('dispatches unfold-all event when Expand All button is clicked', async () => {
+  it('dispatches unfold-all event and shows Expanded! feedback when Expand All button is clicked', async () => {
     let unfoldFired = false;
     element.addEventListener('unfold-all', () => {
       unfoldFired = true;
     });
 
-    const unfoldBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('button[aria-label="Expand All"]');
+    const unfoldBtn = element.shadowRoot?.querySelector<HTMLButtonElement>('#btn-unfold-all');
+    expect(unfoldBtn).not.toBeNull();
+
     unfoldBtn?.click();
+    await element.updateComplete;
 
     expect(unfoldFired).toBe(true);
+    expect(unfoldBtn?.textContent).toContain('Expanded!');
+    expect(unfoldBtn?.getAttribute('title')).toBe('Expanded!');
+    expect(unfoldBtn?.getAttribute('aria-label')).toBe('All code blocks expanded');
+    expect(unfoldBtn?.classList.contains('unfolded')).toBe(true);
+
+    const statusEl = element.shadowRoot?.querySelector('[role="status"]');
+    expect(statusEl?.textContent?.trim()).toBe('All code blocks expanded');
   });
 
   it('dispatches clear-content event and shows Cleared! feedback when Clear button is clicked', async () => {
