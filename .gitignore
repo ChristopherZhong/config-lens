@@ -11,6 +11,7 @@ pnpm-lock.yaml
 node_modules
 dist
 dist-ssr
+.nx
 storybook-static
 *.local
 
@@ -38,3 +39,7 @@ final_compare.png
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/

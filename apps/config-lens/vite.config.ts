@@ -3,7 +3,10 @@ import { fileURLToPath, URL } from 'node:url';
 import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
-  base: '/config-lens/',
+  base: '/tools/config-lens/',
+  build: {
+    outDir: '../../dist/config-lens',
+  },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

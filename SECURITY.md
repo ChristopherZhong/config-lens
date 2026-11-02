@@ -27,7 +27,7 @@ We take the security of ConfigLens seriously. If you discover or suspect a secur
 
 Please report security vulnerabilities through **GitHub Private Vulnerability Reporting**:
 
-1. Navigate to the [ConfigLens GitHub Repository](https://github.com/ChristopherZhong/config-lens).
+1. Navigate to the [tools GitHub Repository](https://github.com/ChristopherZhong/tools).
 2. Click on the **Security** tab.
 3. Select **Vulnerabilities** under "Reporting".
 4. Click **Report a vulnerability** to open a private advisory form.
