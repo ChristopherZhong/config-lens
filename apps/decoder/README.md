@@ -34,7 +34,7 @@ DevEncoder is built and published with the tools monorepo's GitHub Pages deploym
   - 🧹 **Clear Canvas:** Instantly wipe text inputs for a clean start.
   - 🔄 **Swap Panels:** Promote the current output to the input panel and flip the mode (Encode/Decode) automatically for multi-pass conversions.
 - **Responsive & Accessible UI:** Full support for desktop, tablet, and mobile layouts.
-- **Light & Dark Mode:** Sleek theme toggler to suit your coding environment.
+- **System, Light & Dark Themes:** Choose an explicit theme or follow your system preference.
 
 ---
 
@@ -68,11 +68,12 @@ src/
 │   ├── algorithm-selector.ts   # UI controls for selecting algorithm and mode
 │   ├── decoder-app.ts          # Main application container and coordinator
 │   ├── text-panel.ts           # Interactive panel for input/output text areas
-│   └── theme-toggle.ts         # Handles system preference and dark/light switching
 ├── index.html                  # Main entry page
 ├── index.ts                    # Entry script bootstrapping the main element
 └── style.css                   # Global styling definitions and CSS variables
 ```
+
+Shared Lit components are maintained in `../../packages/`, including the reusable `@tools/theme-toggle` component.
 
 ---
 

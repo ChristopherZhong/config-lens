@@ -2,7 +2,6 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import './components/editor-component';
 import './components/diff-component';
-import './components/theme-toggle';
 import './components/version-notice-banner';
 import './components/editor-toolbar';
 import './components/app-header';

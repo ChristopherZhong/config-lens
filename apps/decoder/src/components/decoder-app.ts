@@ -1,7 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import '@tools/theme-toggle';
+import type { Theme } from '@tools/theme-toggle';
 import { algorithms } from '../algorithms/registry';
-import './theme-toggle';
 import './algorithm-selector';
 import './text-panel';
 
@@ -45,7 +46,14 @@ export class DecoderApp extends LitElement {
   @state() private outputText = '';
   @state() private selectedAlgorithm = DEFAULT_ALGORITHM;
   @state() private mode: 'encode' | 'decode' = DEFAULT_MODE;
+  @state() private theme: Theme = 'system';
   @state() private error = '';
+
+  private handleSystemThemeChange = () => {
+    if (this.theme === 'system') {
+      this.applyTheme();
+    }
+  };
 
   static styles = css`
     :host {
@@ -80,6 +88,23 @@ export class DecoderApp extends LitElement {
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 1.25rem;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .tools-link {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .tools-link:hover,
+    .tools-link:focus-visible {
+      color: var(--accent-color);
+      text-decoration: underline;
     }
     .brand {
       display: flex;
@@ -162,6 +187,31 @@ export class DecoderApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.loadState();
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') {
+      this.theme = savedTheme;
+    }
+    this.applyTheme();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', this.handleSystemThemeChange);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this.handleSystemThemeChange);
+  }
+
+  private applyTheme(): void {
+    const isDark =
+      this.theme === 'dark' ||
+      (this.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('light', !isDark);
+  }
+
+  private handleThemeChange(event: CustomEvent<{ theme: Theme }>): void {
+    this.theme = event.detail.theme;
+    localStorage.setItem('theme', this.theme);
+    this.applyTheme();
   }
 
   private loadState() {
@@ -277,7 +327,10 @@ export class DecoderApp extends LitElement {
               <p class="subtitle">Secure, fast, client-side decoding & encoding tool</p>
             </div>
           </div>
-          <theme-toggle></theme-toggle>
+          <div class="header-actions">
+            <theme-toggle .theme="${this.theme}" @theme-change="${this.handleThemeChange}"></theme-toggle>
+            <a class="tools-link" href="../">All tools</a>
+          </div>
         </header>
 
         <!-- Controls (Algorithm and Mode Selection) -->
