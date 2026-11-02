@@ -1,10 +1,11 @@
 # Developer Tools
 
-This repository is an Nx monorepo for browser-based developer tools. Applications live under `apps/*`; reusable libraries belong under `packages/*`. The root page lists available tools, and deployment publishes ConfigLens at `/tools/config-lens/` when this repository is named `tools` on GitHub Pages.
+This repository is an Nx monorepo for browser-based developer tools. Applications live under `apps/*`; reusable libraries belong under `packages/*`. The root page lists available tools, and GitHub Pages publishes each app under `/tools/<app>/` when this repository is named `tools`.
 
 ## Workspace
 
 - [ConfigLens](apps/config-lens/README.md): JSON/YAML linting, formatting, schema validation, and comparison.
+- [DevEncoder](apps/decoder/README.md): Client-side Base64, hexadecimal, URL, and ROT13 encoding and decoding.
 
 ## Development
 
@@ -23,4 +24,4 @@ npm test
 npm run build
 ```
 
-Run a specific Nx project target with `npx nx run config-lens:<target>`, for example `npx nx run config-lens:test:e2e`. `npm run build` creates the deployable site in `dist/`, with the tools catalog at the root and ConfigLens under `config-lens/`.
+Run a specific Nx project target with `npx nx run <project>:<target>`, for example `npx nx run decoder:test`. `npm run build` creates the deployable site in `dist/`, with the tools catalog at the root, ConfigLens under `config-lens/`, and DevEncoder under `decoder/`.
