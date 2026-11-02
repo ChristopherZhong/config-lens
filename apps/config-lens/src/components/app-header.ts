@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import './theme-toggle';
+import '@tools/theme-toggle';
 
 @customElement('app-header')
 export class AppHeader extends LitElement {
@@ -55,6 +55,18 @@ export class AppHeader extends LitElement {
       height: 24px;
       border-radius: 6px;
       object-fit: contain;
+    }
+
+    .tools-link {
+      color: var(--text-muted, #888);
+      font-size: 12px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .tools-link:hover {
+      color: var(--text-main, #ccc);
+      text-decoration: underline;
     }
 
     .header-right {
@@ -205,6 +217,7 @@ export class AppHeader extends LitElement {
             <img src="${this.logoSrc}" alt="" aria-hidden="true" class="logo-icon" />
             <span>ConfigLens</span>
           </div>
+          <a class="tools-link" href="../">All tools</a>
         </div>
         <div class="header-right">
           ${this.formatFeedback ? html`

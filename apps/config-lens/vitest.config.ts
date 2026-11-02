@@ -10,6 +10,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    server: {
+      deps: {
+        inline: ['@tools/theme-toggle'],
+      },
+    },
     setupFiles: ['./tests/setup.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**'],
   },

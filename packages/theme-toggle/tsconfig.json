@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "useDefineForClassFields": false
+  },
+  "include": ["src/**/*.ts"]
+}

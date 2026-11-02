@@ -1,9 +1,18 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
 
-@customElement('theme-toggle')
+export type Theme = 'light' | 'dark' | 'system';
+
 export class ThemeToggle extends LitElement {
-  @property({ type: String }) theme: 'light' | 'dark' | 'system' = 'system';
+  static properties = {
+    theme: { type: String },
+  };
+
+  declare theme: Theme;
+
+  constructor() {
+    super();
+    this.theme = 'system';
+  }
 
   static styles = css`
     :host {
@@ -29,17 +38,17 @@ export class ThemeToggle extends LitElement {
       width: calc((100% - 4px) / 3);
       background: var(--bg-card, #252526);
       border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
       border: 1px solid var(--border, #333);
       transition: transform 0.2s ease;
       z-index: 0;
     }
 
-    .theme-toggle[data-theme="light"] .theme-slider {
+    .theme-toggle[data-theme='light'] .theme-slider {
       transform: translateX(100%);
     }
 
-    .theme-toggle[data-theme="dark"] .theme-slider {
+    .theme-toggle[data-theme='dark'] .theme-slider {
       transform: translateX(200%);
     }
 
@@ -90,31 +99,33 @@ export class ThemeToggle extends LitElement {
     }
   `;
 
-  private selectTheme(newTheme: 'light' | 'dark' | 'system') {
-    this.dispatchEvent(new CustomEvent('theme-change', {
-      detail: { theme: newTheme },
-      bubbles: true,
-      composed: true
-    }));
+  private selectTheme(newTheme: Theme): void {
+    this.dispatchEvent(
+      new CustomEvent<{ theme: Theme }>('theme-change', {
+        detail: { theme: newTheme },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
-  private handleKeyDown(e: KeyboardEvent) {
-    const themes: ('system' | 'light' | 'dark')[] = ['system', 'light', 'dark'];
+  private handleKeyDown(event: KeyboardEvent): void {
+    const themes: Theme[] = ['system', 'light', 'dark'];
     const currentIndex = themes.indexOf(this.theme);
     let newIndex = -1;
 
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       newIndex = (currentIndex + 1) % themes.length;
-    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
       newIndex = (currentIndex - 1 + themes.length) % themes.length;
-    } else if (e.key === 'Home') {
+    } else if (event.key === 'Home') {
       newIndex = 0;
-    } else if (e.key === 'End') {
+    } else if (event.key === 'End') {
       newIndex = themes.length - 1;
     }
 
     if (newIndex !== -1) {
-      e.preventDefault();
+      event.preventDefault();
       const targetTheme = themes[newIndex];
       this.selectTheme(targetTheme);
       this.updateComplete.then(() => {
@@ -171,11 +182,19 @@ export class ThemeToggle extends LitElement {
           🌙
         </button>
         <span class="sr-only" role="status" aria-live="polite">
-          ${this.theme === 'system' ? 'System theme selected' : this.theme === 'light' ? 'Light theme selected' : 'Dark theme selected'}
+          ${this.theme === 'system'
+            ? 'System theme selected'
+            : this.theme === 'light'
+              ? 'Light theme selected'
+              : 'Dark theme selected'}
         </span>
       </div>
     `;
   }
+}
+
+if (!customElements.get('theme-toggle')) {
+  customElements.define('theme-toggle', ThemeToggle);
 }
 
 declare global {

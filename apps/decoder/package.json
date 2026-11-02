@@ -15,6 +15,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@tools/theme-toggle": "*",
     "lit": "^3.3.3"
   },
   "devDependencies": {

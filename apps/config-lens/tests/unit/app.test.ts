@@ -32,6 +32,8 @@ describe('ConfigLensApp component', () => {
     expect(header).not.toBeNull();
     const logo = headerShadow?.querySelector('.logo');
     expect(logo).not.toBeNull();
+    const toolsLink = headerShadow?.querySelector<HTMLAnchorElement>('.tools-link');
+    expect(toolsLink?.getAttribute('href')).toBe('../');
     const controls = headerShadow?.querySelector('.controls');
     expect(controls).not.toBeNull();
   });
