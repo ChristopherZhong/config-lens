@@ -1,6 +1,6 @@
 # AI Agent Guidelines & Coding Standards
 
-This document establishes development rules and technical guidelines for AI agents working on the `ConfigLens` codebase.
+This document establishes development rules and technical guidelines for AI agents working on this Nx monorepo. Applications live under `apps/*`; reusable libraries belong under `packages/*`.
 
 ---
 
@@ -29,21 +29,13 @@ This document establishes development rules and technical guidelines for AI agen
 ## 📂 Project Architecture Quick Reference
 
 ```
-config-lens/
-├── .github/
-│   └── workflows/deploy.yml   # GitHub Pages automated deployment
-├── src/
-│   ├── components/
-│   │   ├── editor-component.ts # Single code editor with real-time diagnostics
-│   │   └── diff-component.ts   # Side-by-side diff view with MergeView
-│   ├── utils/
-│   │   └── validation.ts       # Syntax parsing, AJV Schema validation & caching
-│   └── main.ts                 # Main config-lens-app Lit shell component
-├── tests/                      # Vitest unit tests & Playwright E2E tests
-├── index.html                  # Main entry point & CSS custom properties
-├── AGENTS.md                   # AI Agent guidance (this file)
-├── PLAN.md                     # Roadmap and implementation progress
-└── README.md                   # Canonical repository documentation & metadata
+├── .github/workflows/          # Repository CI and GitHub Pages deployment
+├── apps/
+│   └── config-lens/             # ConfigLens application and Nx project targets
+├── packages/                    # Shared libraries for future tools
+├── index.html                   # Public tools directory
+├── nx.json
+└── package.json                 # Nx workspace and npm workspaces
 ```
 
 ---

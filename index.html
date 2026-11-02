@@ -1,59 +1,172 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="alternate icon" href="./favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-    <link rel="manifest" href="./site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ConfigLens - JSON/YAML Tools</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#eef1e8" />
+    <title>Tools | Christopher Zhong</title>
     <style>
       :root {
-        --bg-main: #f9fafb;
-        --bg-sidebar: #f3f4f6;
-        --bg-card: #ffffff;
-        --border: #e5e7eb;
-        --text-muted: #6b7280;
-        --text-main: #111827;
-        --accent: #3b82f6;
-        --accent-hover: #2563eb;
-        --error: #ef4444;
-        --success: #22c55e;
+        color-scheme: light;
+        font-family: "Trebuchet MS", sans-serif;
+        background: #eef1e8;
+        color: #202a24;
       }
 
-      :root[data-theme='dark'] {
-        --bg-main: #0a0a0a;
-        --bg-sidebar: #111111;
-        --bg-card: #161616;
-        --border: #262626;
-        --text-muted: #a1a1aa;
-        --text-main: #e4e4e7;
+      * {
+        box-sizing: border-box;
       }
+
       body {
+        min-height: 100vh;
         margin: 0;
-        background: var(--bg-main);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
-        height: 100vh;
-        overflow: hidden;
+        padding: 48px 24px;
+        background-image: linear-gradient(135deg, transparent 70%, #dce5d8 70%);
       }
-      config-lens-app {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        width: 100%;
-        overflow: hidden;
+
+      main {
+        width: min(100%, 920px);
+        margin: 0 auto;
+      }
+
+      header {
+        padding: 32px 0 64px;
+        border-bottom: 1px solid #bbc6b8;
+      }
+
+      .eyebrow,
+      .number,
+      .category {
+        font-family: "Courier New", monospace;
+        font-size: 0.78rem;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        color: #b74934;
+      }
+
+      h1 {
+        max-width: 700px;
+        margin: 24px 0 12px;
+        font-family: Georgia, serif;
+        font-size: 4rem;
+        font-weight: 400;
+        line-height: 0.98;
+      }
+
+      header p {
+        max-width: 460px;
+        margin: 0;
+        color: #58635a;
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+
+      section {
+        padding-top: 24px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-family: "Courier New", monospace;
+        font-size: 0.78rem;
+        font-weight: 400;
+        text-transform: uppercase;
+      }
+
+      .tool {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        align-items: center;
+        gap: 20px;
+        padding: 24px 0;
+        border-top: 1px solid #bbc6b8;
+      }
+
+      .number {
+        color: #b74934;
+      }
+
+      .tool h3 {
+        margin: 0 0 6px;
+        font-family: Georgia, serif;
+        font-size: 1.65rem;
+        font-weight: 400;
+      }
+
+      .tool p {
+        margin: 0;
+        color: #58635a;
+        line-height: 1.5;
+      }
+
+      .category {
+        display: block;
+        margin-top: 10px;
+        color: #69756a;
+      }
+
+      .tool a {
+        padding: 12px 16px;
+        border: 1px solid #202a24;
+        color: #202a24;
+        font-size: 0.9rem;
+        text-decoration: none;
+      }
+
+      .tool a:hover,
+      .tool a:focus-visible {
+        background: #202a24;
+        color: #fff;
+      }
+
+      @media (max-width: 560px) {
+        body {
+          padding: 24px 20px;
+        }
+
+        header {
+          padding: 28px 0 40px;
+        }
+
+        h1 {
+          font-size: 3rem;
+        }
+
+        .tool {
+          grid-template-columns: 32px 1fr;
+          gap: 12px;
+        }
+
+        .tool a {
+          grid-column: 2;
+          justify-self: start;
+          margin-top: 4px;
+        }
       }
     </style>
   </head>
   <body>
-    <config-lens-app></config-lens-app>
-    <script type="module" src="/src/main.ts"></script>
+    <main>
+      <header>
+        <span class="eyebrow">A collection of small utilities</span>
+        <h1>Tools for the work.</h1>
+        <p>Focused tools for everyday development, gathered in one place.</p>
+      </header>
+      <section aria-labelledby="available-tools">
+        <h2 id="available-tools">Available tools</h2>
+        <article class="tool">
+          <span class="number">01</span>
+          <div>
+            <h3>ConfigLens</h3>
+            <p>Inspect, format, validate, and compare JSON and YAML configurations.</p>
+            <span class="category">Configuration</span>
+          </div>
+          <a href="./config-lens/">Open tool <span aria-hidden="true">&rarr;</span></a>
+        </article>
+      </section>
+    </main>
   </body>
 </html>

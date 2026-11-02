@@ -14,13 +14,13 @@ export const DEFAULT_SAMPLE_OBJECT = {
     'validator',
     'schema',
   ],
-  homepage: 'https://christopherzhong.github.io/config-lens',
+  homepage: 'https://christopherzhong.github.io/tools/config-lens',
   bugs: {
-    url: 'https://github.com/ChristopherZhong/config-lens/issues',
+    url: 'https://github.com/ChristopherZhong/tools/issues',
   },
   repository: {
     type: 'git',
-    url: 'git+https://github.com/ChristopherZhong/config-lens.git',
+    url: 'git+https://github.com/ChristopherZhong/tools.git',
   },
   license: 'Apache-2.0',
   author: 'Christopher Zhong',

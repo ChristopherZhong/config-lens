@@ -54,7 +54,7 @@ describe('ConfigLensApp component', () => {
     expect(versionLink?.textContent?.trim()).toMatch(/^v\d+\.\d+\.\d+/);
     expect(versionLink?.getAttribute('target')).toBe('_blank');
     expect(versionLink?.getAttribute('rel')).toBe('noopener noreferrer');
-    expect(versionLink?.getAttribute('href')).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/config-lens\/releases\/tag\/v/);
+    expect(versionLink?.getAttribute('href')).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/tools\/releases\/tag\/v/);
   });
 
   it('renders version update notice banner when new version is available', async () => {

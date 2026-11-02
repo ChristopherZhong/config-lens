@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'semantic-release';
+import { env } from 'node:process';
 
-const isDraft = process.env.IS_DRAFT === 'true';
+const isDraft = env.IS_DRAFT === 'true';
 
 const config: GlobalConfig = {
   branches: ['main'],
@@ -24,7 +25,7 @@ const config: GlobalConfig = {
     [
       '@semantic-release/exec',
       {
-        prepareCmd: 'npm pkg set version=${nextRelease.version} && echo "should_deploy=true" >> $GITHUB_OUTPUT',
+        prepareCmd: 'npm pkg set version=${nextRelease.version} --workspace=config-lens && echo "should_deploy=true" >> $GITHUB_OUTPUT',
       },
     ],
     [
@@ -34,6 +35,8 @@ const config: GlobalConfig = {
       },
     ],
   ],
+  repositoryUrl: 'https://github.com/ChristopherZhong/tools.git',
+  tagFormat: 'v${version}',
 };
 
 export default config;

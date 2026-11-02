@@ -88,7 +88,7 @@ describe('version-check utility', () => {
       expect(result.newVersionAvailable).toBe(false);
       expect(result.latestVersion).toBeNull();
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.github.com/repos/ChristopherZhong/config-lens/releases/latest',
+        'https://api.github.com/repos/ChristopherZhong/tools/releases/latest',
         expect.objectContaining({
           headers: { Accept: 'application/vnd.github.v3+json' },
           signal: expect.any(AbortSignal),
