@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import '@tools/breadcrumb';
 import '@tools/theme-toggle';
 
 @customElement('app-header')
@@ -37,17 +38,8 @@ export class AppHeader extends LitElement {
       display: flex;
       align-items: center;
       justify-content: flex-start;
+      gap: 12px;
       min-width: 0;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 18px;
-      letter-spacing: -0.02em;
-      flex-shrink: 0;
     }
 
     .logo-icon {
@@ -55,18 +47,6 @@ export class AppHeader extends LitElement {
       height: 24px;
       border-radius: 6px;
       object-fit: contain;
-    }
-
-    .tools-link {
-      color: var(--text-muted, #888);
-      font-size: 12px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .tools-link:hover {
-      color: var(--text-main, #ccc);
-      text-decoration: underline;
     }
 
     .header-right {
@@ -213,11 +193,13 @@ export class AppHeader extends LitElement {
     return html`
       <header>
         <div class="header-left">
-          <div class="logo">
-            <img src="${this.logoSrc}" alt="" aria-hidden="true" class="logo-icon" />
-            <span>ConfigLens</span>
-          </div>
-          <a class="tools-link" href="../">All tools</a>
+          <img src="${this.logoSrc}" alt="" aria-hidden="true" class="logo-icon" />
+          <breadcrumb-trail
+            .items=${[
+              { label: 'tools', href: '../' },
+              { label: 'ConfigLens', current: true },
+            ]}
+          ></breadcrumb-trail>
         </div>
         <div class="header-right">
           ${this.formatFeedback ? html`

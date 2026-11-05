@@ -75,5 +75,6 @@ This project provides a modern, fast, static web-based linter, schema validator,
 ## 🔮 Future Enhancements Roadmap
 
 - [ ] Export diff output as patch/unified diff format.
+- [ ] Revisit extracting a reusable logo component when another app needs the same pattern.
 - [ ] Support custom user-uploaded JSON/YAML schema files.
 - [ ] Add CSV and TOML conversion/linting support.
