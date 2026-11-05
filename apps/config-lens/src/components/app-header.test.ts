@@ -12,14 +12,24 @@ describe('AppHeader component', () => {
     await element.updateComplete;
   });
 
-  it('renders logo icon marked decorative with empty alt and aria-hidden', () => {
+  it('renders breadcrumb navigation for tools and ConfigLens', async () => {
     const shadow = element.shadowRoot;
     expect(shadow).not.toBeNull();
 
-    const logoImg = shadow?.querySelector('.logo img');
-    expect(logoImg).not.toBeNull();
-    expect(logoImg?.getAttribute('aria-hidden')).toBe('true');
-    expect(logoImg?.getAttribute('alt')).toBe('');
+    const breadcrumb = shadow?.querySelector('breadcrumb-trail');
+    expect(breadcrumb).not.toBeNull();
+    await breadcrumb?.updateComplete;
+
+    const breadcrumbShadow = breadcrumb?.shadowRoot;
+    expect(breadcrumbShadow?.querySelector('a[href="../"]')?.textContent?.trim()).toBe('tools');
+    expect(breadcrumbShadow?.querySelector('[aria-current="page"]')?.textContent?.trim()).toBe('ConfigLens');
+  });
+
+  it('renders the logo as a decorative icon', () => {
+    const logo = element.shadowRoot?.querySelector<HTMLImageElement>('.logo-icon');
+    expect(logo?.getAttribute('src')).toBe('./favicon.svg');
+    expect(logo?.getAttribute('alt')).toBe('');
+    expect(logo?.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('renders format button with type="button", aria-keyshortcuts, and handles format-click event', async () => {

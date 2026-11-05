@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "breadcrumb",
+  "projectType": "library",
+  "sourceRoot": "packages/breadcrumb/src",
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run test --workspace=@tools/breadcrumb"
+      }
+    }
+  }
+}

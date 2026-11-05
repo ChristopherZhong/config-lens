@@ -6,6 +6,8 @@ This document establishes development rules and technical guidelines for AI agen
 
 ## 🎯 Core Principles
 
+**CLI-First Workflow**: Use the relevant CLI first for repository changes. In this Nx monorepo, use Nx for workspace and project operations, and npm for package and dependency management. Edit files directly only when no suitable CLI supports the requested change.
+
 1. **Strict TypeScript Typing**: All code must be strictly typed (`noImplicitAny`, strict null checks). Do not use `any` unless absolutely necessary (e.g. dynamic JSON parser output) and properly narrowed.
 2. **Web Components with Lit**: Build UI elements using [Lit](https://lit.dev/). Do not introduce heavy frontend frameworks like React, Vue, or Angular.
 3. **Vanilla CSS & Design Tokens**: Do not use CSS frameworks (Tailwind, Bootstrap, etc.). Use vanilla CSS with custom properties (`var(--bg-main)`, `var(--text-main)`, `var(--border)`) defined in `index.html` for theming.
