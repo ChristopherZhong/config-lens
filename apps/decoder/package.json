@@ -20,8 +20,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@storybook/web-components": "^10.6.5",
-    "@storybook/web-components-vite": "^10.6.5",
+    "@storybook/web-components": "^10.6.6",
+    "@storybook/web-components-vite": "^10.6.6",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
     "@typescript/native": "npm:typescript@^7.0.2",
@@ -30,12 +30,12 @@
     "happy-dom": "^21.0.4",
     "jiti": "^2.7.0",
     "prettier": "^3.9.10",
-    "storybook": "^10.6.5",
+    "storybook": "^10.6.6",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5",
     "vitest": "^5.1.0",
-    "eslint-plugin-storybook": "10.6.5",
-    "@storybook/addon-docs": "^10.6.5"
+    "eslint-plugin-storybook": "10.6.6",
+    "@storybook/addon-docs": "^10.6.6"
   }
 }
