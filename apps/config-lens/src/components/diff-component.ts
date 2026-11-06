@@ -24,9 +24,14 @@ export class DiffComponent extends LitElement {
 
   private mergeView?: MergeView;
   private cleanupScrollSync?: () => void;
+  private resizeTimeout?: ReturnType<typeof setTimeout>;
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = undefined;
+    }
     if (this.cleanupScrollSync) {
       this.cleanupScrollSync();
       this.cleanupScrollSync = undefined;
@@ -326,7 +331,9 @@ export class DiffComponent extends LitElement {
           gutter: this.compareExpanded
         });
       }
-      setTimeout(() => {
+      if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        this.resizeTimeout = undefined;
         window.dispatchEvent(new Event('resize'));
       }, 320);
     }
