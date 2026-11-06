@@ -8,18 +8,18 @@ test('has title', async ({ page }) => {
   await expect(page).toHaveTitle(/ConfigLens/);
 });
 
-test('switching tabs', async ({ page }) => {
-  const compareTab = page.locator('.tab', { hasText: 'Compare' });
-  await compareTab.click();
-  await expect(page.locator('diff-component')).toBeVisible();
+test('expanding and collapsing the compare panel', async ({ page }) => {
+  const compareToggle = page.getByRole('button', { name: 'Expand compare panel' });
+  const modifiedEditor = page.locator('diff-component .cm-merge-b .cm-content');
 
-  const lintTab = page.locator('.tab', { hasText: 'Lint' });
-  await lintTab.click();
-  await expect(page.locator('editor-component')).toBeVisible();
+  await expect(modifiedEditor).not.toBeVisible();
+  await compareToggle.click();
+  await expect(modifiedEditor).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Collapse compare panel' })).toHaveAttribute('aria-expanded', 'true');
 });
 
 test('editor visibility', async ({ page }) => {
-  const editor = page.locator('editor-component');
+  const editor = page.locator('diff-component .cm-merge-a .cm-content');
   await expect(editor).toBeVisible();
 });
 
@@ -30,9 +30,11 @@ test('formatting functionality', async ({ page }) => {
 });
 
 test('persistence', async ({ page }) => {
-  await page.evaluate(() => localStorage.setItem('config-lens-content-json', '{"persisted": true}'));
+  const persistedContent = '{"persisted": true}';
+  await page.evaluate((content) => localStorage.setItem('config-lens-content-json', content), persistedContent);
   await page.reload();
-  await expect(page.locator('editor-component')).toBeVisible();
+  await expect(page.locator('diff-component .cm-merge-a .cm-content')).toContainText('persisted');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('config-lens-content-json'))).toBe(persistedContent);
 });
 
 test('favicons and manifest link tags exist', async ({ page }) => {
@@ -57,23 +59,15 @@ test('editor scrolls when content exceeds screen height', async ({ page }) => {
 
   await page.reload();
 
-  const metrics = await page.evaluate(() => {
-    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
-    const cmScroller = editorComp?.shadowRoot?.querySelector('.cm-scroller');
-    const cmEditor = editorComp?.shadowRoot?.querySelector('.cm-editor');
-    const app = document.querySelector('config-lens-app');
-    return {
-      appHeight: app?.clientHeight,
-      editorCompHeight: editorComp?.clientHeight,
-      cmEditorHeight: cmEditor?.clientHeight,
-      scrollerHeight: cmScroller?.clientHeight,
-      scrollerScrollHeight: cmScroller?.scrollHeight
-    };
-  });
+  const scroller = page.locator('diff-component .cm-merge-a .cm-scroller');
+  await expect(scroller).toBeVisible();
 
-  console.log('metrics:', metrics);
+  const metrics = await scroller.evaluate((element) => ({
+    clientHeight: (element as HTMLElement).clientHeight,
+    scrollHeight: (element as HTMLElement).scrollHeight
+  }));
 
-  expect(metrics.scrollerScrollHeight).toBeGreaterThan(metrics.scrollerHeight || 0);
+  expect(metrics.scrollHeight).toBeGreaterThan(metrics.clientHeight);
 });
 
 test('diff component scrolls when content exceeds screen height', async ({ page }) => {
@@ -89,14 +83,12 @@ test('diff component scrolls when content exceeds screen height', async ({ page 
 
   await page.reload();
 
-  const compareTab = page.locator('.tab', { hasText: 'Compare' });
-  await compareTab.click();
+  await page.getByRole('button', { name: 'Expand compare panel' }).click();
 
-  const isScrollable = await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    const cmScroller = diffComp?.shadowRoot?.querySelector('.cm-scroller');
-    if (!cmScroller) return false;
-    return cmScroller.scrollHeight > cmScroller.clientHeight;
+  const scroller = page.locator('diff-component .cm-merge-a .cm-scroller');
+  const isScrollable = await scroller.evaluate((element) => {
+    const scrollElement = element as HTMLElement;
+    return scrollElement.scrollHeight > scrollElement.clientHeight;
   });
 
   expect(isScrollable).toBe(true);
@@ -115,49 +107,26 @@ test('diff component scroll is synchronized between side A and side B', async ({
 
   await page.reload();
 
-  const compareTab = page.locator('.tab', { hasText: 'Compare' });
-  await compareTab.click();
+  await page.getByRole('button', { name: 'Expand compare panel' }).click();
 
-  // Scroll side A
-  await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
-    if (scrollers && scrollers.length >= 2) {
-      scrollers[0].scrollTop = 300;
-      scrollers[0].dispatchEvent(new Event('scroll'));
-    }
+  const scrollerA = page.locator('diff-component .cm-merge-a .cm-scroller');
+  const scrollerB = page.locator('diff-component .cm-merge-b .cm-scroller');
+  await scrollerA.evaluate((element) => {
+    const scroller = element as HTMLElement;
+    scroller.scrollTop = 300;
+    scroller.dispatchEvent(new Event('scroll'));
   });
 
-  // Wait briefly for scroll sync event handler
-  await page.waitForTimeout(100);
+  await expect.poll(() => scrollerB.evaluate((element) => (element as HTMLElement).scrollTop)).toBeCloseTo(300, -1);
+  await page.waitForTimeout(60);
 
-  const scrollTopB = await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
-    return scrollers && scrollers.length >= 2 ? scrollers[1].scrollTop : 0;
+  await scrollerB.evaluate((element) => {
+    const scroller = element as HTMLElement;
+    scroller.scrollTop = 150;
+    scroller.dispatchEvent(new Event('scroll'));
   });
 
-  expect(scrollTopB).toBeCloseTo(300, -1);
-
-  // Scroll side B
-  await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
-    if (scrollers && scrollers.length >= 2) {
-      scrollers[1].scrollTop = 150;
-      scrollers[1].dispatchEvent(new Event('scroll'));
-    }
-  });
-
-  await page.waitForTimeout(100);
-
-  const scrollTopA = await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-scroller');
-    return scrollers && scrollers.length >= 2 ? scrollers[0].scrollTop : 0;
-  });
-
-  expect(scrollTopA).toBeCloseTo(150, -1);
+  await expect.poll(() => scrollerA.evaluate((element) => (element as HTMLElement).scrollTop)).toBeCloseTo(150, -1);
 });
 
 test('theme toggle', async ({ page }) => {
@@ -189,56 +158,18 @@ test('theme toggle', async ({ page }) => {
 });
 
 test('editing text in left view of compare window updates state and persists', async ({ page }) => {
-  const compareTab = page.locator('.tab', { hasText: 'Compare' });
-  await compareTab.click();
-
-  // Focus and type text into left editor (side A)
-  await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    const scrollers = diffComp?.shadowRoot?.querySelectorAll('.cm-content');
-    if (scrollers && scrollers.length >= 1) {
-      (scrollers[0] as HTMLElement).focus();
-    }
-  });
+  const originalEditor = page.locator('diff-component .cm-merge-a .cm-content');
 
   const editedText = '{"inserted": "left-side-test"}';
-  await page.evaluate((text) => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    // Access CodeMirror view directly or dispatch doc change
-    const mergeView = (diffComp as any)?.mergeView;
-    if (mergeView?.a) {
-      mergeView.a.dispatch({
-        changes: { from: 0, to: mergeView.a.state.doc.length, insert: text }
-      });
-    }
-  }, editedText);
+  await originalEditor.fill(editedText);
 
-  // Check localStorage was updated
   const stored = await page.evaluate(() => localStorage.getItem('config-lens-content-json'));
   expect(stored).toBe(editedText);
-
-  // Switch back to Lint tab and verify editor content matches
-  const lintTab = page.locator('.tab', { hasText: 'Lint' });
-  await lintTab.click();
-
-  const editorText = await page.evaluate(() => {
-    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
-    const editorView = (editorComp as any)?.view;
-    return editorView?.state.doc.toString();
-  });
-
-  expect(editorText).toBe(editedText);
+  await expect(originalEditor).toContainText('left-side-test');
 });
 
 test('property annotations visible in compare view', async ({ page }) => {
-  const compareTab = page.locator('.tab', { hasText: 'Compare' });
-  await compareTab.click();
-
-  const annotationCount = await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    const annotations = diffComp?.shadowRoot?.querySelectorAll('.cm-property-annotation');
-    return annotations ? annotations.length : 0;
-  });
+  const annotationCount = await page.locator('diff-component .cm-property-annotation').count();
 
   expect(annotationCount).toBeGreaterThan(0);
 });
@@ -255,28 +186,19 @@ test('fold all and expand all in lint editor', async ({ page }) => {
   await page.waitForTimeout(100);
 
   // Check if folded placeholders exist
-  const foldPlaceholdersCount = await page.evaluate(() => {
-    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
-    return editorComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
-  });
+  const foldPlaceholders = page.locator('diff-component .cm-foldPlaceholder');
 
-  expect(foldPlaceholdersCount).toBeGreaterThan(0);
+  await expect(foldPlaceholders).not.toHaveCount(0);
 
   // Click Expand All
   await expandBtn.click();
   await page.waitForTimeout(100);
 
-  const foldPlaceholdersCountAfterExpand = await page.evaluate(() => {
-    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
-    return editorComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
-  });
-
-  expect(foldPlaceholdersCountAfterExpand).toBe(0);
+  await expect(foldPlaceholders).toHaveCount(0);
 });
 
 test('fold all and expand all in compare view', async ({ page }) => {
-  const compareTab = page.locator('.tab', { hasText: 'Compare' });
-  await compareTab.click();
+  await page.getByRole('button', { name: 'Expand compare panel' }).click();
 
   const foldBtn = page.getByRole('button', { name: 'Fold All' });
   const expandBtn = page.getByRole('button', { name: 'Expand All' });
@@ -288,23 +210,15 @@ test('fold all and expand all in compare view', async ({ page }) => {
   await foldBtn.click();
   await page.waitForTimeout(100);
 
-  const foldPlaceholdersCount = await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    return diffComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
-  });
+  const foldPlaceholders = page.locator('diff-component .cm-foldPlaceholder');
 
-  expect(foldPlaceholdersCount).toBeGreaterThan(0);
+  await expect(foldPlaceholders).not.toHaveCount(0);
 
   // Click Expand All
   await expandBtn.click();
   await page.waitForTimeout(100);
 
-  const foldPlaceholdersCountAfterExpand = await page.evaluate(() => {
-    const diffComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('diff-component');
-    return diffComp?.shadowRoot?.querySelectorAll('.cm-foldPlaceholder').length || 0;
-  });
-
-  expect(foldPlaceholdersCountAfterExpand).toBe(0);
+  await expect(foldPlaceholders).toHaveCount(0);
 });
 
 test('schema validation highlights error at specific location', async ({ page }) => {
@@ -316,27 +230,16 @@ test('schema validation highlights error at specific location', async ({ page })
 
   await page.reload();
 
-  await page.waitForFunction(() => {
-    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
-    const lintGutterMarker = editorComp?.shadowRoot?.querySelector('.cm-gutter-lint .cm-lint-marker, .cm-lintRange-error');
-    return !!lintGutterMarker;
-  }, { timeout: 10000 });
-
-  const hasLintDiagnostics = await page.evaluate(() => {
-    const editorComp = document.querySelector('config-lens-app')?.shadowRoot?.querySelector('editor-component');
-    const lintMarkers = editorComp?.shadowRoot?.querySelectorAll('.cm-gutter-lint .cm-lint-marker, .cm-lintRange-error');
-    return lintMarkers ? lintMarkers.length : 0;
-  });
-
-  expect(hasLintDiagnostics).toBeGreaterThan(0);
+  const lintMarkers = page.locator('diff-component .cm-gutter-lint .cm-lint-marker, diff-component .cm-lintRange-error');
+  await expect(lintMarkers.first()).toBeVisible();
 });
 
 test('footer displays release version link', async ({ page }) => {
-  const versionLink = page.locator('config-lens-app').locator('footer a');
+  const versionLink = page.getByRole('link', { name: /Version v\d+\.\d+\.\d+/ });
   await expect(versionLink).toBeVisible();
   await expect(versionLink).toHaveText(/^v\d+\.\d+\.\d+/);
   await expect(versionLink).toHaveAttribute('target', '_blank');
   await expect(versionLink).toHaveAttribute('rel', 'noopener noreferrer');
   const href = await versionLink.getAttribute('href');
-  expect(href).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/config-lens\/releases\/tag\/v/);
+  expect(href).toMatch(/^https:\/\/github\.com\/ChristopherZhong\/tools\/releases\/tag\/v/);
 });
