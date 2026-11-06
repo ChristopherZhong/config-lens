@@ -14,11 +14,6 @@ describe('DecoderApp theme integration', () => {
     element.remove();
   });
 
-  it('provides a link back to the tools catalog', async () => {
-    await element.updateComplete;
-    expect(element.shadowRoot?.querySelector<HTMLAnchorElement>('.tools-link')?.getAttribute('href')).toBe('../');
-  });
-
   it('applies and persists a selected theme', async () => {
     await element.updateComplete;
     const darkButton = element.shadowRoot

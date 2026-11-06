@@ -20,6 +20,9 @@ export class Breadcrumb extends LitElement {
 
   static styles = css`
     :host {
+      --breadcrumb-trail-current-color: var(--text-primary, var(--text-main, #111827));
+      --breadcrumb-trail-focus-color: var(--accent-color, var(--accent, #2563eb));
+      --breadcrumb-trail-secondary-color: var(--text-secondary, var(--text-muted, #6b7280));
       display: inline-block;
       min-width: 0;
     }
@@ -43,7 +46,7 @@ export class Breadcrumb extends LitElement {
       align-items: center;
       gap: 8px;
       min-width: 0;
-      color: var(--text-muted, #888);
+      color: var(--breadcrumb-trail-secondary-color);
       font-size: 13px;
       white-space: nowrap;
     }
@@ -54,22 +57,22 @@ export class Breadcrumb extends LitElement {
     }
 
     a:hover {
-      color: var(--text-main, #ccc);
+      color: var(--breadcrumb-trail-current-color);
       text-decoration: underline;
     }
 
     [aria-current='page'] {
-      color: var(--text-main, #ccc);
+      color: var(--breadcrumb-trail-current-color);
       font-weight: 600;
     }
 
     .separator {
-      color: var(--text-muted, #888);
+      color: var(--breadcrumb-trail-secondary-color);
       user-select: none;
     }
 
     a:focus-visible {
-      outline: 2px solid var(--accent, #007acc);
+      outline: 2px solid var(--breadcrumb-trail-focus-color);
       outline-offset: 3px;
       border-radius: 2px;
     }

@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import '@tools/breadcrumb';
 import '@tools/theme-toggle';
 import type { Theme } from '@tools/theme-toggle';
 import { algorithms } from '../algorithms/registry';
@@ -94,18 +95,6 @@ export class DecoderApp extends LitElement {
       align-items: center;
       gap: 1rem;
     }
-    .tools-link {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      font-weight: 600;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .tools-link:hover,
-    .tools-link:focus-visible {
-      color: var(--accent-color);
-      text-decoration: underline;
-    }
     .brand {
       display: flex;
       align-items: center;
@@ -113,14 +102,6 @@ export class DecoderApp extends LitElement {
     }
     .logo-emoji {
       font-size: 2rem;
-    }
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin: 0;
-      background: linear-gradient(135deg, var(--accent-color) 0%, #3b82f6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
     p.subtitle {
       font-size: 0.875rem;
@@ -323,13 +304,17 @@ export class DecoderApp extends LitElement {
           <div class="brand">
             <span class="logo-emoji">⚡</span>
             <div>
-              <h1>DevEncoder</h1>
+              <breadcrumb-trail
+                .items=${[
+                  { label: 'tools', href: '../' },
+                  { label: 'DevEncoder', current: true },
+                ]}
+              ></breadcrumb-trail>
               <p class="subtitle">Secure, fast, client-side decoding & encoding tool</p>
             </div>
           </div>
           <div class="header-actions">
             <theme-toggle .theme="${this.theme}" @theme-change="${this.handleThemeChange}"></theme-toggle>
-            <a class="tools-link" href="../">All tools</a>
           </div>
         </header>
 
