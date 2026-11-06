@@ -6,6 +6,7 @@ This repository is an Nx monorepo for browser-based developer tools. Application
 
 - [ConfigLens](apps/config-lens/README.md): JSON/YAML linting, formatting, schema validation, and comparison.
 - [DevEncoder](apps/decoder/README.md): Client-side Base64, hexadecimal, URL, and ROT13 encoding and decoding.
+- [OmniCalc](apps/calculator/README.md): A responsive calculator with scientific functions and calculation history.
 
 ## Development
 
@@ -24,4 +25,4 @@ npm test
 npm run build
 ```
 
-Run a specific Nx project target with `npx nx run <project>:<target>`, for example `npx nx run decoder:test`. `npm run build` creates the deployable site in `dist/`, with the tools catalog at the root, ConfigLens under `config-lens/`, and DevEncoder under `decoder/`.
+Run a specific Nx project target with `npx nx run <project>:<target>`, for example `npx nx run decoder:test`. `npm run build` creates the deployable site in `dist/`, with the tools catalog at the root, ConfigLens under `config-lens/`, DevEncoder under `decoder/`, and OmniCalc under `calculator/`.
