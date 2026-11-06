@@ -13,7 +13,7 @@ export default defineConfig({
     globals: true,
     server: {
       deps: {
-        inline: ['@tools/theme-toggle'],
+        inline: ['@tools/breadcrumb', '@tools/theme-toggle'],
       },
     },
   },

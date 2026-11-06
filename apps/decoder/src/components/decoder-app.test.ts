@@ -21,6 +21,20 @@ describe('DecoderApp Integration', () => {
     window.history.replaceState(null, '', newUrl);
   });
 
+  it('should render breadcrumb navigation for tools and DevEncoder', async () => {
+    element = document.createElement('decoder-app') as DecoderApp;
+    document.body.appendChild(element);
+    await element.updateComplete;
+
+    const breadcrumb = element.shadowRoot?.querySelector('breadcrumb-trail');
+    expect(breadcrumb).not.toBeNull();
+    await breadcrumb?.updateComplete;
+
+    const breadcrumbShadow = breadcrumb?.shadowRoot;
+    expect(breadcrumbShadow?.querySelector('a[href="../"]')?.textContent?.trim()).toBe('tools');
+    expect(breadcrumbShadow?.querySelector('[aria-current="page"]')?.textContent?.trim()).toBe('DevEncoder');
+  });
+
   it('should successfully perform basic encoding of text', async () => {
     element = document.createElement('decoder-app') as DecoderApp;
     document.body.appendChild(element);
