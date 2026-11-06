@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import './diff-component';
 import type { DiffComponent } from './diff-component';
 
@@ -76,6 +76,24 @@ describe('DiffComponent', () => {
     await element.updateComplete;
 
     expect(element.compareExpanded).toBe(false);
+  });
+
+  it('cancels the pending resize event when disconnected', async () => {
+    vi.useFakeTimers();
+    const dispatchEvent = vi.spyOn(window, 'dispatchEvent');
+
+    try {
+      element.compareExpanded = true;
+      await element.updateComplete;
+      element.remove();
+
+      await vi.advanceTimersByTimeAsync(320);
+
+      expect(dispatchEvent).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'resize' }));
+    } finally {
+      dispatchEvent.mockRestore();
+      vi.useRealTimers();
+    }
   });
 
   it('scopes diff highlight CSS selectors so diff colors/highlights are transparent when compareExpanded is false', async () => {
