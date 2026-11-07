@@ -17,12 +17,6 @@
         "command": "npm run dev --workspace=decoder"
       }
     },
-    "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run lint --workspace=decoder"
-      }
-    },
     "preview": {
       "executor": "nx:run-commands",
       "options": {
@@ -33,18 +27,6 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "npm run storybook --workspace=decoder"
-      }
-    },
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run test --workspace=decoder"
-      }
-    },
-    "test:watch": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run test:watch --workspace=decoder"
       }
     }
   }

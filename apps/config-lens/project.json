@@ -35,22 +35,10 @@
         "command": "npm run storybook --workspace=config-lens"
       }
     },
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run test --workspace=config-lens"
-      }
-    },
     "test:e2e": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npm run test:e2e --workspace=config-lens"
-      }
-    },
-    "test:watch": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run test:watch --workspace=config-lens"
       }
     }
   }
