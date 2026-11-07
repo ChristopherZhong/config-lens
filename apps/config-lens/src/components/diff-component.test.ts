@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import './diff-component';
-import type { DiffComponent } from './diff-component';
+import { DiffComponent } from './diff-component';
 
 describe('DiffComponent', () => {
   let element: DiffComponent;
@@ -100,12 +99,7 @@ describe('DiffComponent', () => {
     element.compareExpanded = false;
     await element.updateComplete;
 
-    const shadow = element.shadowRoot;
-    const styleTags = shadow?.querySelectorAll('style');
-    let cssText = '';
-    styleTags?.forEach((style) => {
-      cssText += style.textContent || '';
-    });
+    const cssText = DiffComponent.styles.cssText;
 
     expect(cssText).toContain(':host([compareexpanded]) .cm-merge-a .cm-changedLine');
     expect(cssText).toContain(':host(:not([compareexpanded])) .cm-changedLine');
