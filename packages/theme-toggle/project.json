@@ -3,12 +3,5 @@
   "name": "theme-toggle",
   "projectType": "library",
   "sourceRoot": "packages/theme-toggle/src",
-  "targets": {
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run test --workspace=@tools/theme-toggle"
-      }
-    }
-  }
+  "targets": {}
 }

@@ -26,3 +26,5 @@ npm run build
 ```
 
 Run a specific Nx project target with `npx nx run <project>:<target>`, for example `npx nx run decoder:test`. `npm run build` creates the deployable site in `dist/`, with the tools catalog at the root, ConfigLens under `config-lens/`, DevEncoder under `decoder/`, and OmniCalc under `calculator/`.
+
+Nx infers `test` targets from each Vitest configuration and the decoder's `lint` target from its ESLint configuration. Use `npx nx show project <project>` to inspect the resolved targets. Custom targets such as production builds and end-to-end tests remain defined in each project's `project.json`.

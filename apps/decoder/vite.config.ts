@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -8,13 +7,4 @@ export default defineConfig({
     outDir: '../../../dist/decoder',
   },
   root: 'src',
-  test: {
-    environment: 'happy-dom',
-    globals: true,
-    server: {
-      deps: {
-        inline: ['@tools/breadcrumb', '@tools/theme-toggle'],
-      },
-    },
-  },
 });

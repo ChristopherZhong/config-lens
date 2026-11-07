@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=24.22.2"
+    "node": "^24.22.2 || ^26.0.0"
   },
   "workspaces": [
     "apps/*",
@@ -22,8 +22,21 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@commitlint/types": "^21.2.3",
+    "@nx/eslint": "24.0.5",
+    "@nx/vitest": "^24.0.5",
+    "@semantic-release/exec": "^7.1.0",
     "@types/node": "^26.6.6",
+    "conventional-changelog-conventionalcommits": "^9.3.1",
+    "eslint": "^10.14.0",
     "husky": "^9.1.7",
-    "nx": "^24.0.5"
+    "lint-staged": "^17.6.0",
+    "nx": "^24.0.5",
+    "prettier": "^3.9.10",
+    "semantic-release": "^25.0.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1"
   }
 }
