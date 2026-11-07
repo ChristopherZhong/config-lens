@@ -36,24 +36,16 @@
     "lit": "^3.3.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.4",
-    "@commitlint/config-conventional": "^21.2.4",
     "@lezer/common": "^1.5.5",
     "@playwright/test": "^1.65.0",
-    "@semantic-release/exec": "^7.1.0",
     "@storybook/web-components": "^10.6.6",
     "@storybook/web-components-vite": "^10.6.6",
     "@testing-library/dom": "^10.4.2",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^26.6.5",
     "@vitest/browser": "^5.1.0",
-    "conventional-changelog-conventionalcommits": "^9.3.1",
     "jsdom": "^31.0.0",
-    "lint-staged": "^17.6.0",
     "playwright": "^1.65.0",
-    "semantic-release": "^25.0.9",
     "storybook": "^10.6.6",
-    "typescript": "^6.0.3",
     "vite": "^8.3.6",
     "vitest": "^5.1.0"
   }
